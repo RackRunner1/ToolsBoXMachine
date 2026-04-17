@@ -5,8 +5,6 @@
 
 ---
 
-Un site web interactif regroupant des petits utilitaires pratiques au design moderne.
-
 ## 🚀 Fonctionnalités
 
 1. **Blur Image** : 
