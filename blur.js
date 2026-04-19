@@ -30,18 +30,25 @@ canvasContainer.addEventListener('wheel', (e) => {
 
     const delta = e.deltaY;
     const zoom = Math.exp(-delta * 0.005);
-    const newScale = currentTransform.scale * zoom;
+    let newScale = currentTransform.scale * zoom;
     
-    if (newScale < 0.1 || newScale > 50) return;
+    if (newScale > 50) return;
     
-    const rect = canvas.getBoundingClientRect();
-    const dx = e.clientX - rect.left;
-    const dy = e.clientY - rect.top;
+    if (newScale <= 1) {
+      newScale = 1;
+      currentTransform.x = 0;
+      currentTransform.y = 0;
+    } else {
+      const rect = canvas.getBoundingClientRect();
+      const dx = e.clientX - rect.left;
+      const dy = e.clientY - rect.top;
+      
+      const R = newScale / currentTransform.scale;
+      
+      currentTransform.x = currentTransform.x + dx - dx * R;
+      currentTransform.y = currentTransform.y + dy - dy * R;
+    }
     
-    const R = newScale / currentTransform.scale;
-    
-    currentTransform.x = currentTransform.x + dx - dx * R;
-    currentTransform.y = currentTransform.y + dy - dy * R;
     currentTransform.scale = newScale;
     
     canvas.style.transformOrigin = '0 0';
