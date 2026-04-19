@@ -18,6 +18,37 @@ const brushSizeContainer = document.getElementById('brush-size-container');
 let paintCanvas = document.createElement('canvas');
 let paintCtx = paintCanvas.getContext('2d');
 
+// Transform state for zooming
+let currentTransform = { x: 0, y: 0, scale: 1 };
+const canvasContainer = document.querySelector('.canvas-container');
+
+canvasContainer.addEventListener('wheel', (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault(); // Prevent page zoom
+    
+    if (!imageObjects) return;
+
+    const delta = e.deltaY;
+    const zoom = Math.exp(-delta * 0.005);
+    const newScale = currentTransform.scale * zoom;
+    
+    if (newScale < 0.1 || newScale > 50) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const dx = e.clientX - rect.left;
+    const dy = e.clientY - rect.top;
+    
+    const R = newScale / currentTransform.scale;
+    
+    currentTransform.x = currentTransform.x + dx - dx * R;
+    currentTransform.y = currentTransform.y + dy - dy * R;
+    currentTransform.scale = newScale;
+    
+    canvas.style.transformOrigin = '0 0';
+    canvas.style.transform = `translate(${currentTransform.x}px, ${currentTransform.y}px) scale(${currentTransform.scale})`;
+  }
+}, { passive: false });
+
 function updateCanvas() {
   if (!imageObjects) return;
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
@@ -66,6 +97,11 @@ upload.addEventListener('change', (e) => {
       const placeholder = document.getElementById('canvas-placeholder');
       if (placeholder) placeholder.style.display = 'none';
       canvas.style.display = 'block';
+
+      // Reset zoom transform
+      currentTransform = { x: 0, y: 0, scale: 1 };
+      canvas.style.transformOrigin = '0 0';
+      canvas.style.transform = `translate(0px, 0px) scale(1)`;
 
       renderBlurredOffscreen();
       updateCanvas();
