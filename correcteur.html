@@ -1,24 +1,27 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Correcteur Orthographique</title>
-    <link rel="icon" href="./.assets/logo/fav.png" />
-    <link rel="stylesheet" href="./style.css">
-  </head>
-  <body>
-    <a href="/" class="back-link">← Retour</a>
-    <h1>Correcteur Textuel</h1>
-    
-    <div class="tool-container">
-      <textarea id="text-input" placeholder="Entrez votre texte ici pour le faire corriger..."></textarea>
-      
-      <button class="btn" id="check-btn">Corriger</button>
-      
-      <div id="results"></div>
-    </div>
 
-    <script type="module" src="/correcteur.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Correcteur Orthographique (TBMX)</title>
+  <link rel="icon" href="./.assets/logo/fav.png" />
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <a href="/" class="back-link">← Retour</a>
+  <h1>Correcteur Textuel</h1>
+
+  <div class="tool-container">
+    <textarea id="text-input" placeholder="Entrez votre texte ici pour le faire corriger..."></textarea>
+
+    <button class="btn" id="check-btn">Corriger</button>
+
+    <div id="results"></div>
+  </div>
+
+  <script type="module" src="/correcteur.js"></script>
+</body>
+
 </html>
