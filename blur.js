@@ -62,6 +62,11 @@ upload.addEventListener('change', (e) => {
       
       imageObjects = img;
 
+      // Hide placeholder and show canvas
+      const placeholder = document.getElementById('canvas-placeholder');
+      if (placeholder) placeholder.style.display = 'none';
+      canvas.style.display = 'block';
+
       renderBlurredOffscreen();
       updateCanvas();
     };
