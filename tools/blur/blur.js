@@ -27,9 +27,34 @@ const canvasContainer = document.querySelector('.canvas-container');
 // Prevent context menu on right click
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
+function applyTransform() {
+  if (!imageObjects) return;
+  
+  const containerRect = canvasContainer.getBoundingClientRect();
+  const scaledWidth = canvas.width * currentTransform.scale;
+  const scaledHeight = canvas.height * currentTransform.scale;
+
+  // Constrain X
+  if (scaledWidth > containerRect.width) {
+    currentTransform.x = Math.min(0, Math.max(currentTransform.x, containerRect.width - scaledWidth));
+  } else {
+    currentTransform.x = (containerRect.width - scaledWidth) / 2;
+  }
+
+  // Constrain Y
+  if (scaledHeight > containerRect.height) {
+    currentTransform.y = Math.min(0, Math.max(currentTransform.y, containerRect.height - scaledHeight));
+  } else {
+    currentTransform.y = (containerRect.height - scaledHeight) / 2;
+  }
+
+  canvas.style.transformOrigin = '0 0';
+  canvas.style.transform = `translate(${currentTransform.x}px, ${currentTransform.y}px) scale(${currentTransform.scale})`;
+}
+
 canvasContainer.addEventListener('wheel', (e) => {
   if (e.ctrlKey || e.metaKey) {
-    e.preventDefault(); // Prevent page zoom
+    e.preventDefault();
     
     if (!imageObjects) return;
 
@@ -38,26 +63,19 @@ canvasContainer.addEventListener('wheel', (e) => {
     let newScale = currentTransform.scale * zoom;
     
     if (newScale > 50) return;
+    if (newScale < 1) newScale = 1;
     
-    if (newScale <= 1) {
-      newScale = 1;
-      currentTransform.x = 0;
-      currentTransform.y = 0;
-    } else {
-      const rect = canvas.getBoundingClientRect();
-      const dx = e.clientX - rect.left;
-      const dy = e.clientY - rect.top;
-      
-      const R = newScale / currentTransform.scale;
-      
-      currentTransform.x = currentTransform.x + dx - dx * R;
-      currentTransform.y = currentTransform.y + dy - dy * R;
-    }
+    const rect = canvas.getBoundingClientRect();
+    const dx = e.clientX - rect.left;
+    const dy = e.clientY - rect.top;
     
+    const R = newScale / currentTransform.scale;
+    
+    currentTransform.x = currentTransform.x + dx - dx * R;
+    currentTransform.y = currentTransform.y + dy - dy * R;
     currentTransform.scale = newScale;
     
-    canvas.style.transformOrigin = '0 0';
-    canvas.style.transform = `translate(${currentTransform.x}px, ${currentTransform.y}px) scale(${currentTransform.scale})`;
+    applyTransform();
   }
 }, { passive: false });
 
@@ -112,8 +130,7 @@ upload.addEventListener('change', (e) => {
 
       // Reset zoom transform
       currentTransform = { x: 0, y: 0, scale: 1 };
-      canvas.style.transformOrigin = '0 0';
-      canvas.style.transform = `translate(0px, 0px) scale(1)`;
+      applyTransform();
 
       renderBlurredOffscreen();
       updateCanvas();
@@ -161,7 +178,7 @@ canvas.addEventListener('mousemove', (e) => {
   if (isPanning) {
     currentTransform.x = e.clientX - startPan.x;
     currentTransform.y = e.clientY - startPan.y;
-    canvas.style.transform = `translate(${currentTransform.x}px, ${currentTransform.y}px) scale(${currentTransform.scale})`;
+    applyTransform();
     return;
   }
   if (isDrawing) {
