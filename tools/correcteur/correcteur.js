@@ -1,6 +1,21 @@
 const checkBtn = document.getElementById('check-btn');
 const textInput = document.getElementById('text-input');
 const resultsDiv = document.getElementById('results');
+const langRadios = document.querySelectorAll('input[name="langMode"]');
+
+// Load saved language
+const savedLang = localStorage.getItem('tbxm_corrector_lang');
+if (savedLang) {
+  const radio = document.querySelector(`input[name="langMode"][value="${savedLang}"]`);
+  if (radio) radio.checked = true;
+}
+
+// Save language on change
+langRadios.forEach(radio => {
+  radio.addEventListener('change', (e) => {
+    localStorage.setItem('tbxm_corrector_lang', e.target.value);
+  });
+});
 
 checkBtn.addEventListener('click', async () => {
   const text = textInput.value;
