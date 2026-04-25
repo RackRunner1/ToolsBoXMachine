@@ -39,3 +39,8 @@ npm install
 npm run dev
 ```
 5. Open the address indicated in your terminal (usually `http://localhost:5173`).
+
+## 🤝 Contributing
+
+Got an idea for a new tool? Contributions are highly encouraged! 
+Feel free to open an **Issue** to suggest your idea, or directly submit a **Pull Request** if you want to build it yourself.
