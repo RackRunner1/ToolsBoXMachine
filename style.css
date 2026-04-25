@@ -52,14 +52,6 @@ body {
   width: auto;
 }
 
-.nav-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  background: linear-gradient(to right, #60a5fa, #a78bfa);
-  -webkit-background-clip: text;
-  color: transparent;
-}
-
 .nav-links {
   display: flex;
   gap: 1.5rem;
@@ -313,7 +305,7 @@ textarea:focus {
   font-weight: 500;
 }
 
-.radio-card input[type="radio"]:checked + .radio-content {
+.radio-card input[type="radio"]:checked+.radio-content {
   background: rgba(59, 130, 246, 0.1);
   border-color: var(--primary-color);
   color: var(--primary-color);
