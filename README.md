@@ -5,37 +5,37 @@
 
 ---
 
-## 🚀 Fonctionnalités
+## 🚀 Features
 
-1. **Blur Image** : 
-   - Uploadez une image directement depuis votre appareil.
-   - Mode **Pinceau** pour flouter précisément des zones sélectionnées sur l'image.
-   - Mode **Image Complète** pour appliquer un filtre de flou sur la totalité de l'image.
-   - Contrôlez la taille du pinceau et l'intensité du flou en temps réel.
-   - Téléchargement du résultat final en haute qualité.
+1. **Blur Image**: 
+   - Upload an image directly from your device.
+   - **Brush** mode to precisely blur selected areas on the image.
+   - **Full Image** mode to apply a blur filter to the entire image.
+   - Control brush size and blur intensity in real-time.
+   - Download the final result in high quality.
 
-2. **Correcteur Orthographique** :
-   - Vérification instantanée d'un texte.
-   - Utilise l'API communautaire et gratuite `LanguageTool`.
-   - Suggestions interactives et cliquables pour appliquer rapidement les corrections recommandées directement dans le texte.
+2. **Spell Checker**:
+   - Instant text verification.
+   - Uses the free community `LanguageTool` API.
+   - Interactive and clickable suggestions to quickly apply recommended corrections directly into the text.
 
-## 🛠 Technologies utilisées
+## 🛠 Technologies used
 
-- **HTML5 / CSS3 Vanilla** avec une interface utilisateur de type "Glassmorphism" et des animations fluides.
+- **HTML5 / CSS3 Vanilla** with a "Glassmorphism" UI and smooth animations.
 - **Vanilla JavaScript** (ESModules)
-- Interface de floutage propulsée par l'API HTML5 **`<canvas>`**.
-- Environnement de développement et empaquetage ultra-rapide géré avec **[Vite](https://vitejs.dev/)**.
+- Blurring interface powered by the HTML5 **`<canvas>`** API.
+- Ultra-fast development environment and bundling managed with **[Vite](https://vitejs.dev/)**.
 
-## 📦 Installation et Lancement local
+## 📦 Installation and Local Launch
 
-1. Assurez-vous d'avoir [Node.js](https://nodejs.org/) installé sur votre machine.
-2. Ouvrez un terminal dans le dossier courant du projet.
-3. Installez les dépendances nécessaires :
+1. Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
+2. Open a terminal in the project's current folder.
+3. Install the necessary dependencies:
 ```bash
 npm install
 ```
-4. Lancez le serveur de développement local :
+4. Launch the local development server:
 ```bash
 npm run dev
 ```
-5. Ouvrez l'adresse indiquée dans votre terminal (habituellement `http://localhost:5173`).
+5. Open the address indicated in your terminal (usually `http://localhost:5173`).

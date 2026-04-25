@@ -158,7 +158,7 @@ function drawBlur(e) {
   const pos = getMousePos(e);
   const size = parseInt(brushSizeInput.value, 10);
   
-  // on dessine la portion floutée sur paintCanvas
+  // draw the blurred portion on paintCanvas
   paintCtx.save();
   paintCtx.beginPath();
   paintCtx.arc(pos.x, pos.y, size, 0, Math.PI * 2, false);
@@ -167,7 +167,7 @@ function drawBlur(e) {
   paintCtx.drawImage(offscreenCanvas, 0, 0);
   paintCtx.restore();
   
-  // on met à jour l'affichage
+  // update the display
   updateCanvas();
 }
 

@@ -6,12 +6,12 @@ checkBtn.addEventListener('click', async () => {
   const text = textInput.value;
   if (!text) return;
 
-  checkBtn.textContent = 'Correction en cours...';
+  checkBtn.textContent = 'Correcting...';
   resultsDiv.innerHTML = '';
 
   try {
     const params = new URLSearchParams();
-    params.append('language', 'fr');
+    params.append('language', 'en-US');
     params.append('text', text);
 
     const response = await fetch('https://api.languagetool.org/v2/check', {
@@ -27,7 +27,7 @@ checkBtn.addEventListener('click', async () => {
         errorItem.className = 'error-item';
         
         const errorMsg = document.createElement('p');
-        errorMsg.innerHTML = `<strong>Faute détectée :</strong> "${match.context.text.substring(match.context.offset, match.context.offset + match.context.length)}" - ${match.message}`;
+        errorMsg.innerHTML = `<strong>Error detected:</strong> "${match.context.text.substring(match.context.offset, match.context.offset + match.context.length)}" - ${match.message}`;
         errorMsg.style.marginBottom = '0.5rem';
         
         errorItem.appendChild(errorMsg);
@@ -45,12 +45,12 @@ checkBtn.addEventListener('click', async () => {
         resultsDiv.appendChild(errorItem);
       });
     } else {
-      resultsDiv.innerHTML = '<p style="color: #4ade80;">Aucune erreur détectée !</p>';
+      resultsDiv.innerHTML = '<p style="color: #4ade80;">No errors detected!</p>';
     }
   } catch (err) {
-    resultsDiv.innerHTML = '<p style="color: #ef4444;">Erreur lors de la vérification.</p>';
+    resultsDiv.innerHTML = '<p style="color: #ef4444;">Error during verification.</p>';
   } finally {
-    checkBtn.textContent = 'Corriger';
+    checkBtn.textContent = 'Correct';
   }
 });
 
@@ -59,9 +59,9 @@ function applyReplacement(match, newValue) {
   const start = match.offset;
   const end = match.offset + match.length;
   
-  // Remplacer dans le texte
+  // Replace in text
   textInput.value = currentText.substring(0, start) + newValue + currentText.substring(end);
   
-  // Relancer la correction pour mettre à jour les offsets
+  // Restart correction to update offsets
   checkBtn.click();
 }

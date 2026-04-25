@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flouter une image (TBXM)</title>
+  <title>Blur an Image (TBXM)</title>
   <link rel="icon" href="../../.assets/logo/fav.png" />
   <link rel="stylesheet" href="../../style.css">
 </head>
 
 <body>
-  <a href="/" class="back-link">← Retour</a>
-  <h1>Flouter une Image</h1>
+  <a href="/" class="back-link">← Back</a>
+  <h1>Blur an Image</h1>
 
   <div class="blur-tool-layout">
     <div class="blur-sidebar">
       <div class="sidebar-section">
-        <h3>1. Importer</h3>
+        <h3>1. Import</h3>
         <label class="custom-file-upload">
           <input type="file" id="image-upload" accept="image/png, image/jpeg, image/webp" />
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
@@ -25,12 +25,12 @@
             <polyline points="17 8 12 3 7 8"></polyline>
             <line x1="12" y1="3" x2="12" y2="15"></line>
           </svg>
-          <span>Choisir une image</span>
+          <span>Choose an image</span>
         </label>
       </div>
 
       <div class="sidebar-section">
-        <h3>2. Mode de flou</h3>
+        <h3>2. Blur Mode</h3>
         <div class="custom-radio-group mode-selector">
           <label class="radio-card">
             <input type="radio" name="blurMode" value="brush" checked>
@@ -42,7 +42,7 @@
                   d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z">
                 </path>
               </svg>
-              Pinceau
+              Brush
             </div>
           </label>
           <label class="radio-card">
@@ -61,10 +61,10 @@
       </div>
 
       <div class="sidebar-section">
-        <h3>3. Réglages</h3>
+        <h3>3. Settings</h3>
         <div class="slider-group" id="brush-size-container">
           <div class="slider-header">
-            <span>Taille du pinceau</span>
+            <span>Brush Size</span>
             <span class="val-badge"><span id="size-val">30</span>px</span>
           </div>
           <input type="range" id="brush-size" min="5" max="100" value="30">
@@ -72,7 +72,7 @@
 
         <div class="slider-group">
           <div class="slider-header">
-            <span>Intensité du flou</span>
+            <span>Blur Intensity</span>
             <span class="val-badge"><span id="blur-val">10</span>px</span>
           </div>
           <input type="range" id="blur-intensity" min="1" max="50" value="10">
@@ -87,7 +87,7 @@
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          Télécharger l'image
+          Download Image
         </button>
       </div>
     </div>
@@ -101,7 +101,7 @@
             <circle cx="9" cy="9" r="2"></circle>
             <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
           </svg>
-          <p>Importez une image pour commencer</p>
+          <p>Import an image to start</p>
         </div>
         <canvas id="blurry-canvas" style="display: none;"></canvas>
       </div>
