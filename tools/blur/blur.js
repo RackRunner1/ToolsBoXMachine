@@ -17,6 +17,33 @@ const brushSizeContainer = document.getElementById('brush-size-container');
 // A secondary canvas to keep track of painted strokes
 let paintCanvas = document.createElement('canvas');
 let paintCtx = paintCanvas.getContext('2d');
+let blurHistory = [];
+const maxHistory = 20;
+
+function saveState() {
+  if (blurHistory.length >= maxHistory) {
+    blurHistory.shift();
+  }
+  blurHistory.push(paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height));
+}
+
+function undo() {
+  if (blurHistory.length > 0) {
+    const previousState = blurHistory.pop();
+    paintCtx.putImageData(previousState, 0, 0);
+    updateCanvas();
+  } else {
+    paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+    updateCanvas();
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+    e.preventDefault();
+    undo();
+  }
+});
 
 // Transform state for zooming and panning
 let currentTransform = { x: 0, y: 0, scale: 1 };
@@ -129,6 +156,8 @@ upload.addEventListener('change', (e) => {
       paintCanvas.width = img.width;
       paintCanvas.height = img.height;
       
+      blurHistory = []; // Reset history for new image
+      
       imageObjects = img;
 
       // Hide placeholder and show canvas
@@ -178,6 +207,8 @@ canvas.addEventListener('mousedown', (e) => {
 
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
   if (mode !== 'brush') return;
+  
+  saveState(); // Save state before drawing begins
   
   isDrawing = true;
   drawBlur(e);
