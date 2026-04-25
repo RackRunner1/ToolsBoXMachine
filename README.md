@@ -40,6 +40,9 @@ npm run dev
 ```
 5. Open the address indicated in your terminal (usually `http://localhost:5173`).
 
+## You are not a developper ?
+No problem ! ToolsBoxMachine is a free to use tool, just use the [online version](https://tbxm.ddrayko.xyz).
+
 ## 🤝 Contributing
 
 Got an idea for a new tool? Contributions are highly encouraged! 
