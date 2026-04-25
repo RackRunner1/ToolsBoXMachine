@@ -62,8 +62,11 @@ canvasContainer.addEventListener('wheel', (e) => {
     const zoom = Math.exp(-delta * 0.005);
     let newScale = currentTransform.scale * zoom;
     
+    const containerRect = canvasContainer.getBoundingClientRect();
+    const fitScale = Math.min(containerRect.width / canvas.width, 1);
+    
     if (newScale > 50) return;
-    if (newScale < 1) newScale = 1;
+    if (newScale < fitScale) newScale = fitScale;
     
     const rect = canvas.getBoundingClientRect();
     const dx = e.clientX - rect.left;
@@ -128,8 +131,12 @@ upload.addEventListener('change', (e) => {
       if (placeholder) placeholder.style.display = 'none';
       canvas.style.display = 'block';
 
-      // Reset zoom transform
-      currentTransform = { x: 0, y: 0, scale: 1 };
+      // Fit image to container width initially
+      const containerRect = canvasContainer.getBoundingClientRect();
+      let fitScale = containerRect.width / img.width;
+      if (fitScale > 1) fitScale = 1; // Don't scale up by default
+
+      currentTransform = { x: 0, y: 0, scale: fitScale };
       applyTransform();
 
       renderBlurredOffscreen();
