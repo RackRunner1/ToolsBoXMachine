@@ -29,23 +29,27 @@ canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
 function applyTransform() {
   if (!imageObjects) return;
-  
-  const containerRect = canvasContainer.getBoundingClientRect();
-  const scaledWidth = canvas.width * currentTransform.scale;
-  const scaledHeight = canvas.height * currentTransform.scale;
 
-  // Constrain X
-  if (scaledWidth > containerRect.width) {
-    currentTransform.x = Math.min(0, Math.max(currentTransform.x, containerRect.width - scaledWidth));
+  // Use the displayed (CSS) size of the canvas, not the raw pixel size
+  const displayedRect = canvas.getBoundingClientRect();
+  const containerRect = canvasContainer.getBoundingClientRect();
+
+  const displayedW = displayedRect.width * currentTransform.scale;
+  const displayedH = displayedRect.height * currentTransform.scale;
+
+  // Constrain X: can't pan past edges
+  if (displayedW > containerRect.width) {
+    currentTransform.x = Math.min(0, Math.max(currentTransform.x, containerRect.width - displayedW));
   } else {
-    currentTransform.x = (containerRect.width - scaledWidth) / 2;
+    currentTransform.x = (containerRect.width - displayedW) / 2;
   }
 
-  // Constrain Y
-  if (scaledHeight > containerRect.height) {
-    currentTransform.y = Math.min(0, Math.max(currentTransform.y, containerRect.height - scaledHeight));
+  // Constrain Y: can't pan past edges
+  if (displayedH > containerRect.height) {
+    currentTransform.y = Math.min(0, Math.max(currentTransform.y, containerRect.height - displayedH));
   } else {
-    currentTransform.y = (containerRect.height - scaledHeight) / 2;
+    // Don't constrain vertically when container adapts to image
+    // just keep existing Y
   }
 
   canvas.style.transformOrigin = '0 0';
@@ -55,25 +59,18 @@ function applyTransform() {
 canvasContainer.addEventListener('wheel', (e) => {
   if (e.ctrlKey || e.metaKey) {
     e.preventDefault();
-    
     if (!imageObjects) return;
 
     const delta = e.deltaY;
     const zoom = Math.exp(-delta * 0.005);
     let newScale = currentTransform.scale * zoom;
     
-    const containerRect = canvasContainer.getBoundingClientRect();
-    const fitScaleX = containerRect.width / canvas.width;
-    const fitScaleY = containerRect.height / canvas.height;
-    const fitScale = Math.min(fitScaleX, fitScaleY, 1);
-    
     if (newScale > 50) return;
-    if (newScale < fitScale) newScale = fitScale;
+    if (newScale < 1) newScale = 1; // 1 = CSS natural fit size
     
     const rect = canvas.getBoundingClientRect();
     const dx = e.clientX - rect.left;
     const dy = e.clientY - rect.top;
-    
     const R = newScale / currentTransform.scale;
     
     currentTransform.x = currentTransform.x + dx - dx * R;
@@ -133,15 +130,9 @@ upload.addEventListener('change', (e) => {
       if (placeholder) placeholder.style.display = 'none';
       canvas.style.display = 'block';
 
-      // Fit image to container initially
-      const containerRect = canvasContainer.getBoundingClientRect();
-      const fitScaleX = containerRect.width / img.width;
-      const fitScaleY = containerRect.height / img.height;
-      let fitScale = Math.min(fitScaleX, fitScaleY);
-      if (fitScale > 1) fitScale = 1; // Don't scale up by default
-
-      currentTransform = { x: 0, y: 0, scale: fitScale };
-      applyTransform();
+      // Let CSS handle initial fit via max-width: 100%; height: auto
+      currentTransform = { x: 0, y: 0, scale: 1 };
+      canvas.style.transform = 'none';
 
       renderBlurredOffscreen();
       updateCanvas();
