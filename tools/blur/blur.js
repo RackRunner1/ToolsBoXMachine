@@ -18,9 +18,14 @@ const brushSizeContainer = document.getElementById('brush-size-container');
 let paintCanvas = document.createElement('canvas');
 let paintCtx = paintCanvas.getContext('2d');
 
-// Transform state for zooming
+// Transform state for zooming and panning
 let currentTransform = { x: 0, y: 0, scale: 1 };
+let isPanning = false;
+let startPan = { x: 0, y: 0 };
 const canvasContainer = document.querySelector('.canvas-container');
+
+// Prevent context menu on right click
+canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
 canvasContainer.addEventListener('wheel', (e) => {
   if (e.ctrlKey || e.metaKey) {
@@ -138,6 +143,13 @@ function getMousePos(evt) {
 
 canvas.addEventListener('mousedown', (e) => {
   if (!imageObjects) return;
+
+  if (e.button === 2) { // Right click for panning
+    isPanning = true;
+    startPan = { x: e.clientX - currentTransform.x, y: e.clientY - currentTransform.y };
+    return;
+  }
+
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
   if (mode !== 'brush') return;
   
@@ -146,13 +158,25 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 canvas.addEventListener('mousemove', (e) => {
+  if (isPanning) {
+    currentTransform.x = e.clientX - startPan.x;
+    currentTransform.y = e.clientY - startPan.y;
+    canvas.style.transform = `translate(${currentTransform.x}px, ${currentTransform.y}px) scale(${currentTransform.scale})`;
+    return;
+  }
   if (isDrawing) {
     drawBlur(e);
   }
 });
 
-canvas.addEventListener('mouseup', () => isDrawing = false);
-canvas.addEventListener('mouseleave', () => isDrawing = false);
+canvas.addEventListener('mouseup', () => {
+  isPanning = false;
+  isDrawing = false;
+});
+canvas.addEventListener('mouseleave', () => {
+  isPanning = false;
+  isDrawing = false;
+});
 
 function drawBlur(e) {
   const pos = getMousePos(e);
