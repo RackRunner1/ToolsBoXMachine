@@ -11,7 +11,8 @@ checkBtn.addEventListener('click', async () => {
 
   try {
     const params = new URLSearchParams();
-    params.append('language', 'en-US');
+    const lang = document.querySelector('input[name="langMode"]:checked').value;
+    params.append('language', lang);
     params.append('text', text);
 
     const response = await fetch('https://api.languagetool.org/v2/check', {

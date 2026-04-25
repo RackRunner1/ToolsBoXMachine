@@ -14,6 +14,21 @@
   <h1>Text Corrector</h1>
 
   <div class="tool-container">
+    <div class="custom-radio-group mode-selector" style="margin-bottom: 1rem; width: 100%;">
+      <label class="radio-card" style="flex: 1;">
+        <input type="radio" name="langMode" value="fr" checked>
+        <div class="radio-content">
+          🇫🇷 French
+        </div>
+      </label>
+      <label class="radio-card" style="flex: 1;">
+        <input type="radio" name="langMode" value="en-US">
+        <div class="radio-content">
+          🇬🇧 English
+        </div>
+      </label>
+    </div>
+
     <textarea id="text-input" placeholder="Enter your text here to correct it..."></textarea>
 
     <button class="btn" id="check-btn">Correct</button>
