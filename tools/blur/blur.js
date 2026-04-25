@@ -27,29 +27,35 @@ const canvasContainer = document.querySelector('.canvas-container');
 // Prevent context menu on right click
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
+// Compute the natural CSS-displayed size of the canvas (as if no JS transform applied)
+function getNaturalDisplaySize() {
+  const containerW = canvasContainer.getBoundingClientRect().width;
+  const naturalW = Math.min(canvas.width, containerW);
+  const naturalH = (canvas.height / canvas.width) * naturalW;
+  return { w: naturalW, h: naturalH };
+}
+
 function applyTransform() {
   if (!imageObjects) return;
 
-  // Use the displayed (CSS) size of the canvas, not the raw pixel size
-  const displayedRect = canvas.getBoundingClientRect();
-  const containerRect = canvasContainer.getBoundingClientRect();
+  const containerW = canvasContainer.getBoundingClientRect().width;
+  const { w: naturalW, h: naturalH } = getNaturalDisplaySize();
 
-  const displayedW = displayedRect.width * currentTransform.scale;
-  const displayedH = displayedRect.height * currentTransform.scale;
+  const scaledW = naturalW * currentTransform.scale;
+  const scaledH = naturalH * currentTransform.scale;
 
-  // Constrain X: can't pan past edges
-  if (displayedW > containerRect.width) {
-    currentTransform.x = Math.min(0, Math.max(currentTransform.x, containerRect.width - displayedW));
+  // Constrain X: image must stay within container width
+  if (scaledW > containerW) {
+    currentTransform.x = Math.min(0, Math.max(currentTransform.x, containerW - scaledW));
   } else {
-    currentTransform.x = (containerRect.width - displayedW) / 2;
+    currentTransform.x = (containerW - scaledW) / 2;
   }
 
-  // Constrain Y: can't pan past edges
-  if (displayedH > containerRect.height) {
-    currentTransform.y = Math.min(0, Math.max(currentTransform.y, containerRect.height - displayedH));
+  // Constrain Y: image must stay within its natural displayed height
+  if (scaledH > naturalH) {
+    currentTransform.y = Math.min(0, Math.max(currentTransform.y, naturalH - scaledH));
   } else {
-    // Don't constrain vertically when container adapts to image
-    // just keep existing Y
+    currentTransform.y = 0;
   }
 
   canvas.style.transformOrigin = '0 0';
@@ -164,6 +170,7 @@ canvas.addEventListener('mousedown', (e) => {
   if (!imageObjects) return;
 
   if (e.button === 2) { // Right click for panning
+    if (currentTransform.scale <= 1) return; // Nothing to pan at natural size
     isPanning = true;
     startPan = { x: e.clientX - currentTransform.x, y: e.clientY - currentTransform.y };
     return;
