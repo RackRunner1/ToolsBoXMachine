@@ -6,8 +6,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        blur: resolve(__dirname, 'blur.html'),
-        correcteur: resolve(__dirname, 'correcteur.html')
+        blur: resolve(__dirname, 'tools/blur/blur.html'),
+        correcteur: resolve(__dirname, 'tools/correcteur/correcteur.html')
       }
     }
   }
