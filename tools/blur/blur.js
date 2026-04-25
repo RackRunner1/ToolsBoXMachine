@@ -63,7 +63,9 @@ canvasContainer.addEventListener('wheel', (e) => {
     let newScale = currentTransform.scale * zoom;
     
     const containerRect = canvasContainer.getBoundingClientRect();
-    const fitScale = Math.min(containerRect.width / canvas.width, 1);
+    const fitScaleX = containerRect.width / canvas.width;
+    const fitScaleY = containerRect.height / canvas.height;
+    const fitScale = Math.min(fitScaleX, fitScaleY, 1);
     
     if (newScale > 50) return;
     if (newScale < fitScale) newScale = fitScale;
@@ -131,9 +133,11 @@ upload.addEventListener('change', (e) => {
       if (placeholder) placeholder.style.display = 'none';
       canvas.style.display = 'block';
 
-      // Fit image to container width initially
+      // Fit image to container initially
       const containerRect = canvasContainer.getBoundingClientRect();
-      let fitScale = containerRect.width / img.width;
+      const fitScaleX = containerRect.width / img.width;
+      const fitScaleY = containerRect.height / img.height;
+      let fitScale = Math.min(fitScaleX, fitScaleY);
       if (fitScale > 1) fitScale = 1; // Don't scale up by default
 
       currentTransform = { x: 0, y: 0, scale: fitScale };
