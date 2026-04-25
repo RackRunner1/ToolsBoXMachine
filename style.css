@@ -345,9 +345,14 @@ input[type=range]:focus::-webkit-slider-runnable-track {
 
 /* Canvas Area */
 .blur-main {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1.25rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   width: 100%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .canvas-container {
