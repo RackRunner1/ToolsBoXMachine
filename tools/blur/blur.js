@@ -177,13 +177,12 @@ brushSizeInput.addEventListener('input', (e) => {
   if (imageObjects) {
     showBrushPreview = true;
     updateCanvas();
-    
-    clearTimeout(previewTimeout);
-    previewTimeout = setTimeout(() => {
-      showBrushPreview = false;
-      updateCanvas();
-    }, 1000);
   }
+});
+
+brushSizeInput.addEventListener('change', () => {
+  showBrushPreview = false;
+  updateCanvas();
 });
 blurIntensityInput.addEventListener('input', (e) => {
   blurVal.textContent = e.target.value;
