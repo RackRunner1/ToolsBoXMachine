@@ -14,6 +14,12 @@ let offscreenCtx = offscreenCanvas.getContext('2d');
 const modeRadios = document.querySelectorAll('input[name="blurMode"]');
 const brushSizeContainer = document.getElementById('brush-size-container');
 
+// Import Mode Elements
+const importModeRadios = document.querySelectorAll('input[name="importMode"]');
+const fileContainer = document.getElementById('file-import-container');
+const clipboardContainer = document.getElementById('clipboard-import-container');
+const pasteArea = document.getElementById('paste-area');
+
 // A secondary canvas to keep track of painted strokes
 let paintCanvas = document.createElement('canvas');
 let paintCtx = paintCanvas.getContext('2d');
@@ -141,40 +147,93 @@ blurIntensityInput.addEventListener('input', (e) => {
   }
 });
 
+function loadImage(src) {
+  const img = new Image();
+  img.onload = () => {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    offscreenCanvas.width = img.width;
+    offscreenCanvas.height = img.height;
+    paintCanvas.width = img.width;
+    paintCanvas.height = img.height;
+    
+    blurHistory = []; // Reset history for new image
+    
+    imageObjects = img;
+
+    // Hide placeholder and show canvas
+    const placeholder = document.getElementById('canvas-placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+    canvas.style.display = 'block';
+
+    // Let CSS handle initial fit via max-width: 100%; height: auto
+    currentTransform = { x: 0, y: 0, scale: 1 };
+    canvas.style.transform = 'none';
+
+    renderBlurredOffscreen();
+    updateCanvas();
+  };
+  img.src = src;
+}
+
+importModeRadios.forEach(radio => {
+  radio.addEventListener('change', (e) => {
+    if (e.target.value === 'file') {
+      fileContainer.style.display = 'block';
+      clipboardContainer.style.display = 'none';
+    } else {
+      fileContainer.style.display = 'none';
+      clipboardContainer.style.display = 'block';
+    }
+  });
+});
+
 upload.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = (event) => {
-    const img = new Image();
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      offscreenCanvas.width = img.width;
-      offscreenCanvas.height = img.height;
-      paintCanvas.width = img.width;
-      paintCanvas.height = img.height;
-      
-      blurHistory = []; // Reset history for new image
-      
-      imageObjects = img;
-
-      // Hide placeholder and show canvas
-      const placeholder = document.getElementById('canvas-placeholder');
-      if (placeholder) placeholder.style.display = 'none';
-      canvas.style.display = 'block';
-
-      // Let CSS handle initial fit via max-width: 100%; height: auto
-      currentTransform = { x: 0, y: 0, scale: 1 };
-      canvas.style.transform = 'none';
-
-      renderBlurredOffscreen();
-      updateCanvas();
-    };
-    img.src = event.target.result;
-  };
+  reader.onload = (event) => loadImage(event.target.result);
   reader.readAsDataURL(file);
+});
+
+// Clipboard Logic
+async function handlePaste(e) {
+  const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+  for (const item of items) {
+    if (item.type.indexOf('image') !== -1) {
+      const blob = item.getAsFile();
+      const reader = new FileReader();
+      reader.onload = (event) => loadImage(event.target.result);
+      reader.readAsDataURL(blob);
+      break;
+    }
+  }
+}
+
+window.addEventListener('paste', handlePaste);
+
+pasteArea.addEventListener('click', async () => {
+  try {
+    // Try using the modern Clipboard API first
+    const clipboardItems = await navigator.clipboard.read();
+    for (const clipboardItem of clipboardItems) {
+      for (const type of clipboardItem.types) {
+        if (type.startsWith('image/')) {
+          const blob = await clipboardItem.getType(type);
+          const reader = new FileReader();
+          reader.onload = (event) => loadImage(event.target.result);
+          reader.readAsDataURL(blob);
+          return;
+        }
+      }
+    }
+  } catch (err) {
+    // Fallback if Clipboard API fails (e.g. permission or not supported)
+    console.error('Clipboard API failed, please use Ctrl+V', err);
+    // We can't programmatically trigger a paste event for security reasons,
+    // but the window listener is already active for Ctrl+V.
+  }
 });
 
 function renderBlurredOffscreen() {

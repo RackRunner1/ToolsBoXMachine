@@ -16,7 +16,36 @@
   <div class="blur-tool-layout">
     <div class="blur-sidebar">
       <div class="sidebar-section">
-        <h3>1. Import</h3>
+        <h3>1. Import Mode</h3>
+        <div class="custom-radio-group mode-selector">
+          <label class="radio-card">
+            <input type="radio" name="importMode" value="file" checked>
+            <div class="radio-content">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              File
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="importMode" value="clipboard">
+            <div class="radio-content">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              </svg>
+              Clipboard
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="sidebar-section" id="file-import-container">
+        <h3>2. Choose File</h3>
         <label class="custom-file-upload">
           <input type="file" id="image-upload" accept="image/png, image/jpeg, image/webp" />
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
@@ -29,8 +58,21 @@
         </label>
       </div>
 
+      <div class="sidebar-section" id="clipboard-import-container" style="display: none;">
+        <h3>2. Paste Image</h3>
+        <div class="custom-file-upload" id="paste-area" tabindex="0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          </svg>
+          <span>Click to Paste</span>
+          <p style="font-size: 0.75rem; color: #64748b; margin-top: -0.5rem;">Or press Ctrl + V</p>
+        </div>
+      </div>
+
       <div class="sidebar-section">
-        <h3>2. Blur Mode</h3>
+        <h3>3. Blur Mode</h3>
         <div class="custom-radio-group mode-selector">
           <label class="radio-card">
             <input type="radio" name="blurMode" value="brush" checked>
@@ -61,7 +103,7 @@
       </div>
 
       <div class="sidebar-section">
-        <h3>3. Settings</h3>
+        <h3>4. Settings</h3>
         <div class="slider-group" id="brush-size-container">
           <div class="slider-header">
             <span>Brush Size</span>
