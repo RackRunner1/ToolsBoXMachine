@@ -26,6 +26,10 @@ let paintCtx = paintCanvas.getContext('2d');
 let blurHistory = [];
 const maxHistory = 20;
 
+// Preview Brush state
+let showBrushPreview = false;
+let previewTimeout = null;
+
 function saveState() {
   if (blurHistory.length >= maxHistory) {
     blurHistory.shift();
@@ -134,11 +138,53 @@ function updateCanvas() {
     ctx.drawImage(imageObjects, 0, 0);
     ctx.drawImage(paintCanvas, 0, 0);
   }
+
+  if (showBrushPreview) {
+    drawBrushPreview();
+  }
+}
+
+function drawBrushPreview() {
+  if (!showBrushPreview || !imageObjects) return;
+  
+  const size = parseInt(brushSizeInput.value, 10);
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  
+  ctx.save();
+  // Outer shadow/border for visibility
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  
+  // Main dashed circle
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
+  ctx.setLineDash([5, 5]);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
 }
 
 modeRadios.forEach(radio => radio.addEventListener('change', updateCanvas));
 
-brushSizeInput.addEventListener('input', (e) => sizeVal.textContent = e.target.value);
+brushSizeInput.addEventListener('input', (e) => {
+  sizeVal.textContent = e.target.value;
+  
+  if (imageObjects) {
+    showBrushPreview = true;
+    updateCanvas();
+    
+    clearTimeout(previewTimeout);
+    previewTimeout = setTimeout(() => {
+      showBrushPreview = false;
+      updateCanvas();
+    }, 1000);
+  }
+});
 blurIntensityInput.addEventListener('input', (e) => {
   blurVal.textContent = e.target.value;
   if(imageObjects) {
