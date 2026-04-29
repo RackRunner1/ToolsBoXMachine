@@ -148,23 +148,28 @@ function drawBrushPreview() {
   if (!showBrushPreview || !imageObjects) return;
   
   const size = parseInt(brushSizeInput.value, 10);
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
+  
+  const containerRect = canvasContainer.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  
+  // Find the image coordinates corresponding to the center of the visible container
+  const centerX = (containerRect.width / 2 + containerRect.left - canvasRect.left) * (canvas.width / canvasRect.width);
+  const centerY = (containerRect.height / 2 + containerRect.top - canvasRect.top) * (canvas.height / canvasRect.height);
   
   ctx.save();
   // Outer shadow/border for visibility
   ctx.beginPath();
   ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 3 * (canvas.width / canvasRect.width); // Adjust line width based on zoom
   ctx.stroke();
   
   // Main dashed circle
   ctx.beginPath();
   ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
-  ctx.setLineDash([5, 5]);
+  ctx.setLineDash([5 * (canvas.width / canvasRect.width), 5 * (canvas.width / canvasRect.width)]);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 1.5 * (canvas.width / canvasRect.width);
   ctx.stroke();
   ctx.restore();
 }
