@@ -779,6 +779,16 @@ input[type=range] {
   margin-bottom: 1rem;
 }
 
+.content-container ul {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+  color: #cbd5e1;
+}
+
+.content-container li {
+  margin-bottom: 0.5rem;
+}
+
 .legal-card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
