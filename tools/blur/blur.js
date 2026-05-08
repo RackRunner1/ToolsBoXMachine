@@ -5,13 +5,8 @@ const brushSizeInput = document.getElementById('brush-size');
 const blurIntensityInput = document.getElementById('blur-intensity');
 const sizeVal = document.getElementById('size-val');
 const blurVal = document.getElementById('blur-val');
-const downloadBtn = document.getElementById('download-btn');
-
-let imageObjects = null;
-let isDrawing = false;
-let offscreenCanvas = document.createElement('canvas');
-let offscreenCtx = offscreenCanvas.getContext('2d');
-const modeRadios = document.querySelectorAll('input[name="blurMode"]');
+const undoBtn = document.getElementById('undo-btn');
+const resetBtn = document.getElementById('reset-btn');
 const brushSizeContainer = document.getElementById('brush-size-container');
 
 // Import Mode Elements
@@ -47,6 +42,14 @@ function undo() {
     updateCanvas();
   }
 }
+
+undoBtn.addEventListener('click', undo);
+resetBtn.addEventListener('click', () => {
+  if (!imageObjects) return;
+  saveState();
+  paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+  updateCanvas();
+});
 
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
@@ -130,11 +133,9 @@ function updateCanvas() {
   
   if (mode === 'full') {
     brushSizeContainer.style.display = 'none';
-    // Just draw the blurred offscreen layer on main canvas
     ctx.drawImage(offscreenCanvas, 0, 0);
   } else {
     brushSizeContainer.style.display = 'block';
-    // Draw original image, then overlay the painted strokes
     ctx.drawImage(imageObjects, 0, 0);
     ctx.drawImage(paintCanvas, 0, 0);
   }
@@ -347,17 +348,26 @@ canvas.addEventListener('mouseleave', () => {
 function drawBlur(e) {
   const pos = getMousePos(e);
   const size = parseInt(brushSizeInput.value, 10);
+  const mode = document.querySelector('input[name="blurMode"]:checked').value;
   
-  // draw the blurred portion on paintCanvas
   paintCtx.save();
+  if (mode === 'eraser') {
+    paintCtx.globalCompositeOperation = 'destination-out';
+  } else {
+    paintCtx.globalCompositeOperation = 'source-over';
+  }
+
   paintCtx.beginPath();
   paintCtx.arc(pos.x, pos.y, size, 0, Math.PI * 2, false);
   paintCtx.clip();
   
-  paintCtx.drawImage(offscreenCanvas, 0, 0);
-  paintCtx.restore();
+  if (mode === 'brush') {
+    paintCtx.drawImage(offscreenCanvas, 0, 0);
+  } else if (mode === 'eraser') {
+    paintCtx.fill(); // This will erase because of destination-out
+  }
   
-  // update the display
+  paintCtx.restore();
   updateCanvas();
 }
 
