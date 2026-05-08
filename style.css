@@ -705,3 +705,91 @@ canvas {
 input[type=range] {
   accent-color: var(--primary-color);
 }
+/* Footer */
+.footer {
+  margin-top: 5rem;
+  padding: 3rem 0;
+  border-top: 1px solid var(--card-border);
+  background: rgba(2, 6, 23, 0.5);
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.footer-copyright {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.drayko-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.drayko-link:hover {
+  color: white;
+  text-shadow: 0 0 10px var(--primary-glow);
+}
+
+.footer-links {
+  display: flex;
+  gap: 2rem;
+}
+
+.footer-link {
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: white;
+}
+
+/* Content Pages (Privacy/Terms) */
+.content-container {
+  max-width: 800px;
+  margin: 6rem auto 4rem;
+  padding: 0 2rem;
+  line-height: 1.6;
+}
+
+.content-container h1 {
+  margin-bottom: 2rem;
+}
+
+.content-container h2 {
+  margin: 2rem 0 1rem;
+  color: var(--primary-color);
+}
+
+.content-container p {
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.legal-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1.5rem;
+  padding: 3rem;
+  backdrop-filter: blur(12px);
+}
+
+@media (max-width: 640px) {
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+}
