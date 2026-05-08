@@ -129,62 +129,34 @@ h1 {
   transform: scale(1.02);
 }
 
-/* Search Modal */
-.search-modal {
-  position: fixed;
-  top: 0;
+/* Search Dropdown */
+.nav-search {
+  position: relative; /* Container for dropdown */
+}
+
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
   left: 0;
   width: 100%;
-  height: 100%;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   z-index: 2000;
   display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.search-modal.active {
-  display: flex;
-}
-
-.modal-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(2, 6, 23, 0.8);
-  backdrop-filter: blur(8px);
-}
-
-.modal-content {
-  position: relative;
-  width: 100%;
-  max-width: 600px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 1.5rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   overflow: hidden;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.2s ease-out;
 }
 
-.modal-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--card-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h3 {
-  font-size: 1.1rem;
-  margin: 0;
-  color: #94a3b8;
+.search-dropdown.active {
+  display: block;
 }
 
 .search-results-list {
-  max-height: 400px;
+  max-height: 300px;
   overflow-y: auto;
   padding: 0.5rem;
 }
@@ -192,38 +164,42 @@ h1 {
 .search-result-item {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: 1rem 1.5rem;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
   text-decoration: none;
   color: var(--text-color);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   transition: all 0.2s ease;
 }
 
 .search-result-item:hover {
-  background: var(--card-hover-bg);
+  background: rgba(255, 255, 255, 0.05);
   transform: translateX(5px);
 }
 
-.result-emoji {
-  font-size: 2rem;
+.result-emoji-small {
+  font-size: 1.5rem;
   flex-shrink: 0;
 }
 
 .result-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.1rem;
 }
 
-.result-name {
-  font-weight: 700;
-  font-size: 1.1rem;
+.result-name-small {
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
-.result-desc {
-  font-size: 0.85rem;
+.result-desc-small {
+  font-size: 0.75rem;
   color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
 }
 
 /* Hero Section */

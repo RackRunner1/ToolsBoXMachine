@@ -23,25 +23,14 @@
         </svg>
         <input type="text" id="tool-search" placeholder="Search tools..." autocomplete="off">
       </div>
+      <div id="search-dropdown" class="search-dropdown">
+        <div id="search-results" class="search-results-list"></div>
+      </div>
     </div>
     <div class="nav-links">
       <a href="https://github.com/ddrayko/ToolsBoXMachine" target="_blank" class="nav-link">GitHub</a>
     </div>
   </nav>
-
-  <!-- Search Modal -->
-  <div id="search-modal" class="search-modal">
-    <div class="modal-overlay" id="modal-overlay"></div>
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>Search Results</h3>
-        <span id="close-modal" style="cursor: pointer; opacity: 0.5;">&times; Close</span>
-      </div>
-      <div id="search-results" class="search-results-list">
-        <!-- Results will be injected here -->
-      </div>
-    </div>
-  </div>
 
   <div class="hero-section">
     <h1 class="page-title">ToolsBoXMachine</h1>
@@ -79,10 +68,8 @@
 
   <script>
     const searchInput = document.getElementById('tool-search');
-    const searchModal = document.getElementById('search-modal');
+    const searchDropdown = document.getElementById('search-dropdown');
     const searchResults = document.getElementById('search-results');
-    const modalOverlay = document.getElementById('modal-overlay');
-    const closeModal = document.getElementById('close-modal');
 
     const tools = [
       {
@@ -111,7 +98,7 @@
     function updateSearch() {
       const query = searchInput.value.toLowerCase().trim();
       if (query === '') {
-        searchModal.classList.remove('active');
+        searchDropdown.classList.remove('active');
         return;
       }
 
@@ -123,17 +110,17 @@
       searchResults.innerHTML = '';
 
       if (filtered.length === 0) {
-        searchResults.innerHTML = '<div style="padding: 2rem; text-align: center; opacity: 0.5;">No tools found matching your search.</div>';
+        searchResults.innerHTML = '<div style="padding: 1rem; text-align: center; opacity: 0.5; font-size: 0.8rem;">No results found</div>';
       } else {
         filtered.forEach(tool => {
           const item = document.createElement('a');
           item.href = tool.url;
           item.className = 'search-result-item';
           item.innerHTML = `
-            <span class="result-emoji">${tool.emoji}</span>
+            <span class="result-emoji-small">${tool.emoji}</span>
             <div class="result-info">
-              <div class="result-name">${tool.name}</div>
-              <div class="result-desc">${tool.desc}</div>
+              <div class="result-name-small">${tool.name}</div>
+              <div class="result-desc-small">${tool.desc}</div>
             </div>
           `;
           item.addEventListener('click', () => {
@@ -144,16 +131,21 @@
         });
       }
 
-      searchModal.classList.add('active');
+      searchDropdown.classList.add('active');
     }
 
     searchInput.addEventListener('input', updateSearch);
-    searchInput.addEventListener('focus', () => {
-      if (searchInput.value.trim() !== '') searchModal.classList.add('active');
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+        searchDropdown.classList.remove('active');
+      }
     });
 
-    modalOverlay.addEventListener('click', () => searchModal.classList.remove('active'));
-    closeModal.addEventListener('click', () => searchModal.classList.remove('active'));
+    searchInput.addEventListener('focus', () => {
+      if (searchInput.value.trim() !== '') searchDropdown.classList.add('active');
+    });
 
     // Track tool usage for cards
     document.querySelectorAll('.card-btn').forEach(card => {
@@ -165,7 +157,7 @@
 
     // Handle Esc key
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') searchModal.classList.remove('active');
+      if (e.key === 'Escape') searchDropdown.classList.remove('active');
     });
   </script>
 </body>
