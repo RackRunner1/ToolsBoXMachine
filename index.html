@@ -23,14 +23,15 @@
         </svg>
         <input type="text" id="tool-search" placeholder="Search tools..." autocomplete="off">
       </div>
-      <div id="search-dropdown" class="search-dropdown">
-        <div id="search-results" class="search-results-list"></div>
-      </div>
     </div>
     <div class="nav-links">
       <a href="https://github.com/ddrayko/ToolsBoXMachine" target="_blank" class="nav-link">GitHub</a>
     </div>
   </nav>
+
+  <div id="search-dropdown" class="search-dropdown">
+    <div id="search-results" class="search-results-list"></div>
+  </div>
 
   <div class="hero-section">
     <h1 class="page-title">ToolsBoXMachine</h1>
@@ -131,6 +132,12 @@
         });
       }
 
+      // Position the dropdown directly under the search input
+      const rect = searchInput.getBoundingClientRect();
+      searchDropdown.style.top = `${rect.bottom + 8}px`;
+      searchDropdown.style.left = `${rect.left}px`;
+      searchDropdown.style.width = `${rect.width}px`;
+
       searchDropdown.classList.add('active');
     }
 
@@ -144,7 +151,19 @@
     });
 
     searchInput.addEventListener('focus', () => {
-      if (searchInput.value.trim() !== '') searchDropdown.classList.add('active');
+      if (searchInput.value.trim() !== '') {
+        updateSearch(); // Update position and show
+      }
+    });
+
+    // Update position on resize
+    window.addEventListener('resize', () => {
+      if (searchDropdown.classList.contains('active')) {
+        const rect = searchInput.getBoundingClientRect();
+        searchDropdown.style.top = `${rect.bottom + 8}px`;
+        searchDropdown.style.left = `${rect.left}px`;
+        searchDropdown.style.width = `${rect.width}px`;
+      }
     });
 
     // Track tool usage for cards
