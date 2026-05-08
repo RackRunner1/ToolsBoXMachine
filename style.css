@@ -171,7 +171,6 @@ h1 {
 
 .search-result-item:hover {
   background: rgba(255, 255, 255, 0.05);
-  transform: translateX(5px);
 }
 
 .result-emoji-small {
