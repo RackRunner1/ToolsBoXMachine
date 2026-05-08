@@ -29,7 +29,7 @@ const chars = {
   uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
   lowercase: 'abcdefghijklmnopqrstuvwxyz',
   numbers: '0123456789',
-  symbols: '!@#$%^&*()_+~`|}{[]:;?><,./-=',
+  symbols: '!@#$%^&*()+?./-=',
   ambiguous: 'l1Io0O'
 };
 
@@ -84,7 +84,7 @@ function generatePassword() {
     const length = parseInt(lengthInput.value);
     const separator = phraseSeparator.value;
     let chosenWords = [];
-    
+
     for (let i = 0; i < length; i++) {
       let word = words[Math.floor(Math.random() * words.length)];
       if (capitalizePhrase.checked) {
@@ -111,7 +111,7 @@ function updateStrength(password) {
   }
 
   const mode = document.querySelector('input[name="genMode"]:checked').value;
-  
+
   if (mode === 'password') {
     if (password.length >= 8) score += 1;
     if (password.length >= 12) score += 1;
@@ -173,13 +173,13 @@ genModeRadios.forEach(radio => {
   });
 });
 
-[lengthInput, includeUppercase, includeLowercase, includeNumbers, includeSymbols, 
- excludeAmbiguous, includeNumbersPhrase, capitalizePhrase, phraseSeparator].forEach(input => {
-  input.addEventListener('input', () => {
-    lengthVal.textContent = lengthInput.value;
-    generatePassword();
+[lengthInput, includeUppercase, includeLowercase, includeNumbers, includeSymbols,
+  excludeAmbiguous, includeNumbersPhrase, capitalizePhrase, phraseSeparator].forEach(input => {
+    input.addEventListener('input', () => {
+      lengthVal.textContent = lengthInput.value;
+      generatePassword();
+    });
   });
-});
 
 generateBtn.addEventListener('click', generatePassword);
 
