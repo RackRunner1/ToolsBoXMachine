@@ -13,28 +13,58 @@
   <a href="/" class="back-link">← Back</a>
   <h1>Text Corrector</h1>
 
-  <div class="tool-container">
-    <div class="custom-radio-group mode-selector" style="margin-bottom: 1rem; width: 100%;">
-      <label class="radio-card" style="flex: 1;">
-        <input type="radio" name="langMode" value="fr" checked>
-        <div class="radio-content">
-          🇫🇷 French
+  <div class="blur-tool-layout">
+    <div class="blur-sidebar">
+      <div class="sidebar-section">
+        <h3>1. Language</h3>
+        <div class="custom-radio-group mode-selector">
+          <label class="radio-card">
+            <input type="radio" name="langMode" value="fr" checked>
+            <div class="radio-content">
+              🇫🇷 French
+            </div>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="langMode" value="en-US">
+            <div class="radio-content">
+              🇬🇧 English
+            </div>
+          </label>
         </div>
-      </label>
-      <label class="radio-card" style="flex: 1;">
-        <input type="radio" name="langMode" value="en-US">
-        <div class="radio-content">
-          🇬🇧 English
-        </div>
-      </label>
+      </div>
+
+      <div class="sidebar-section" style="margin-top: auto; display: flex; flex-direction: column; gap: 1rem;">
+        <button class="btn btn-primary w-full" id="check-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+            <polyline points="22 4 12 14.5 8.5 11"></polyline>
+          </svg>
+          Check Text
+        </button>
+        
+        <button class="btn w-full" id="clear-btn" style="background: #334155;">
+          Clear All
+        </button>
+      </div>
     </div>
 
-    <textarea id="text-input" placeholder="Enter your text here to correct it..."></textarea>
-
-    <button class="btn" id="check-btn">Correct</button>
-
-    <div id="results"></div>
+    <div class="blur-main">
+      <div class="tool-container" style="background: transparent; border: none; padding: 0;">
+        <textarea id="text-input" placeholder="Enter your text here to correct it..." style="min-height: 350px; font-size: 1.1rem;"></textarea>
+        
+        <div id="results-header" style="display: none; justify-content: space-between; align-items: center; margin-top: 1rem;">
+          <h3 style="font-size: 1.25rem; color: #94a3b8;">Suggestions</h3>
+          <button class="btn btn-primary" id="copy-corrected-btn" style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+            Copy Result
+          </button>
+        </div>
+        <div id="results"></div>
+      </div>
+    </div>
   </div>
+
+  <div id="copy-feedback" class="copy-feedback">Text copied!</div>
 
   <script type="module" src="./correcteur.js"></script>
 </body>

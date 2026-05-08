@@ -1,7 +1,11 @@
 const checkBtn = document.getElementById('check-btn');
+const clearBtn = document.getElementById('clear-btn');
+const copyBtn = document.getElementById('copy-corrected-btn');
 const textInput = document.getElementById('text-input');
 const resultsDiv = document.getElementById('results');
+const resultsHeader = document.getElementById('results-header');
 const langRadios = document.querySelectorAll('input[name="langMode"]');
+const copyFeedback = document.getElementById('copy-feedback');
 
 // Load saved language
 const savedLang = localStorage.getItem('tbxm_corrector_lang');
@@ -17,12 +21,32 @@ langRadios.forEach(radio => {
   });
 });
 
+clearBtn.addEventListener('click', () => {
+  textInput.value = '';
+  resultsDiv.innerHTML = '';
+  resultsHeader.style.display = 'none';
+  textInput.focus();
+});
+
+copyBtn.addEventListener('click', () => {
+  textInput.select();
+  document.execCommand('copy');
+  
+  copyFeedback.classList.add('show');
+  setTimeout(() => {
+    copyFeedback.classList.remove('show');
+  }, 2000);
+});
+
 checkBtn.addEventListener('click', async () => {
   const text = textInput.value;
   if (!text) return;
 
-  checkBtn.textContent = 'Correcting...';
+  const originalBtnText = checkBtn.innerHTML;
+  checkBtn.textContent = 'Checking...';
+  checkBtn.disabled = true;
   resultsDiv.innerHTML = '';
+  resultsHeader.style.display = 'none';
 
   try {
     const params = new URLSearchParams();
@@ -38,35 +62,45 @@ checkBtn.addEventListener('click', async () => {
     const data = await response.json();
     
     if (data.matches && data.matches.length > 0) {
+      resultsHeader.style.display = 'flex';
       data.matches.forEach(match => {
         const errorItem = document.createElement('div');
         errorItem.className = 'error-item';
+        errorItem.style.animation = 'fadeIn 0.3s ease-out forwards';
         
         const errorMsg = document.createElement('p');
-        errorMsg.innerHTML = `<strong>Error detected:</strong> "${match.context.text.substring(match.context.offset, match.context.offset + match.context.length)}" - ${match.message}`;
-        errorMsg.style.marginBottom = '0.5rem';
+        const errorText = match.context.text.substring(match.context.offset, match.context.offset + match.context.length);
+        errorMsg.innerHTML = `<strong>Error:</strong> <span style="color: #ef4444; font-weight: 600;">"${errorText}"</span> - ${match.message}`;
+        errorMsg.style.marginBottom = '0.75rem';
         
         errorItem.appendChild(errorMsg);
         
         if (match.replacements && match.replacements.length > 0) {
+          const btnGroup = document.createElement('div');
+          btnGroup.style.display = 'flex';
+          btnGroup.style.flexWrap = 'wrap';
+          btnGroup.style.gap = '0.5rem';
+
           match.replacements.slice(0, 5).forEach(rep => {
             const btn = document.createElement('button');
             btn.className = 'suggestion-badge';
             btn.textContent = rep.value;
             btn.onclick = () => applyReplacement(match, rep.value);
-            errorItem.appendChild(btn);
+            btnGroup.appendChild(btn);
           });
+          errorItem.appendChild(btnGroup);
         }
         
         resultsDiv.appendChild(errorItem);
       });
     } else {
-      resultsDiv.innerHTML = '<p style="color: #4ade80;">No errors detected!</p>';
+      resultsDiv.innerHTML = '<div class="error-item" style="border-left-color: #4ade80; background: rgba(74, 222, 128, 0.1);"><p style="color: #4ade80; font-weight: 600;">✨ No errors detected! Your text looks great.</p></div>';
     }
   } catch (err) {
-    resultsDiv.innerHTML = '<p style="color: #ef4444;">Error during verification.</p>';
+    resultsDiv.innerHTML = '<p style="color: #ef4444;">Error during verification. Please check your internet connection.</p>';
   } finally {
-    checkBtn.textContent = 'Correct';
+    checkBtn.innerHTML = originalBtnText;
+    checkBtn.disabled = false;
   }
 });
 

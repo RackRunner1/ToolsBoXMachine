@@ -13,6 +13,7 @@
   <nav class="navbar">
     <div class="nav-brand">
       <img src="./.assets/logo/blanc-without-drayko-logo.png" alt="TBXM Logo" class="nav-logo" />
+      <span style="font-weight: 700; font-size: 1.2rem; letter-spacing: -0.05em;">TBXM</span>
     </div>
     <div class="nav-links">
       <a href="https://github.com/ddrayko/ToolsBoXMachine" target="_blank" class="nav-link">GitHub</a>
@@ -20,26 +21,45 @@
   </nav>
 
   <div class="hero-section">
-    <h1 class="page-title">ToolsBoxMachine</h1>
-    <p class="subtitle">Select a tool to get started</p>
+    <h1 class="page-title">ToolsBoXMachine</h1>
+    <p class="subtitle">Your ultimate workspace for quick digital utilities.</p>
   </div>
 
   <div class="home-container">
-    <a href="/tools/blur/blur.html" class="card-btn">
-      <span style="font-size: 3rem;">🎨</span>
-      Blur image
+    <a href="/tools/blur/blur.html" class="card-btn" id="card-blur">
+      <span style="font-size: 3.5rem;">🎨</span>
+      <div style="text-align: center;">
+        <div>Blur Image</div>
+        <p style="font-size: 0.875rem; font-weight: 400; color: #94a3b8; margin-top: 0.5rem;">Protect privacy by blurring sensitive parts.</p>
+      </div>
     </a>
 
-    <a href="/tools/correcteur/correcteur.html" class="card-btn">
-      <span style="font-size: 3rem;">✍️</span>
-      Text Corrector
+    <a href="/tools/correcteur/correcteur.html" class="card-btn" id="card-correcteur">
+      <span style="font-size: 3.5rem;">✍️</span>
+      <div style="text-align: center;">
+        <div>Text Corrector</div>
+        <p style="font-size: 0.875rem; font-weight: 400; color: #94a3b8; margin-top: 0.5rem;">Fix grammar and spelling in seconds.</p>
+      </div>
     </a>
 
-    <a href="/tools/password-gen/password-gen.html" class="card-btn">
-      <span style="font-size: 3rem;">🔐</span>
-      Password Gen
+    <a href="/tools/password-gen/password-gen.html" class="card-btn" id="card-password">
+      <span style="font-size: 3.5rem;">🔐</span>
+      <div style="text-align: center;">
+        <div>Password Gen</div>
+        <p style="font-size: 0.875rem; font-weight: 400; color: #94a3b8; margin-top: 0.5rem;">Generate secure passwords or passphrases.</p>
+      </div>
     </a>
   </div>
+
+  <script>
+    // Track tool usage
+    document.querySelectorAll('.card-btn').forEach(card => {
+      card.addEventListener('click', () => {
+        localStorage.setItem('tbxm_last_tool', card.id);
+        localStorage.setItem('tbxm_last_tool_name', card.querySelector('div div').textContent);
+      });
+    });
+  </script>
 </body>
 
 </html>
