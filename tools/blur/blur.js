@@ -7,7 +7,14 @@ const sizeVal = document.getElementById('size-val');
 const blurVal = document.getElementById('blur-val');
 const undoBtn = document.getElementById('undo-btn');
 const resetBtn = document.getElementById('reset-btn');
+const downloadBtn = document.getElementById('download-btn');
 const brushSizeContainer = document.getElementById('brush-size-container');
+
+let imageObjects = null;
+let isDrawing = false;
+let offscreenCanvas = document.createElement('canvas');
+let offscreenCtx = offscreenCanvas.getContext('2d');
+const modeRadios = document.querySelectorAll('input[name="blurMode"]');
 
 // Import Mode Elements
 const importModeRadios = document.querySelectorAll('input[name="importMode"]');
