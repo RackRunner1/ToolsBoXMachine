@@ -11,7 +11,8 @@ export default defineConfig({
         correcteur: resolve(__dirname, 'tools/correcteur/correcteur.html'),
         'password-gen': resolve(__dirname, 'tools/password-gen/password-gen.html'),
         privacy: resolve(__dirname, 'privacy.html'),
-        terms: resolve(__dirname, 'terms.html')
+        terms: resolve(__dirname, 'terms.html'),
+        philosophy: resolve(__dirname, 'philosophy.html')
       }
     }
   }
