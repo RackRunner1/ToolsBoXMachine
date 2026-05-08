@@ -323,7 +323,7 @@ canvas.addEventListener('mousedown', (e) => {
   }
 
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
-  if (mode !== 'brush') return;
+  if (mode === 'full') return;
   
   saveState(); // Save state before drawing begins
   
