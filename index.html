@@ -14,10 +14,34 @@
     <div class="nav-brand">
       <img src="./.assets/logo/blanc-without-drayko-logo.png" alt="TBXM Logo" class="nav-logo" />
     </div>
+    <div class="nav-search">
+      <div class="search-input-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.3-4.3"></path>
+        </svg>
+        <input type="text" id="tool-search" placeholder="Search tools..." autocomplete="off">
+      </div>
+    </div>
     <div class="nav-links">
       <a href="https://github.com/ddrayko/ToolsBoXMachine" target="_blank" class="nav-link">GitHub</a>
     </div>
   </nav>
+
+  <!-- Search Modal -->
+  <div id="search-modal" class="search-modal">
+    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Search Results</h3>
+        <span id="close-modal" style="cursor: pointer; opacity: 0.5;">&times; Close</span>
+      </div>
+      <div id="search-results" class="search-results-list">
+        <!-- Results will be injected here -->
+      </div>
+    </div>
+  </div>
 
   <div class="hero-section">
     <h1 class="page-title">ToolsBoXMachine</h1>
@@ -54,12 +78,94 @@
   </div>
 
   <script>
-    // Track tool usage
+    const searchInput = document.getElementById('tool-search');
+    const searchModal = document.getElementById('search-modal');
+    const searchResults = document.getElementById('search-results');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const closeModal = document.getElementById('close-modal');
+
+    const tools = [
+      {
+        id: 'card-blur',
+        name: 'Blur Image',
+        emoji: '🎨',
+        desc: 'Protect privacy by blurring sensitive parts.',
+        url: '/tools/blur/blur.html'
+      },
+      {
+        id: 'card-correcteur',
+        name: 'Text Corrector',
+        emoji: '✍️',
+        desc: 'Fix grammar and spelling in seconds.',
+        url: '/tools/correcteur/correcteur.html'
+      },
+      {
+        id: 'card-password',
+        name: 'Password Gen',
+        emoji: '🔐',
+        desc: 'Generate secure passwords or passphrases.',
+        url: '/tools/password-gen/password-gen.html'
+      }
+    ];
+
+    function updateSearch() {
+      const query = searchInput.value.toLowerCase().trim();
+      if (query === '') {
+        searchModal.classList.remove('active');
+        return;
+      }
+
+      const filtered = tools.filter(t => 
+        t.name.toLowerCase().includes(query) || 
+        t.desc.toLowerCase().includes(query)
+      );
+
+      searchResults.innerHTML = '';
+
+      if (filtered.length === 0) {
+        searchResults.innerHTML = '<div style="padding: 2rem; text-align: center; opacity: 0.5;">No tools found matching your search.</div>';
+      } else {
+        filtered.forEach(tool => {
+          const item = document.createElement('a');
+          item.href = tool.url;
+          item.className = 'search-result-item';
+          item.innerHTML = `
+            <span class="result-emoji">${tool.emoji}</span>
+            <div class="result-info">
+              <div class="result-name">${tool.name}</div>
+              <div class="result-desc">${tool.desc}</div>
+            </div>
+          `;
+          item.addEventListener('click', () => {
+            localStorage.setItem('tbxm_last_tool', tool.id);
+            localStorage.setItem('tbxm_last_tool_name', tool.name);
+          });
+          searchResults.appendChild(item);
+        });
+      }
+
+      searchModal.classList.add('active');
+    }
+
+    searchInput.addEventListener('input', updateSearch);
+    searchInput.addEventListener('focus', () => {
+      if (searchInput.value.trim() !== '') searchModal.classList.add('active');
+    });
+
+    modalOverlay.addEventListener('click', () => searchModal.classList.remove('active'));
+    closeModal.addEventListener('click', () => searchModal.classList.remove('active'));
+
+    // Track tool usage for cards
     document.querySelectorAll('.card-btn').forEach(card => {
       card.addEventListener('click', () => {
         localStorage.setItem('tbxm_last_tool', card.id);
         localStorage.setItem('tbxm_last_tool_name', card.querySelector('div div').textContent);
       });
+    });
+
+    // Handle Esc key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') searchModal.classList.remove('active');
     });
   </script>
 </body>
