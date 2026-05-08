@@ -430,6 +430,10 @@ textarea:focus {
   border-color: #475569;
 }
 
+.radio-card:active .radio-content {
+  transform: scale(0.95);
+}
+
 /* Custom Sliders */
 .slider-group {
   display: flex;
