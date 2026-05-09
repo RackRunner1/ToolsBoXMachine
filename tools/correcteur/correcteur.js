@@ -1,11 +1,16 @@
-const checkBtn = document.getElementById('check-btn');
-const clearBtn = document.getElementById('clear-btn');
-const copyBtn = document.getElementById('copy-corrected-btn');
+const checkBtns = document.querySelectorAll('.check-btn');
+const clearBtns = document.querySelectorAll('.clear-btn');
+const editBtn = document.getElementById('edit-btn');
+const copyBtn = document.getElementById('copy-btn');
 const textInput = document.getElementById('text-input');
-const resultsDiv = document.getElementById('results');
-const resultsHeader = document.getElementById('results-header');
-const langRadios = document.querySelectorAll('input[name="langMode"]');
+const correctedTextDiv = document.getElementById('corrected-text');
+const inputView = document.getElementById('input-view');
+const resultView = document.getElementById('result-view');
+const alternativesMenu = document.getElementById('alternatives-menu');
 const copyFeedback = document.getElementById('copy-feedback');
+const langRadios = document.querySelectorAll('input[name="langMode"]');
+
+let currentMatches = [];
 
 // Load saved language
 const savedLang = localStorage.getItem('tbxm_corrector_lang');
@@ -14,104 +19,144 @@ if (savedLang) {
   if (radio) radio.checked = true;
 }
 
-// Save language on change
 langRadios.forEach(radio => {
   radio.addEventListener('change', (e) => {
     localStorage.setItem('tbxm_corrector_lang', e.target.value);
   });
 });
 
-clearBtn.addEventListener('click', () => {
-  textInput.value = '';
-  resultsDiv.innerHTML = '';
-  resultsHeader.style.display = 'none';
-  textInput.focus();
+clearBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    textInput.value = '';
+    textInput.focus();
+  });
+});
+
+editBtn.addEventListener('click', () => {
+  inputView.style.display = 'flex';
+  resultView.style.display = 'none';
+  alternativesMenu.classList.remove('active');
 });
 
 copyBtn.addEventListener('click', () => {
-  textInput.select();
-  document.execCommand('copy');
-  
+  navigator.clipboard.writeText(correctedTextDiv.innerText);
   copyFeedback.classList.add('show');
-  setTimeout(() => {
-    copyFeedback.classList.remove('show');
-  }, 2000);
+  setTimeout(() => copyFeedback.classList.remove('show'), 2000);
 });
 
-checkBtn.addEventListener('click', async () => {
-  const text = textInput.value;
-  if (!text) return;
+checkBtns.forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const text = textInput.value.trim();
+    if (!text) return;
 
-  const originalBtnText = checkBtn.innerHTML;
-  checkBtn.textContent = 'Checking...';
-  checkBtn.disabled = true;
-  resultsDiv.innerHTML = '';
-  resultsHeader.style.display = 'none';
-
-  try {
-    const params = new URLSearchParams();
-    const lang = document.querySelector('input[name="langMode"]:checked').value;
-    params.append('language', lang);
-    params.append('text', text);
-
-    const response = await fetch('https://api.languagetool.org/v2/check', {
-      method: 'POST',
-      body: params,
+    // Set loading state for ALL check buttons
+    const originalBtnHTMLs = Array.from(checkBtns).map(b => b.innerHTML);
+    checkBtns.forEach(b => {
+      b.innerHTML = '<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Checking...';
+      b.disabled = true;
     });
-    
-    const data = await response.json();
-    
-    if (data.matches && data.matches.length > 0) {
-      resultsHeader.style.display = 'flex';
-      data.matches.forEach(match => {
-        const errorItem = document.createElement('div');
-        errorItem.className = 'error-item';
-        errorItem.style.animation = 'fadeIn 0.3s ease-out forwards';
-        
-        const errorMsg = document.createElement('p');
-        const errorText = match.context.text.substring(match.context.offset, match.context.offset + match.context.length);
-        errorMsg.innerHTML = `<strong>Error:</strong> <span style="color: #ef4444; font-weight: 600;">"${errorText}"</span> - ${match.message}`;
-        errorMsg.style.marginBottom = '0.75rem';
-        
-        errorItem.appendChild(errorMsg);
-        
-        if (match.replacements && match.replacements.length > 0) {
-          const btnGroup = document.createElement('div');
-          btnGroup.style.display = 'flex';
-          btnGroup.style.flexWrap = 'wrap';
-          btnGroup.style.gap = '0.5rem';
 
-          match.replacements.slice(0, 5).forEach(rep => {
-            const btn = document.createElement('button');
-            btn.className = 'suggestion-badge';
-            btn.textContent = rep.value;
-            btn.onclick = () => applyReplacement(match, rep.value);
-            btnGroup.appendChild(btn);
-          });
-          errorItem.appendChild(btnGroup);
-        }
-        
-        resultsDiv.appendChild(errorItem);
+    try {
+      const lang = document.querySelector('input[name="langMode"]:checked').value;
+      const params = new URLSearchParams({ language: lang, text: text });
+
+      const response = await fetch('https://api.languagetool.org/v2/check', {
+        method: 'POST',
+        body: params,
       });
-    } else {
-      resultsDiv.innerHTML = '<div class="error-item" style="border-left-color: #4ade80; background: rgba(74, 222, 128, 0.1);"><p style="color: #4ade80; font-weight: 600;">✨ No errors detected! Your text looks great.</p></div>';
+      
+      const data = await response.json();
+      currentMatches = data.matches || [];
+      
+      processAndDisplay(text, currentMatches);
+      
+      inputView.style.display = 'none';
+      resultView.style.display = 'flex';
+      
+    } catch (err) {
+      alert('Error connecting to API. Please try again.');
+    } finally {
+      // Restore state for ALL check buttons
+      checkBtns.forEach((b, i) => {
+        b.innerHTML = originalBtnHTMLs[i];
+        b.disabled = false;
+      });
     }
-  } catch (err) {
-    resultsDiv.innerHTML = '<p style="color: #ef4444;">Error during verification. Please check your internet connection.</p>';
-  } finally {
-    checkBtn.innerHTML = originalBtnText;
-    checkBtn.disabled = false;
-  }
+  });
 });
 
-function applyReplacement(match, newValue) {
-  const currentText = textInput.value;
-  const start = match.offset;
-  const end = match.offset + match.length;
+function processAndDisplay(originalText, matches) {
+  // Sort matches backwards to replace without breaking offsets
+  const sortedMatches = [...matches].sort((a, b) => b.offset - a.offset);
   
-  // Replace in text
-  textInput.value = currentText.substring(0, start) + newValue + currentText.substring(end);
+  let resultHTML = originalText;
   
-  // Restart correction to update offsets
-  checkBtn.click();
+  // We need to handle overlapping or sequential matches carefully.
+  // To avoid HTML injection issues and simplify, we'll build the DOM parts.
+  
+  const segments = [];
+  let lastIndex = originalText.length;
+
+  sortedMatches.forEach((match, index) => {
+    // Text after the match (up to the next match or end)
+    const after = originalText.substring(match.offset + match.length, lastIndex);
+    if (after) segments.unshift(document.createTextNode(after));
+
+    // The corrected word (using the first replacement)
+    const replacement = match.replacements && match.replacements.length > 0 
+      ? match.replacements[0].value 
+      : originalText.substring(match.offset, match.offset + match.length);
+
+    const span = document.createElement('span');
+    span.className = 'corrected-word';
+    span.textContent = replacement;
+    
+    // Store alternatives in a data attribute
+    const alts = match.replacements ? match.replacements.map(r => r.value) : [];
+    span.dataset.alts = JSON.stringify(alts);
+    
+    span.addEventListener('click', (e) => showAlternatives(e, span));
+    
+    segments.unshift(span);
+    lastIndex = match.offset;
+  });
+
+  // Text before the first match
+  const before = originalText.substring(0, lastIndex);
+  if (before) segments.unshift(document.createTextNode(before));
+
+  correctedTextDiv.innerHTML = '';
+  segments.forEach(seg => correctedTextDiv.appendChild(seg));
 }
+
+function showAlternatives(event, element) {
+  event.stopPropagation();
+  const alts = JSON.parse(element.dataset.alts);
+  
+  if (alts.length <= 1) return; // No other options
+
+  alternativesMenu.innerHTML = '<div class="alt-header">Alternatives</div>';
+  
+  alts.slice(1, 10).forEach(alt => {
+    const item = document.createElement('div');
+    item.className = 'alt-item';
+    item.textContent = alt;
+    item.onclick = () => {
+      element.textContent = alt;
+      alternativesMenu.classList.remove('active');
+    };
+    alternativesMenu.appendChild(item);
+  });
+
+  // Position the menu
+  const rect = element.getBoundingClientRect();
+  alternativesMenu.style.top = `${rect.bottom + window.scrollY + 5}px`;
+  alternativesMenu.style.left = `${rect.left + window.scrollX}px`;
+  alternativesMenu.classList.add('active');
+}
+
+// Close menu on click outside
+document.addEventListener('click', () => {
+  alternativesMenu.classList.remove('active');
+});
+
