@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import injectHTML from 'vite-plugin-html-inject';
 
 export default defineConfig({
   base: '/',
+  plugins: [injectHTML()],
   build: {
     rollupOptions: {
       input: {
@@ -17,3 +19,4 @@ export default defineConfig({
     }
   }
 });
+

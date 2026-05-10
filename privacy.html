@@ -10,16 +10,9 @@
 </head>
 
 <body>
-  <nav class="navbar">
-    <div class="nav-brand">
-      <a href="/">
-        <img src="./.assets/logo/blanc-without-drayko-logo.png" alt="TBXM Logo" class="nav-logo" />
-      </a>
-    </div>
-    <div class="nav-links">
-      <a href="https://github.com/ddrayko/ToolsBoXMachine" target="_blank" class="nav-link">GitHub</a>
-    </div>
-  </nav>
+  <!-- @include ./ui/navbar.html -->
+
+
 
   <div class="content-container">
     <div class="legal-card fade-in">
@@ -65,18 +58,11 @@
     </div>
   </div>
 
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-copyright">
-        © 2026 <a href="https://drayko.xyz" target="_blank" class="drayko-link">Drayko</a>. All rights reserved.
-      </div>
-      <div class="footer-links">
-        <a href="/philosophy.html" class="footer-link">Philosophy</a>
-        <a href="/privacy.html" class="footer-link">Privacy Policy</a>
-        <a href="/terms.html" class="footer-link">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
+  <script type="module" src="/ui/navbar.js"></script>
+
+  <!-- @include ./ui/footer.html -->
+
+
 </body>
 
 </html>
