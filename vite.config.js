@@ -12,9 +12,9 @@ export default defineConfig({
         blur: resolve(__dirname, 'tools/blur/blur.html'),
         correcteur: resolve(__dirname, 'tools/correcteur/correcteur.html'),
         'password-gen': resolve(__dirname, 'tools/password-gen/password-gen.html'),
-        privacy: resolve(__dirname, 'privacy.html'),
-        terms: resolve(__dirname, 'terms.html'),
-        philosophy: resolve(__dirname, 'philosophy.html'),
+        privacy: resolve(__dirname, 'pages/privacy.html'),
+        terms: resolve(__dirname, 'pages/terms.html'),
+        philosophy: resolve(__dirname, 'pages/philosophy.html'),
         'qr-gen': resolve(__dirname, 'tools/qr-gen/qr-gen.html')
       }
     }
