@@ -8,6 +8,7 @@ const tools = [
     name: 'Blur Image',
     emoji: '🎨',
     desc: 'Protect privacy by blurring sensitive parts.',
+    keywords: 'image privacy hide anonymize secure',
     url: '/tools/blur/blur.html'
   },
   {
@@ -15,6 +16,7 @@ const tools = [
     name: 'Text Corrector',
     emoji: '✍️',
     desc: 'Fix grammar and spelling in seconds.',
+    keywords: 'spelling grammar writing fix spell check',
     url: '/tools/correcteur/correcteur.html'
   },
   {
@@ -22,6 +24,7 @@ const tools = [
     name: 'Password Gen',
     emoji: '🔐',
     desc: 'Generate secure passwords or passphrases.',
+    keywords: 'security secret key safe password',
     url: '/tools/password-gen/password-gen.html'
   },
   {
@@ -29,6 +32,7 @@ const tools = [
     name: 'QR Generator',
     emoji: '📱',
     desc: 'Create custom QR codes for any link or text.',
+    keywords: 'link phone scan share code barcode',
     url: '/tools/qr-gen/qr-gen.html'
   }
 ];
@@ -42,10 +46,11 @@ function updateSearch() {
     return;
   }
 
-  const filtered = tools.filter(t => 
-    t.name.toLowerCase().includes(query) || 
-    t.desc.toLowerCase().includes(query)
-  );
+  const queryWords = query.split(/\s+/);
+  const filtered = tools.filter(t => {
+    const searchStr = (t.name + ' ' + t.desc + ' ' + t.keywords).toLowerCase();
+    return queryWords.every(word => searchStr.includes(word));
+  });
 
   searchResults.innerHTML = '';
 
