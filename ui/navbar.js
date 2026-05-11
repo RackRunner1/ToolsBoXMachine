@@ -23,6 +23,13 @@ const tools = [
     emoji: '🔐',
     desc: 'Generate secure passwords or passphrases.',
     url: '/tools/password-gen/password-gen.html'
+  },
+  {
+    id: 'card-qr',
+    name: 'QR Generator',
+    emoji: '📱',
+    desc: 'Create custom QR codes for any link or text.',
+    url: '/tools/qr-gen/qr-gen.html'
   }
 ];
 
