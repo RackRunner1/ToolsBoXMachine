@@ -222,10 +222,10 @@ h1 {
 
 .home-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2.5rem;
   width: 100%;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 2rem auto;
   padding: 0 2rem;
 }
