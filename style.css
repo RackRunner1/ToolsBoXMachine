@@ -34,6 +34,7 @@ body {
 
 h1 {
   font-size: 2.5rem;
+  margin-top: 8rem;
   margin-bottom: 1.3rem;
   background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
   -webkit-background-clip: text;
@@ -207,6 +208,7 @@ h1 {
 
 .page-title {
   font-size: 3rem;
+  margin-top: 0;
   margin-bottom: 0.5rem;
   background: linear-gradient(to right, #60a5fa, #a78bfa);
   -webkit-background-clip: text;
@@ -832,6 +834,7 @@ input[type=range] {
 }
 
 .content-container h1 {
+  margin-top: 0;
   margin-bottom: 2rem;
 }
 
