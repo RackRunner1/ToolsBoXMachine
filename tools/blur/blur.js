@@ -1,30 +1,32 @@
-const upload = document.getElementById('image-upload');
-const canvas = document.getElementById('blurry-canvas');
-const ctx = canvas.getContext('2d');
-const brushSizeInput = document.getElementById('brush-size');
-const blurIntensityInput = document.getElementById('blur-intensity');
-const sizeVal = document.getElementById('size-val');
-const blurVal = document.getElementById('blur-val');
-const undoBtn = document.getElementById('undo-btn');
-const resetBtn = document.getElementById('reset-btn');
-const downloadBtn = document.getElementById('download-btn');
-const brushSizeContainer = document.getElementById('brush-size-container');
+const upload = document.getElementById("image-upload");
+const canvas = document.getElementById("blurry-canvas");
+const ctx = canvas.getContext("2d");
+const brushSizeInput = document.getElementById("brush-size");
+const blurIntensityInput = document.getElementById("blur-intensity");
+const sizeVal = document.getElementById("size-val");
+const blurVal = document.getElementById("blur-val");
+const undoBtn = document.getElementById("undo-btn");
+const resetBtn = document.getElementById("reset-btn");
+const downloadBtn = document.getElementById("download-btn");
+const brushSizeContainer = document.getElementById("brush-size-container");
 
 let imageObjects = null;
 let isDrawing = false;
-let offscreenCanvas = document.createElement('canvas');
-let offscreenCtx = offscreenCanvas.getContext('2d');
+let offscreenCanvas = document.createElement("canvas");
+let offscreenCtx = offscreenCanvas.getContext("2d");
 const modeRadios = document.querySelectorAll('input[name="blurMode"]');
 
 // Import Mode Elements
 const importModeRadios = document.querySelectorAll('input[name="importMode"]');
-const fileContainer = document.getElementById('file-import-container');
-const clipboardContainer = document.getElementById('clipboard-import-container');
-const pasteArea = document.getElementById('paste-area');
+const fileContainer = document.getElementById("file-import-container");
+const clipboardContainer = document.getElementById(
+  "clipboard-import-container",
+);
+const pasteArea = document.getElementById("paste-area");
 
 // A secondary canvas to keep track of painted strokes
-let paintCanvas = document.createElement('canvas');
-let paintCtx = paintCanvas.getContext('2d');
+let paintCanvas = document.createElement("canvas");
+let paintCtx = paintCanvas.getContext("2d");
 let blurHistory = [];
 const maxHistory = 20;
 
@@ -36,7 +38,9 @@ function saveState() {
   if (blurHistory.length >= maxHistory) {
     blurHistory.shift();
   }
-  blurHistory.push(paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height));
+  blurHistory.push(
+    paintCtx.getImageData(0, 0, paintCanvas.width, paintCanvas.height),
+  );
 }
 
 function undo() {
@@ -50,16 +54,16 @@ function undo() {
   }
 }
 
-undoBtn.addEventListener('click', undo);
-resetBtn.addEventListener('click', () => {
+undoBtn.addEventListener("click", undo);
+resetBtn.addEventListener("click", () => {
   if (!imageObjects) return;
   saveState();
   paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
   updateCanvas();
 });
 
-document.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+document.addEventListener("keydown", (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === "z") {
     e.preventDefault();
     undo();
   }
@@ -69,10 +73,10 @@ document.addEventListener('keydown', (e) => {
 let currentTransform = { x: 0, y: 0, scale: 1 };
 let isPanning = false;
 let startPan = { x: 0, y: 0 };
-const canvasContainer = document.querySelector('.canvas-container');
+const canvasContainer = document.querySelector(".canvas-container");
 
 // Prevent context menu on right click
-canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
 // Compute the natural CSS-displayed size of the canvas (as if no JS transform applied)
 function getNaturalDisplaySize() {
@@ -93,56 +97,66 @@ function applyTransform() {
 
   // Constrain X: image must stay within container width
   if (scaledW > containerW) {
-    currentTransform.x = Math.min(0, Math.max(currentTransform.x, containerW - scaledW));
+    currentTransform.x = Math.min(
+      0,
+      Math.max(currentTransform.x, containerW - scaledW),
+    );
   } else {
     currentTransform.x = (containerW - scaledW) / 2;
   }
 
   // Constrain Y: image must stay within its natural displayed height
   if (scaledH > naturalH) {
-    currentTransform.y = Math.min(0, Math.max(currentTransform.y, naturalH - scaledH));
+    currentTransform.y = Math.min(
+      0,
+      Math.max(currentTransform.y, naturalH - scaledH),
+    );
   } else {
     currentTransform.y = 0;
   }
 
-  canvas.style.transformOrigin = '0 0';
+  canvas.style.transformOrigin = "0 0";
   canvas.style.transform = `translate(${currentTransform.x}px, ${currentTransform.y}px) scale(${currentTransform.scale})`;
 }
 
-canvasContainer.addEventListener('wheel', (e) => {
-  if (e.ctrlKey || e.metaKey) {
-    e.preventDefault();
-    if (!imageObjects) return;
+canvasContainer.addEventListener(
+  "wheel",
+  (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      if (!imageObjects) return;
 
-    const delta = e.deltaY;
-    const zoom = Math.exp(-delta * 0.005);
-    let newScale = currentTransform.scale * zoom;
-    
-    if (newScale > 50) return;
-    if (newScale < 1) newScale = 1; // 1 = CSS natural fit size
-    
-    const rect = canvas.getBoundingClientRect();
-    const dx = e.clientX - rect.left;
-    const dy = e.clientY - rect.top;
-    const R = newScale / currentTransform.scale;
-    
-    currentTransform.x = currentTransform.x + dx - dx * R;
-    currentTransform.y = currentTransform.y + dy - dy * R;
-    currentTransform.scale = newScale;
-    
-    applyTransform();
-  }
-}, { passive: false });
+      const delta = e.deltaY;
+      const zoom = Math.exp(-delta * 0.005);
+      let newScale = currentTransform.scale * zoom;
+
+      if (newScale > 50) return;
+      if (newScale < 1) newScale = 1; // 1 = CSS natural fit size
+
+      const rect = canvas.getBoundingClientRect();
+      const dx = e.clientX - rect.left;
+      const dy = e.clientY - rect.top;
+      const R = newScale / currentTransform.scale;
+
+      currentTransform.x = currentTransform.x + dx - dx * R;
+      currentTransform.y = currentTransform.y + dy - dy * R;
+      currentTransform.scale = newScale;
+
+      applyTransform();
+    }
+  },
+  { passive: false },
+);
 
 function updateCanvas() {
   if (!imageObjects) return;
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
-  
-  if (mode === 'full') {
-    brushSizeContainer.style.display = 'none';
+
+  if (mode === "full") {
+    brushSizeContainer.style.display = "none";
     ctx.drawImage(offscreenCanvas, 0, 0);
   } else {
-    brushSizeContainer.style.display = 'block';
+    brushSizeContainer.style.display = "block";
     ctx.drawImage(imageObjects, 0, 0);
     ctx.drawImage(paintCanvas, 0, 0);
   }
@@ -154,52 +168,59 @@ function updateCanvas() {
 
 function drawBrushPreview() {
   if (!showBrushPreview || !imageObjects) return;
-  
+
   const size = parseInt(brushSizeInput.value, 10);
-  
+
   const containerRect = canvasContainer.getBoundingClientRect();
   const canvasRect = canvas.getBoundingClientRect();
-  
+
   // Find the image coordinates corresponding to the center of the visible container
-  const centerX = (containerRect.width / 2 + containerRect.left - canvasRect.left) * (canvas.width / canvasRect.width);
-  const centerY = (containerRect.height / 2 + containerRect.top - canvasRect.top) * (canvas.height / canvasRect.height);
-  
+  const centerX =
+    (containerRect.width / 2 + containerRect.left - canvasRect.left) *
+    (canvas.width / canvasRect.width);
+  const centerY =
+    (containerRect.height / 2 + containerRect.top - canvasRect.top) *
+    (canvas.height / canvasRect.height);
+
   ctx.save();
   // Outer shadow/border for visibility
   ctx.beginPath();
   ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
   ctx.lineWidth = 3 * (canvas.width / canvasRect.width); // Adjust line width based on zoom
   ctx.stroke();
-  
+
   // Main dashed circle
   ctx.beginPath();
   ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
-  ctx.setLineDash([5 * (canvas.width / canvasRect.width), 5 * (canvas.width / canvasRect.width)]);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.setLineDash([
+    5 * (canvas.width / canvasRect.width),
+    5 * (canvas.width / canvasRect.width),
+  ]);
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
   ctx.lineWidth = 1.5 * (canvas.width / canvasRect.width);
   ctx.stroke();
   ctx.restore();
 }
 
-modeRadios.forEach(radio => radio.addEventListener('change', updateCanvas));
+modeRadios.forEach((radio) => radio.addEventListener("change", updateCanvas));
 
-brushSizeInput.addEventListener('input', (e) => {
+brushSizeInput.addEventListener("input", (e) => {
   sizeVal.textContent = e.target.value;
-  
+
   if (imageObjects) {
     showBrushPreview = true;
     updateCanvas();
   }
 });
 
-brushSizeInput.addEventListener('change', () => {
+brushSizeInput.addEventListener("change", () => {
   showBrushPreview = false;
   updateCanvas();
 });
-blurIntensityInput.addEventListener('input', (e) => {
+blurIntensityInput.addEventListener("input", (e) => {
   blurVal.textContent = e.target.value;
-  if(imageObjects) {
+  if (imageObjects) {
     renderBlurredOffscreen();
     updateCanvas();
   }
@@ -214,19 +235,19 @@ function loadImage(src) {
     offscreenCanvas.height = img.height;
     paintCanvas.width = img.width;
     paintCanvas.height = img.height;
-    
+
     blurHistory = []; // Reset history for new image
-    
+
     imageObjects = img;
 
     // Hide placeholder and show canvas
-    const placeholder = document.getElementById('canvas-placeholder');
-    if (placeholder) placeholder.style.display = 'none';
-    canvas.style.display = 'block';
+    const placeholder = document.getElementById("canvas-placeholder");
+    if (placeholder) placeholder.style.display = "none";
+    canvas.style.display = "block";
 
     // Let CSS handle initial fit via max-width: 100%; height: auto
     currentTransform = { x: 0, y: 0, scale: 1 };
-    canvas.style.transform = 'none';
+    canvas.style.transform = "none";
 
     renderBlurredOffscreen();
     updateCanvas();
@@ -234,19 +255,19 @@ function loadImage(src) {
   img.src = src;
 }
 
-importModeRadios.forEach(radio => {
-  radio.addEventListener('change', (e) => {
-    if (e.target.value === 'file') {
-      fileContainer.style.display = 'block';
-      clipboardContainer.style.display = 'none';
+importModeRadios.forEach((radio) => {
+  radio.addEventListener("change", (e) => {
+    if (e.target.value === "file") {
+      fileContainer.style.display = "block";
+      clipboardContainer.style.display = "none";
     } else {
-      fileContainer.style.display = 'none';
-      clipboardContainer.style.display = 'block';
+      fileContainer.style.display = "none";
+      clipboardContainer.style.display = "block";
     }
   });
 });
 
-upload.addEventListener('change', (e) => {
+upload.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
@@ -259,7 +280,7 @@ upload.addEventListener('change', (e) => {
 async function handlePaste(e) {
   const items = (e.clipboardData || e.originalEvent.clipboardData).items;
   for (const item of items) {
-    if (item.type.indexOf('image') !== -1) {
+    if (item.type.indexOf("image") !== -1) {
       const blob = item.getAsFile();
       const reader = new FileReader();
       reader.onload = (event) => loadImage(event.target.result);
@@ -269,15 +290,15 @@ async function handlePaste(e) {
   }
 }
 
-window.addEventListener('paste', handlePaste);
+window.addEventListener("paste", handlePaste);
 
-pasteArea.addEventListener('click', async () => {
+pasteArea.addEventListener("click", async () => {
   try {
     // Try using the modern Clipboard API first
     const clipboardItems = await navigator.clipboard.read();
     for (const clipboardItem of clipboardItems) {
       for (const type of clipboardItem.types) {
-        if (type.startsWith('image/')) {
+        if (type.startsWith("image/")) {
           const blob = await clipboardItem.getType(type);
           const reader = new FileReader();
           reader.onload = (event) => loadImage(event.target.result);
@@ -288,7 +309,7 @@ pasteArea.addEventListener('click', async () => {
     }
   } catch (err) {
     // Fallback if Clipboard API fails (e.g. permission or not supported)
-    console.error('Clipboard API failed, please use Ctrl+V', err);
+    console.error("Clipboard API failed, please use Ctrl+V", err);
     // We can't programmatically trigger a paste event for security reasons,
     // but the window listener is already active for Ctrl+V.
   }
@@ -305,33 +326,37 @@ function getMousePos(evt) {
   const rect = canvas.getBoundingClientRect();
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
-  
+
   return {
     x: (evt.clientX - rect.left) * scaleX,
-    y: (evt.clientY - rect.top) * scaleY
+    y: (evt.clientY - rect.top) * scaleY,
   };
 }
 
-canvas.addEventListener('mousedown', (e) => {
+canvas.addEventListener("mousedown", (e) => {
   if (!imageObjects) return;
 
-  if (e.button === 2) { // Right click for panning
+  if (e.button === 2) {
+    // Right click for panning
     if (currentTransform.scale <= 1) return; // Nothing to pan at natural size
     isPanning = true;
-    startPan = { x: e.clientX - currentTransform.x, y: e.clientY - currentTransform.y };
+    startPan = {
+      x: e.clientX - currentTransform.x,
+      y: e.clientY - currentTransform.y,
+    };
     return;
   }
 
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
-  if (mode === 'full') return;
-  
+  if (mode === "full") return;
+
   saveState(); // Save state before drawing begins
-  
+
   isDrawing = true;
   drawBlur(e);
 });
 
-canvas.addEventListener('mousemove', (e) => {
+canvas.addEventListener("mousemove", (e) => {
   if (isPanning) {
     currentTransform.x = e.clientX - startPan.x;
     currentTransform.y = e.clientY - startPan.y;
@@ -343,11 +368,11 @@ canvas.addEventListener('mousemove', (e) => {
   }
 });
 
-canvas.addEventListener('mouseup', () => {
+canvas.addEventListener("mouseup", () => {
   isPanning = false;
   isDrawing = false;
 });
-canvas.addEventListener('mouseleave', () => {
+canvas.addEventListener("mouseleave", () => {
   isPanning = false;
   isDrawing = false;
 });
@@ -356,32 +381,32 @@ function drawBlur(e) {
   const pos = getMousePos(e);
   const size = parseInt(brushSizeInput.value, 10);
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
-  
+
   paintCtx.save();
-  if (mode === 'eraser') {
-    paintCtx.globalCompositeOperation = 'destination-out';
+  if (mode === "eraser") {
+    paintCtx.globalCompositeOperation = "destination-out";
   } else {
-    paintCtx.globalCompositeOperation = 'source-over';
+    paintCtx.globalCompositeOperation = "source-over";
   }
 
   paintCtx.beginPath();
   paintCtx.arc(pos.x, pos.y, size, 0, Math.PI * 2, false);
   paintCtx.clip();
-  
-  if (mode === 'brush') {
+
+  if (mode === "brush") {
     paintCtx.drawImage(offscreenCanvas, 0, 0);
-  } else if (mode === 'eraser') {
+  } else if (mode === "eraser") {
     paintCtx.fill(); // This will erase because of destination-out
   }
-  
+
   paintCtx.restore();
   updateCanvas();
 }
 
-downloadBtn.addEventListener('click', () => {
+downloadBtn.addEventListener("click", () => {
   if (!imageObjects) return;
-  const link = document.createElement('a');
-  link.download = 'blurred_image.png';
-  link.href = canvas.toDataURL('image/png');
+  const link = document.createElement("a");
+  link.download = "blurred_image.png";
+  link.href = canvas.toDataURL("image/png");
   link.click();
 });
