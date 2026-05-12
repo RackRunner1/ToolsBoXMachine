@@ -1,4 +1,9 @@
+import "./zxcvbn.js";
+
+const zxcvbn = window.zxcvbn;
+
 const passwordOutput = document.getElementById("password-output");
+
 const generateBtn = document.getElementById("generate-btn");
 const copyBtn = document.getElementById("copy-btn");
 const lengthInput = document.getElementById("password-length");
