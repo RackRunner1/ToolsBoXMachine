@@ -230,7 +230,6 @@ function updateStrength(password) {
 
   // Analyse via zxcvbn
   const result = zxcvbn(password);
-  console.log(result);
   const score = result.score; // 0 à 4
 
   // Définition des niveaux
