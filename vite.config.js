@@ -11,7 +11,10 @@ export default defineConfig({
       name: "serve-zxcvbn",
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
-          if (req.url === "/zxcvbn.js") {
+          if (
+            req.url === "/zxcvbn.js" ||
+            req.url === "/tools/password-gen/zxcvbn.js"
+          ) {
             const content = fs.readFileSync(
               resolve(__dirname, "tools/password-gen/zxcvbn.js"),
             );
@@ -23,12 +26,18 @@ export default defineConfig({
         });
       },
       generateBundle() {
+        const source = fs.readFileSync(
+          resolve(__dirname, "tools/password-gen/zxcvbn.js"),
+        );
         this.emitFile({
           type: "asset",
           fileName: "zxcvbn.js",
-          source: fs.readFileSync(
-            resolve(__dirname, "tools/password-gen/zxcvbn.js"),
-          ),
+          source,
+        });
+        this.emitFile({
+          type: "asset",
+          fileName: "tools/password-gen/zxcvbn.js",
+          source,
         });
       },
     },
