@@ -218,7 +218,6 @@ function generatePassword() {
 }
 
 function updateStrength(password) {
-  let score = 0;
   if (
     !password ||
     password === "Select at least one option" ||
@@ -229,44 +228,25 @@ function updateStrength(password) {
     return;
   }
 
-  const mode = document.querySelector('input[name="genMode"]:checked').value;
+  // Analyse via zxcvbn
+  const result = zxcvbn(password);
+  console.log(result);
+  const score = result.score; // 0 à 4
 
-  if (mode === "password") {
-    if (password.length >= 8) score += 1;
-    if (password.length >= 12) score += 1;
-    if (password.length >= 16) score += 1;
-    if (/[A-Z]/.test(password)) score += 1;
-    if (/[0-9]/.test(password)) score += 1;
-    if (/[^A-Za-z0-9]/.test(password)) score += 1;
-    if (!excludeAmbiguous.checked) score += 0; // No penalty, just baseline
-  } else {
-    const length = parseInt(lengthInput.value);
-    if (length >= 3) score += 2;
-    if (length >= 5) score += 2;
-    if (capitalizePhrase.checked) score += 1;
-    if (includeNumbersPhrase.checked) score += 1;
-  }
+  // Définition des niveaux
+  const levels = [
+    { text: "Very Weak", color: "#ef4444", percent: 10 },
+    { text: "Weak", color: "#f97316", percent: 30 },
+    { text: "Medium", color: "#eab308", percent: 50 },
+    { text: "Strong", color: "#22c55e", percent: 75 },
+    { text: "Very Strong", color: "#10b981", percent: 100 },
+  ];
 
-  let color = "#ef4444";
-  let text = "Weak";
-  let percentage = (score / 6) * 100;
+  const level = levels[score];
 
-  if (mode === "passphrase") percentage = (score / 6) * 100;
-
-  if (percentage >= 80) {
-    color = "#10b981";
-    text = "Very Strong";
-  } else if (percentage >= 60) {
-    color = "#22c55e";
-    text = "Strong";
-  } else if (percentage >= 40) {
-    color = "#eab308";
-    text = "Medium";
-  }
-
-  strengthBar.style.width = `${Math.min(percentage, 100)}%`;
-  strengthBar.style.backgroundColor = color;
-  strengthText.textContent = `Strength: ${text}`;
+  strengthBar.style.width = `${level.percent}%`;
+  strengthBar.style.backgroundColor = level.color;
+  strengthText.textContent = `Strength: ${level.text}`;
 }
 
 // Event Listeners
