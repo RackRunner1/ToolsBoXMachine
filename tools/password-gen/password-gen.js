@@ -1,5 +1,3 @@
-import "./zxcvbn.js";
-
 const zxcvbn = window.zxcvbn;
 
 const passwordOutput = document.getElementById("password-output");
