@@ -1,10 +1,38 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import injectHTML from "vite-plugin-html-inject";
+import fs from "fs";
 
 export default defineConfig({
   base: "/",
-  plugins: [injectHTML()],
+  plugins: [
+    injectHTML(),
+    {
+      name: "serve-zxcvbn",
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url === "/zxcvbn.js") {
+            const content = fs.readFileSync(
+              resolve(__dirname, "tools/password-gen/zxcvbn.js"),
+            );
+            res.setHeader("Content-Type", "application/javascript");
+            res.end(content);
+          } else {
+            next();
+          }
+        });
+      },
+      generateBundle() {
+        this.emitFile({
+          type: "asset",
+          fileName: "zxcvbn.js",
+          source: fs.readFileSync(
+            resolve(__dirname, "tools/password-gen/zxcvbn.js"),
+          ),
+        });
+      },
+    },
+  ],
   build: {
     rollupOptions: {
       input: {
