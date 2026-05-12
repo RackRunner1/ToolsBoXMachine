@@ -1,23 +1,25 @@
-import { defineConfig } from 'vite';
-import { resolve } from 'path';
-import injectHTML from 'vite-plugin-html-inject';
+import { defineConfig } from "vite";
+import { resolve } from "path";
+import injectHTML from "vite-plugin-html-inject";
 
 export default defineConfig({
-  base: '/',
+  base: "/",
   plugins: [injectHTML()],
   build: {
     rollupOptions: {
       input: {
-        main: resolve(__dirname, 'index.html'),
-        blur: resolve(__dirname, 'tools/blur/blur.html'),
-        correcteur: resolve(__dirname, 'tools/correcteur/correcteur.html'),
-        'password-gen': resolve(__dirname, 'tools/password-gen/password-gen.html'),
-        privacy: resolve(__dirname, 'pages/privacy.html'),
-        terms: resolve(__dirname, 'pages/terms.html'),
-        philosophy: resolve(__dirname, 'pages/philosophy.html'),
-        'qr-gen': resolve(__dirname, 'tools/qr-gen/qr-gen.html')
-      }
-    }
-  }
+        main: resolve(__dirname, "index.html"),
+        blur: resolve(__dirname, "tools/blur/blur.html"),
+        correcteur: resolve(__dirname, "tools/correcteur/correcteur.html"),
+        "password-gen": resolve(
+          __dirname,
+          "tools/password-gen/password-gen.html",
+        ),
+        privacy: resolve(__dirname, "pages/privacy.html"),
+        terms: resolve(__dirname, "pages/terms.html"),
+        philosophy: resolve(__dirname, "pages/philosophy.html"),
+        "qr-gen": resolve(__dirname, "tools/qr-gen/qr-gen.html"),
+      },
+    },
+  },
 });
-

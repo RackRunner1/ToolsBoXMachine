@@ -17,19 +17,24 @@
 1. Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
 2. Open a terminal in the project's current folder.
 3. Install the necessary dependencies:
+
 ```bash
 npm install
 ```
+
 4. Launch the local development server:
+
 ```bash
 npm run dev
 ```
+
 5. Open the address indicated in your terminal (usually `http://localhost:5173`).
 
 ## 🖥️ You are not a developper ?
+
 No problem ! ToolsBoxMachine is a free to use tool, just use the [online version](https://tbxm.drayko.xyz).
 
 ## 🤝 Contributing
 
-Got an idea for a new tool? Contributions are highly encouraged! 
+Got an idea for a new tool? Contributions are highly encouraged!
 Feel free to open an **Issue** to suggest your idea, or directly submit a **Pull Request** if you want to build it yourself.
