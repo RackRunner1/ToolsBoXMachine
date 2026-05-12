@@ -5,20 +5,6 @@
 
 ---
 
-## 🚀 Features
-
-1. **Blur Image**: 
-   - Upload an image directly from your device.
-   - **Brush** mode to precisely blur selected areas on the image.
-   - **Full Image** mode to apply a blur filter to the entire image.
-   - Control brush size and blur intensity in real-time.
-   - Download the final result in high quality.
-
-2. **Spell Checker**:
-   - Instant text verification.
-   - Uses the free community `LanguageTool` API.
-   - Interactive and clickable suggestions to quickly apply recommended corrections directly into the text.
-
 ## 🛠 Technologies used
 
 - **HTML5 / CSS3 Vanilla** with a "Glassmorphism" UI and smooth animations.
