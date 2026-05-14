@@ -57,6 +57,7 @@ export default defineConfig({
         philosophy: resolve(__dirname, "pages/philosophy.html"),
         "qr-gen": resolve(__dirname, "tools/qr-gen/qr-gen.html"),
         calculator: resolve(__dirname, "tools/calculator/calculator.html"),
+        "dns-leaker": resolve(__dirname, "tools/dns-leaker/dns-leaker.html"),
       },
     },
   },
