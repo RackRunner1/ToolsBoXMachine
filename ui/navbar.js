@@ -28,6 +28,14 @@ const tools = [
     url: "/tools/correcteur/correcteur.html",
   },
   {
+    id: "card-dns",
+    name: "DNS Leaker",
+    emoji: "🌐",
+    desc: "Detect potential DNS leaks using WebRTC.",
+    keywords: "network dns leak webrtc security privacy",
+    url: "/tools/dns-leaker/dns-leaker.html",
+  },
+  {
     id: "card-password",
     name: "Password Gen",
     emoji: "🔐",

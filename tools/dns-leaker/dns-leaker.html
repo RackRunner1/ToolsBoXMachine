@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DNS Leaker (TBXM)</title>
+    <link rel="icon" href="../../.assets/logo/fav.png" />
+    <link rel="stylesheet" href="../../style.css" />
+    <style>
+      .dns-results {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        display: none;
+      }
+
+      .dns-results.show {
+        display: block;
+      }
+
+      .ip-list {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 1rem;
+      }
+
+      .ip-item {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid var(--card-border);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .ip-address {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.9rem;
+        color: var(--primary-color);
+        font-weight: 600;
+      }
+
+      .ip-type {
+        font-size: 0.8rem;
+        color: #64748b;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .warning-box {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 1rem;
+      }
+
+      .warning-box h4 {
+        color: #ef4444;
+        margin: 0 0 0.5rem 0;
+        font-size: 0.9rem;
+      }
+
+      .warning-box p {
+        color: #fca5a5;
+        margin: 0;
+        font-size: 0.8rem;
+      }
+
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 2rem;
+        color: #64748b;
+      }
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-top: 2px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+
+  <body>
+    <load src="../../ui/navbar.html" />
+
+    <h1>DNS Leaker</h1>
+
+    <div class="content-container">
+      <div class="card fade-in">
+        <h2>Detect DNS Leaks</h2>
+        <p>
+          This tool uses WebRTC to detect potential DNS leaks by analyzing ICE candidates.
+          It creates a peer connection and collects network information that may reveal
+          your DNS configuration.
+        </p>
+
+        <div class="warning-box">
+          <h4>⚠️ Privacy Note</h4>
+          <p>
+            This test may reveal your local IP addresses and network information.
+            Use with caution and only on trusted networks.
+          </p>
+        </div>
+
+        <button class="btn btn-primary w-full" id="start-test">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="10,8 16,12 10,16 10,8"></polygon>
+          </svg>
+          Start DNS Leak Test
+        </button>
+
+        <div class="dns-results" id="results">
+          <h3>Test Results</h3>
+          <div id="results-content">
+            <div class="loading">
+              <div class="spinner"></div>
+              <span>Analyzing network candidates...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <load src="../../ui/footer.html" />
+
+    <script type="module" src="./dns-leaker.js"></script>
+    <script type="module" src="/ui/navbar.js"></script>
+  </body>
+</html>
