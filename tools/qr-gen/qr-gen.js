@@ -59,7 +59,10 @@ function handleInput() {
 
 qrInput.addEventListener("input", handleInput);
 qrColorDark.addEventListener("input", generateQR);
-qrColorLight.addEventListener("input", generateQR);
+qrColorLight.addEventListener("input", () => {
+  generateQR();
+  qrContainer.style.backgroundColor = qrColorLight.value;
+});
 qrSize.addEventListener("input", () => {
   sizeValue.textContent = `${qrSize.value}px`;
   generateQR();
@@ -90,3 +93,4 @@ copyBtn.addEventListener("click", () => {
 
 // Initial state
 sizeValue.textContent = `${qrSize.value}px`;
+qrContainer.style.backgroundColor = qrColorLight.value;
