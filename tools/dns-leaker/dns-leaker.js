@@ -7,10 +7,8 @@ let candidates = [];
 
 function createPeerConnection() {
   const config = {
-    iceServers: [
-      { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun1.l.google.com:19302" },
-    ],
+    iceServers: [],
+    iceTransportPolicy: "all",
   };
 
   peerConnection = new RTCPeerConnection(config);
@@ -23,12 +21,13 @@ function createPeerConnection() {
 
   peerConnection.onicegatheringstatechange = () => {
     if (peerConnection.iceGatheringState === "complete") {
+      clearTimeout(gatherTimeout);
       displayResults();
     }
   };
 
   // Create a dummy data channel to trigger ICE candidate gathering
-  const dataChannel = peerConnection.createDataChannel("test");
+  peerConnection.createDataChannel("test");
 
   // Create offer to start the process
   peerConnection
@@ -39,6 +38,16 @@ function createPeerConnection() {
       showError("Failed to create peer connection");
     });
 }
+
+let gatherTimeout;
+
+function startGatherTimeout() {
+  clearTimeout(gatherTimeout);
+  gatherTimeout = setTimeout(() => {
+    displayResults();
+  }, 5000);
+}
+
 
 function displayResults() {
   const uniqueIPs = new Set();
@@ -152,6 +161,7 @@ function startTest() {
   // Start the test
   try {
     createPeerConnection();
+    startGatherTimeout();
   } catch (error) {
     console.error("Error starting test:", error);
     showError(
