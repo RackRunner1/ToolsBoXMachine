@@ -417,7 +417,23 @@ copyBtn.addEventListener("click", () => {
 
   const originalContent = copyBtn.innerHTML;
   copyBtn.innerHTML = `
-    <span class="copy-icon">
+    <span class="copy-icon-original fade">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+      </svg>
+    </span>
+    <span class="copy-icon-check" style="position: absolute; pointer-events: none;">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="20"
@@ -436,9 +452,6 @@ copyBtn.addEventListener("click", () => {
     <span>Copied!</span>
   `;
 
-  const icon = copyBtn.querySelector(".copy-icon");
-  if (icon) icon.classList.add("fade");
-
   canvas.toBlob((blob) => {
     if (!blob) return;
 
@@ -449,7 +462,6 @@ copyBtn.addEventListener("click", () => {
 
   // Reset after animation
   setTimeout(() => {
-    copyBtn.classList.remove("copy-animation");
-    copyBtn.innerHTML = originalIcon;
+    copyBtn.innerHTML = originalContent;
   }, 2000);
 });
