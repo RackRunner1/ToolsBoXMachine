@@ -56,6 +56,7 @@ export default defineConfig({
         terms: resolve(__dirname, "pages/terms.html"),
         philosophy: resolve(__dirname, "pages/philosophy.html"),
         "qr-gen": resolve(__dirname, "tools/qr-gen/qr-gen.html"),
+        calculator: resolve(__dirname, "tools/calculator/calculator.html"),
       },
     },
   },

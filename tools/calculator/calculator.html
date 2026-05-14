@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculator (TBXM)</title>
+    <link rel="icon" href="../../.assets/logo/fav.png" />
+    <link rel="stylesheet" href="../../style.css" />
+    <style>
+      .calculator-container {
+        background: #0f172a;
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      #display {
+        width: 100%;
+        height: 80px;
+        background: #1e293b;
+        border: 1px solid var(--card-border);
+        border-radius: 0.5rem;
+        font-family: var(--font-mono);
+        font-size: 2rem;
+        color: var(--primary-color);
+        text-align: right;
+        padding: 1rem;
+        box-sizing: border-box;
+        overflow: hidden;
+      }
+
+      .buttons-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+        width: 100%;
+      }
+
+      .calc-btn {
+        background: #1e293b;
+        border: 1px solid var(--card-border);
+        border-radius: 0.5rem;
+        color: #e2e8f0;
+        font-size: 1.5rem;
+        font-weight: 500;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .calc-btn:hover {
+        background: #334155;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 10px var(--primary-glow);
+      }
+
+      .calc-btn:active {
+        background: #475569;
+      }
+
+      .operator {
+        background: var(--primary-color);
+        color: #0f172a;
+      }
+
+      .operator:hover {
+        background: #3b82f6;
+      }
+
+      .equals {
+        background: #10b981;
+        color: white;
+        grid-column: span 2;
+      }
+
+      .equals:hover {
+        background: #059669;
+      }
+
+      .clear {
+        background: #ef4444;
+        color: white;
+      }
+
+      .clear:hover {
+        background: #dc2626;
+      }
+    </style>
+  </head>
+
+  <body>
+    <load src="../../ui/navbar.html" />
+
+    <div class="hero-section">
+      <h1 class="page-title">Calculator</h1>
+      <p class="subtitle">
+        Perform basic arithmetic calculations quickly and easily.
+      </p>
+    </div>
+
+    <div class="calculator-container">
+      <input type="text" id="display" readonly value="0" />
+
+      <div class="buttons-grid">
+        <button class="calc-btn clear" id="clear">C</button>
+        <button class="calc-btn" id="backspace">⌫</button>
+        <button class="calc-btn operator" id="divide">÷</button>
+        <button class="calc-btn operator" id="multiply">×</button>
+
+        <button class="calc-btn" id="seven">7</button>
+        <button class="calc-btn" id="eight">8</button>
+        <button class="calc-btn" id="nine">9</button>
+        <button class="calc-btn operator" id="subtract">-</button>
+
+        <button class="calc-btn" id="four">4</button>
+        <button class="calc-btn" id="five">5</button>
+        <button class="calc-btn" id="six">6</button>
+        <button class="calc-btn operator" id="add">+</button>
+
+        <button class="calc-btn" id="one">1</button>
+        <button class="calc-btn" id="two">2</button>
+        <button class="calc-btn" id="three">3</button>
+        <button class="calc-btn equals" id="equals">=</button>
+
+        <button class="calc-btn" id="zero" style="grid-column: span 2;">0</button>
+        <button class="calc-btn" id="decimal">.</button>
+      </div>
+    </div>
+
+    <script type="module" src="./calculator.js"></script>
+
+    <load src="../../ui/footer.html" />
+  </body>
+</html>
