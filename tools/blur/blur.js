@@ -8,6 +8,7 @@ const blurVal = document.getElementById("blur-val");
 const undoBtn = document.getElementById("undo-btn");
 const resetBtn = document.getElementById("reset-btn");
 const downloadBtn = document.getElementById("download-btn");
+const copyBtn = document.getElementById("copy-btn");
 const brushSizeContainer = document.getElementById("brush-size-container");
 
 let imageObjects = null;
@@ -409,4 +410,16 @@ downloadBtn.addEventListener("click", () => {
   link.download = "blurred_image.png";
   link.href = canvas.toDataURL("image/png");
   link.click();
+});
+
+copyBtn.addEventListener("click", () => {
+  if (!imageObjects) return;
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+
+    // works only if the page use HTTPS protocol
+    const item = new ClipboardItem({ "image/png": blob });
+    navigator.clipboard.write([item]);
+  });
 });
