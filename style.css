@@ -854,7 +854,7 @@ input[type="range"] {
 /* Content Pages (Privacy/Terms) */
 .content-container {
   max-width: 800px;
-  margin: 6rem auto 4rem;
+  margin: 8rem auto 4rem;
   padding: 0 2rem;
   line-height: 1.6;
 }
