@@ -415,6 +415,29 @@ downloadBtn.addEventListener("click", () => {
 copyBtn.addEventListener("click", () => {
   if (!imageObjects) return;
 
+  // Start copy animation
+  copyBtn.classList.add("copy-animation");
+
+  // Change icon to checkmark
+  const originalIcon = copyBtn.innerHTML;
+  copyBtn.innerHTML = `
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="checkmark"
+    >
+      <polyline points="20,6 9,17 4,12" stroke-dasharray="0 100" stroke-dashoffset="0"></polyline>
+    </svg>
+    Copied!
+  `;
+
   canvas.toBlob((blob) => {
     if (!blob) return;
 
@@ -422,4 +445,10 @@ copyBtn.addEventListener("click", () => {
     const item = new ClipboardItem({ "image/png": blob });
     navigator.clipboard.write([item]);
   });
+
+  // Reset after animation
+  setTimeout(() => {
+    copyBtn.classList.remove("copy-animation");
+    copyBtn.innerHTML = originalIcon;
+  }, 2000);
 });
