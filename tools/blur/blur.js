@@ -415,28 +415,29 @@ downloadBtn.addEventListener("click", () => {
 copyBtn.addEventListener("click", () => {
   if (!imageObjects) return;
 
-  // Start copy animation
-  copyBtn.classList.add("copy-animation");
-
-  // Change icon to checkmark
-  const originalIcon = copyBtn.innerHTML;
+  const originalContent = copyBtn.innerHTML;
   copyBtn.innerHTML = `
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="checkmark"
-    >
-      <polyline points="20,6 9,17 4,12" stroke-dasharray="0 100" stroke-dashoffset="0"></polyline>
-    </svg>
-    Copied!
+    <span class="copy-icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="checkmark"
+      >
+        <polyline points="20,6 9,17 4,12"></polyline>
+      </svg>
+    </span>
+    <span>Copied!</span>
   `;
+
+  const icon = copyBtn.querySelector(".copy-icon");
+  if (icon) icon.classList.add("fade");
 
   canvas.toBlob((blob) => {
     if (!blob) return;
