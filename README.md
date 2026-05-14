@@ -38,4 +38,3 @@ No problem ! ToolsBoxMachine is a free to use tool, just use the [online version
 
 Got an idea for a new tool? Contributions are highly encouraged!
 Feel free to open an **Issue** to suggest your idea, or directly submit a **Pull Request** if you want to build it yourself.
-
