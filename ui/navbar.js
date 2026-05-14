@@ -12,6 +12,14 @@ const tools = [
     url: "/tools/blur/blur.html",
   },
   {
+    id: "card-calculator",
+    name: "Calculator",
+    emoji: "🧮",
+    desc: "Perform quick calculations with ease.",
+    keywords: "math compute arithmetic calculate numbers",
+    url: "/tools/calculator/calculator.html",
+  },
+  {
     id: "card-correcteur",
     name: "Text Corrector",
     emoji: "✍️",
