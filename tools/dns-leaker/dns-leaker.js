@@ -9,8 +9,8 @@ function createPeerConnection() {
   const config = {
     iceServers: [
       { urls: "stun:stun.l.google.com:19302" },
-      { urls: "stun:stun1.l.google.com:19302" }
-    ]
+      { urls: "stun:stun1.l.google.com:19302" },
+    ],
   };
 
   peerConnection = new RTCPeerConnection(config);
@@ -22,7 +22,7 @@ function createPeerConnection() {
   };
 
   peerConnection.onicegatheringstatechange = () => {
-    if (peerConnection.iceGatheringState === 'complete') {
+    if (peerConnection.iceGatheringState === "complete") {
       displayResults();
     }
   };
@@ -31,11 +31,12 @@ function createPeerConnection() {
   const dataChannel = peerConnection.createDataChannel("test");
 
   // Create offer to start the process
-  peerConnection.createOffer()
-    .then(offer => peerConnection.setLocalDescription(offer))
-    .catch(error => {
-      console.error('Error creating offer:', error);
-      showError('Failed to create peer connection');
+  peerConnection
+    .createOffer()
+    .then((offer) => peerConnection.setLocalDescription(offer))
+    .catch((error) => {
+      console.error("Error creating offer:", error);
+      showError("Failed to create peer connection");
     });
 }
 
@@ -43,9 +44,9 @@ function displayResults() {
   const uniqueIPs = new Set();
   const ipDetails = [];
 
-  candidates.forEach(candidate => {
+  candidates.forEach((candidate) => {
     if (candidate.candidate) {
-      const parts = candidate.candidate.split(' ');
+      const parts = candidate.candidate.split(" ");
       if (parts.length >= 5) {
         const ip = parts[4];
         const type = parts[7];
@@ -54,15 +55,15 @@ function displayResults() {
           uniqueIPs.add(ip);
           ipDetails.push({
             ip: ip,
-            type: type || 'unknown',
-            protocol: parts[2] || 'unknown'
+            type: type || "unknown",
+            protocol: parts[2] || "unknown",
           });
         }
       }
     }
   });
 
-  let html = '';
+  let html = "";
 
   if (ipDetails.length === 0) {
     html = `
@@ -78,20 +79,21 @@ function displayResults() {
   } else {
     html = `
       <p style="color: #64748b; margin-bottom: 1rem;">
-        Found ${ipDetails.length} unique network candidate${ipDetails.length > 1 ? 's' : ''}:
+        Found ${ipDetails.length} unique network candidate${ipDetails.length > 1 ? "s" : ""}:
       </p>
       <div class="ip-list">
     `;
 
-    ipDetails.forEach(detail => {
-      const isLocal = detail.ip.startsWith('192.168.') ||
-                     detail.ip.startsWith('10.') ||
-                     detail.ip.startsWith('172.') ||
-                     detail.ip === '127.0.0.1' ||
-                     detail.ip === '::1';
+    ipDetails.forEach((detail) => {
+      const isLocal =
+        detail.ip.startsWith("192.168.") ||
+        detail.ip.startsWith("10.") ||
+        detail.ip.startsWith("172.") ||
+        detail.ip === "127.0.0.1" ||
+        detail.ip === "::1";
 
-      const typeLabel = isLocal ? 'Local' : 'Public';
-      const typeColor = isLocal ? '#10b981' : '#f59e0b';
+      const typeLabel = isLocal ? "Local" : "Public";
+      const typeColor = isLocal ? "#10b981" : "#f59e0b";
 
       html += `
         <div class="ip-item">
@@ -145,18 +147,20 @@ function startTest() {
   }
 
   // Show results container
-  resultsDiv.classList.add('show');
+  resultsDiv.classList.add("show");
 
   // Start the test
   try {
     createPeerConnection();
   } catch (error) {
-    console.error('Error starting test:', error);
-    showError('Failed to start DNS leak test. WebRTC may not be supported in this browser.');
+    console.error("Error starting test:", error);
+    showError(
+      "Failed to start DNS leak test. WebRTC may not be supported in this browser.",
+    );
   }
 }
 
-startTestBtn.addEventListener('click', startTest);
+startTestBtn.addEventListener("click", startTest);
 
 // Auto-start test on page load (optional)
 // startTest();

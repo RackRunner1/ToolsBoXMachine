@@ -37,7 +37,7 @@
       }
 
       .ip-address {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 0.9rem;
         color: var(--primary-color);
         font-weight: 600;
@@ -92,8 +92,12 @@
       }
 
       @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
     </style>
   </head>
@@ -107,21 +111,31 @@
       <div class="card fade-in">
         <h2>Detect DNS Leaks</h2>
         <p>
-          This tool uses WebRTC to detect potential DNS leaks by analyzing ICE candidates.
-          It creates a peer connection and collects network information that may reveal
-          your DNS configuration.
+          This tool uses WebRTC to detect potential DNS leaks by analyzing ICE
+          candidates. It creates a peer connection and collects network
+          information that may reveal your DNS configuration.
         </p>
 
         <div class="warning-box">
           <h4>⚠️ Privacy Note</h4>
           <p>
-            This test may reveal your local IP addresses and network information.
-            Use with caution and only on trusted networks.
+            This test may reveal your local IP addresses and network
+            information. Use with caution and only on trusted networks.
           </p>
         </div>
 
         <button class="btn btn-primary w-full" id="start-test">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
             <circle cx="12" cy="12" r="10"></circle>
             <polygon points="10,8 16,12 10,16 10,8"></polygon>
           </svg>
