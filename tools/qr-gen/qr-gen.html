@@ -29,9 +29,14 @@
         border: 2px dashed rgba(255, 255, 255, 0.1);
       }
 
-      .download-btn {
-        width: 100%;
+      div#btn {
         margin-top: 1.5rem;
+      }
+
+      .download-btn,
+      .copy-btn {
+        margin: 1rem auto;
+        width: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -130,24 +135,49 @@
           </div>
         </div>
 
-        <button id="download-qr" class="btn btn-primary download-btn" disabled>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+        <div id="btn">
+          <button id="copy-qr" class="btn btn-primary copy-btn">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+              <path
+                d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+              ></path>
+            </svg>
+            Copy PNG
+          </button>
+          <button
+            id="download-qr"
+            class="btn btn-primary download-btn"
+            disabled
           >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          Download PNG
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download PNG
+          </button>
+        </div>
       </div>
 
       <div class="blur-main">
