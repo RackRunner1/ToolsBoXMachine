@@ -7,6 +7,7 @@ const qrcodeDiv = document.getElementById("qrcode");
 const qrContainer = document.getElementById("qr-container");
 const qrPlaceholder = document.getElementById("qr-placeholder");
 const downloadBtn = document.getElementById("download-qr");
+const copyBtn = document.getElementById("copy-qr");
 
 let debounceTimer;
 
@@ -72,6 +73,19 @@ downloadBtn.addEventListener("click", () => {
   link.download = "tbxm-qrcode.png";
   link.href = canvas.toDataURL("image/png");
   link.click();
+});
+
+copyBtn.addEventListener("click", () => {
+  const canvas = qrcodeDiv.querySelector("canvas");
+  if (!canvas) return;
+
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+
+    // works only if the page use HTTPS protocol
+    const item = new ClipboardItem({ "image/png": blob });
+    navigator.clipboard.write([item]);
+  });
 });
 
 // Initial state
