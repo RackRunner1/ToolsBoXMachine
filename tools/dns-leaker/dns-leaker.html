@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DNS Leaker (TBXM)</title>
+    <title>DNS Leak Test (WebRTC) - TBXM</title>
     <link rel="icon" href="../../.assets/logo/fav.png" />
     <link rel="stylesheet" href="../../style.css" />
     <style>
@@ -109,18 +109,23 @@
 
     <div class="content-container">
       <div class="card fade-in">
-        <h2>Detect DNS Leaks</h2>
+        <h2>Detect DNS Leaks (WebRTC)</h2>
         <p>
-          This tool uses WebRTC to detect potential DNS leaks by analyzing ICE
-          candidates. It creates a peer connection and collects network
-          information that may reveal your DNS configuration.
+          This tool runs entirely in the browser and uses WebRTC ICE candidates to
+          identify potential network leaks. It does not use any external DNS
+          service or third-party API.
+        </p>
+        <p>
+          Note: a browser-only test cannot directly read the operating system's
+          DNS resolver. This is a best-effort check for network candidate leaks,
+          not a full authoritative DNS leak test like dnsleaktest.com.
         </p>
 
         <div class="warning-box">
           <h4>⚠️ Privacy Note</h4>
           <p>
-            This test may reveal your local IP addresses and network
-            information. Use with caution and only on trusted networks.
+            This test may reveal your local IP addresses and network information.
+            Use with caution and only on trusted networks.
           </p>
         </div>
 
