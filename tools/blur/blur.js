@@ -416,51 +416,37 @@ copyBtn.addEventListener("click", () => {
   if (!imageObjects) return;
 
   const originalContent = copyBtn.innerHTML;
+
   copyBtn.innerHTML = `
-    <span class="copy-icon-original fade">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
-      </svg>
+    <span class="copy-icon-wrapper">
+      <span class="copy-icon-original fade">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+        </svg>
+      </span>
+
+      <span class="copy-icon-check">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="checkmark">
+          <polyline points="20,6 9,17 4,12"></polyline>
+        </svg>
+      </span>
     </span>
-    <span class="copy-icon-check" style="position: absolute; pointer-events: none;">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="checkmark"
-      >
-        <polyline points="20,6 9,17 4,12"></polyline>
-      </svg>
-    </span>
+
     <span>Copied!</span>
   `;
 
   canvas.toBlob((blob) => {
     if (!blob) return;
-
-    // works only if the page use HTTPS protocol
     const item = new ClipboardItem({ "image/png": blob });
     navigator.clipboard.write([item]);
   });
 
-  // Reset after animation
   setTimeout(() => {
     copyBtn.innerHTML = originalContent;
   }, 2000);
