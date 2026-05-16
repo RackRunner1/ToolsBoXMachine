@@ -57,6 +57,10 @@ export default defineConfig({
         philosophy: resolve(__dirname, "pages/philosophy.html"),
         "qr-gen": resolve(__dirname, "tools/qr-gen/qr-gen.html"),
         calculator: resolve(__dirname, "tools/calculator/calculator.html"),
+        "json-formatter": resolve(
+          __dirname,
+          "tools/json-formatter/json-formatter.html",
+        ),
       },
     },
   },
