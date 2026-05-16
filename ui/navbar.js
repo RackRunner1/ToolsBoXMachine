@@ -43,6 +43,14 @@ const tools = [
     keywords: "link phone scan share code barcode",
     url: "/tools/qr-gen/qr-gen.html",
   },
+  {
+    id: "card-json",
+    name: "JSON Formatter",
+    emoji: "📦",
+    desc: "Format, minify and validate JSON data.",
+    keywords: "json format minify validate develop code data parse",
+    url: "/tools/json-formatter/json-formatter.html",
+  },
 ];
 
 function updateSearch() {
