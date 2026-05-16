@@ -149,9 +149,10 @@ copyBtn.addEventListener("click", async () => {
     <span>Copied!</span>
   `;
 
-  const blob = await qr.getRawData("png");
-  const item = new ClipboardItem({ "image/png": blob });
-  navigator.clipboard.write([item]);
+  qr.getRawData("png").then((blob) => {
+    const item = new ClipboardItem({ "image/png": blob });
+    navigator.clipboard.write([item]);
+  });
 
   setTimeout(() => {
     copyBtn.innerHTML = originalContent;
