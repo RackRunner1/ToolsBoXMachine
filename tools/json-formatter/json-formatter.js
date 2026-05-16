@@ -8,8 +8,8 @@ const inputStatus = document.getElementById("input-status");
 const indentSelect = document.getElementById("json-indent");
 
 function updateStatus(isValid, message) {
-  inputStatus.textContent =
-    message || (isValid ? "Valid JSON" : "Invalid JSON");
+  if (!inputStatus) return;
+  inputStatus.textContent = message || (isValid ? "Valid JSON" : "Invalid JSON");
   inputStatus.className = `status-badge ${isValid ? "status-valid" : "status-invalid"}`;
   if (!message && !jsonInput.value.trim()) {
     inputStatus.textContent = "Empty";
@@ -61,34 +61,48 @@ function minifyJSON() {
   }
 }
 
-formatBtn.addEventListener("click", formatJSON);
-minifyBtn.addEventListener("click", minifyJSON);
+if (formatBtn) formatBtn.addEventListener("click", formatJSON);
+if (minifyBtn) minifyBtn.addEventListener("click", minifyJSON);
 
-clearBtn.addEventListener("click", () => {
-  jsonInput.value = "";
-  jsonOutput.textContent = "";
-  updateStatus(true);
-});
+if (clearBtn) {
+  clearBtn.addEventListener("click", () => {
+    jsonInput.value = "";
+    jsonOutput.textContent = "";
+    updateStatus(true);
+  });
+}
 
-copyBtn.addEventListener("click", () => {
-  const text = jsonOutput.textContent;
-  if (!text) return;
+if (copyBtn) {
+  copyBtn.addEventListener("click", () => {
+    const text = jsonOutput.textContent;
+    if (!text) return;
 
-  const originalContent = copyBtn.innerHTML;
-  navigator.clipboard.writeText(text).then(() => {
+    const originalContent = copyBtn.innerHTML;
+
+    // Set "Copied" state with animation
     copyBtn.innerHTML = `
       <span class="copy-icon-wrapper">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <span class="copy-icon-original fade">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+        </span>
+        <span class="copy-icon-check">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="checkmark">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
       </span>
       <span>Copied!</span>
     `;
-    setTimeout(() => {
-      copyBtn.innerHTML = originalContent;
-    }, 2000);
-  });
-});
 
-// CUSTOM SELECT LOGIC (Ported from qr-gen)
+    navigator.clipboard.writeText(text).then(() => {
+      setTimeout(() => {
+        copyBtn.innerHTML = originalContent;
+      }, 2000);
+    });
+  });
+}
+
+// CUSTOM SELECT LOGIC
 document.querySelectorAll(".custom-select-container").forEach((container) => {
   const trigger = container.querySelector(".select-trigger");
   const options = container.querySelectorAll(".select-option");
@@ -112,7 +126,7 @@ document.querySelectorAll(".custom-select-container").forEach((container) => {
       option.classList.add("selected");
       nativeSelect.value = value;
       container.classList.remove("active");
-      formatJSON(); // Auto-reformat on indent change
+      formatJSON();
     });
   });
 });
@@ -123,17 +137,18 @@ document.addEventListener("click", () => {
   });
 });
 
-// Real-time validation
-jsonInput.addEventListener("input", () => {
-  const input = jsonInput.value.trim();
-  if (!input) {
-    updateStatus(true);
-    return;
-  }
-  try {
-    JSON.parse(input);
-    updateStatus(true);
-  } catch (e) {
-    updateStatus(false);
-  }
-});
+if (jsonInput) {
+  jsonInput.addEventListener("input", () => {
+    const input = jsonInput.value.trim();
+    if (!input) {
+      updateStatus(true);
+      return;
+    }
+    try {
+      JSON.parse(input);
+      updateStatus(true);
+    } catch (e) {
+      updateStatus(false);
+    }
+  });
+}
