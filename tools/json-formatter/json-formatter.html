@@ -98,6 +98,53 @@
         border: 1px solid rgba(239, 68, 68, 0.2);
       }
 
+      /* Copy Animation */
+      .copy-icon-wrapper {
+        position: relative;
+        width: 20px;
+        height: 20px;
+      }
+
+      .copy-icon-original.fade {
+        animation: fadeInOut 2s ease-in-out;
+      }
+
+      @keyframes fadeInOut {
+        0% {
+          opacity: 1;
+        }
+        25% {
+          opacity: 0;
+        }
+        75% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .copy-icon-check {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+
+      .checkmark polyline {
+        stroke-dasharray: 30;
+        stroke-dashoffset: -30;
+        animation: drawCheck 0.8s ease-in-out forwards;
+      }
+
+      @keyframes drawCheck {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
       .btn-group {
         display: flex;
         gap: 0.75rem;
