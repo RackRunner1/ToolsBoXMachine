@@ -28,9 +28,12 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        color: #94a3b8;
-        font-size: 0.875rem;
-        font-weight: 600;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
       }
 
       .editor-wrapper {
@@ -106,13 +109,88 @@
         font-size: 0.875rem;
       }
 
-      /* Sidebar Overrides */
-      .blur-sidebar {
-        gap: 1.5rem !important;
+      /* Custom Premium Select */
+      .custom-select-container {
+        position: relative;
+        width: 100%;
+        margin-top: 0.5rem;
       }
 
-      .custom-select-container {
-        margin-top: 0.5rem;
+      .select-trigger {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+        font-size: 0.95rem;
+      }
+
+      .select-trigger:hover {
+        background: rgba(15, 23, 42, 0.8);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .select-trigger svg {
+        transition: transform 0.3s ease;
+        color: #64748b;
+      }
+
+      .custom-select-container.active .select-trigger svg {
+        transform: rotate(180deg);
+      }
+
+      .select-options {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        left: 0;
+        right: 0;
+        background: #1e293b;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(12px);
+      }
+
+      .custom-select-container.active .select-options {
+        display: block;
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      .select-option {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #e2e8f0;
+        font-size: 0.9rem;
+      }
+
+      .select-option:hover {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .select-option.selected {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary-color);
+      }
+
+      /* Hidden native select */
+      .native-select {
+        display: none;
+      }
+
+      /* Sidebar Overrides */
+      .blur-sidebar {
+        gap: 1.25rem !important;
       }
 
       @media (max-width: 1024px) {
@@ -169,9 +247,24 @@
         </div>
 
         <div id="btn">
-          <button class="btn btn-primary" id="copy-btn">
+          <button class="btn btn-primary w-full" id="copy-btn">
             <span class="copy-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                <path
+                  d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                ></path>
+              </svg>
             </span>
             <span>Copy Result</span>
           </button>
