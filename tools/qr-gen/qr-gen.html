@@ -195,20 +195,83 @@
         font-size: 0.85rem;
       }
 
-      /* Select dropdown */
-      .blur-sidebar select {
-        appearance: none;
-        background-image:
-          linear-gradient(45deg, transparent 50%, #64748b 50%),
-          linear-gradient(135deg, #64748b 50%, transparent 50%);
-        background-position:
-          calc(100% - 15px) calc(50% - 3px),
-          calc(100% - 10px) calc(50% + 3px);
-        background-size:
-          5px 5px,
-          5px 5px;
-        background-repeat: no-repeat;
+      /* Custom Premium Select */
+      .custom-select-container {
+        position: relative;
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+
+      .select-trigger {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        color: white;
         cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+        font-size: 0.95rem;
+      }
+
+      .select-trigger:hover {
+        background: rgba(15, 23, 42, 0.8);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .select-trigger svg {
+        transition: transform 0.3s ease;
+        color: #64748b;
+      }
+
+      .custom-select-container.active .select-trigger svg {
+        transform: rotate(180deg);
+      }
+
+      .select-options {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        left: 0;
+        right: 0;
+        background: #1e293b;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(12px);
+      }
+
+      .custom-select-container.active .select-options {
+        display: block;
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      .select-option {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #e2e8f0;
+        font-size: 0.9rem;
+      }
+
+      .select-option:hover {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .select-option.selected {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary-color);
+      }
+
+      /* Hidden native select */
+      .native-select {
+        display: none;
       }
 
       /* Input file */
@@ -217,12 +280,65 @@
         cursor: pointer;
       }
 
-      /* Color pickers */
-      .blur-sidebar input[type="color"] {
-        padding: 0;
-        height: 40px;
-        border-radius: 0.5rem;
-        background: #111;
+      /* Custom Premium Color Picker */
+      .color-picker-group {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .color-input-wrapper {
+        flex: 1;
+      }
+
+      .color-input-wrapper label {
+        display: block;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-bottom: 0.5rem;
+      }
+
+      .custom-color-picker {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+      }
+
+      .custom-color-picker:hover {
+        background: rgba(15, 23, 42, 0.8);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .color-swatch {
+        width: 24px;
+        height: 24px;
+        border-radius: 0.375rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        flex-shrink: 0;
+      }
+
+      .color-hex-text {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: #e2e8f0;
+      }
+
+      .custom-color-picker input[type="color"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
       }
 
       /* Range slider */
@@ -287,11 +403,27 @@
           <div class="color-picker-group">
             <div class="color-input-wrapper">
               <label>Foreground</label>
-              <input type="color" id="qr-color-dark" value="#000000" />
+              <div class="custom-color-picker">
+                <div
+                  class="color-swatch"
+                  id="swatch-dark"
+                  style="background-color: #000000"
+                ></div>
+                <span class="color-hex-text" id="text-dark">#000000</span>
+                <input type="color" id="qr-color-dark" value="#000000" />
+              </div>
             </div>
             <div class="color-input-wrapper">
               <label>Background</label>
-              <input type="color" id="qr-color-light" value="#ffffff" />
+              <div class="custom-color-picker">
+                <div
+                  class="color-swatch"
+                  id="swatch-light"
+                  style="background-color: #ffffff"
+                ></div>
+                <span class="color-hex-text" id="text-light">#ffffff</span>
+                <input type="color" id="qr-color-light" value="#ffffff" />
+              </div>
             </div>
           </div>
 
@@ -323,36 +455,134 @@
           <h3>3. Style</h3>
 
           <label>Dot Style</label>
-          <select id="qr-dot-style">
-            <option value="square">Square</option>
-            <option value="dots">Dots</option>
-            <option value="rounded">Rounded</option>
-            <option value="classy">Classy</option>
-            <option value="classy-rounded">Classy Rounded</option>
-            <option value="extra-rounded">Extra Rounded</option>
-          </select>
+          <div class="custom-select-container" data-id="qr-dot-style">
+            <div class="select-trigger">
+              <span>Square</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+            <div class="select-options">
+              <div class="select-option selected" data-value="square">
+                Square
+              </div>
+              <div class="select-option" data-value="dots">Dots</div>
+              <div class="select-option" data-value="rounded">Rounded</div>
+              <div class="select-option" data-value="classy">Classy</div>
+              <div class="select-option" data-value="classy-rounded">
+                Classy Rounded
+              </div>
+              <div class="select-option" data-value="extra-rounded">
+                Extra Rounded
+              </div>
+            </div>
+            <select id="qr-dot-style" class="native-select">
+              <option value="square">Square</option>
+              <option value="dots">Dots</option>
+              <option value="rounded">Rounded</option>
+              <option value="classy">Classy</option>
+              <option value="classy-rounded">Classy Rounded</option>
+              <option value="extra-rounded">Extra Rounded</option>
+            </select>
+          </div>
 
           <label style="margin-top: 1rem">Marker border</label>
-          <select id="qr-border-style">
-            <option value="dot">Dot</option>
-            <option value="square" selected>Square</option>
-            <option value="rounded">Rounded</option>
-            <option value="dots">Dots</option>
-            <option value="classy">Classy</option>
-            <option value="classy-rounded">Classy Rounded</option>
-            <option value="extra-rounded">Extra Rounded</option>
-          </select>
+          <div class="custom-select-container" data-id="qr-border-style">
+            <div class="select-trigger">
+              <span>Square</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+            <div class="select-options">
+              <div class="select-option" data-value="dot">Dot</div>
+              <div class="select-option selected" data-value="square">
+                Square
+              </div>
+              <div class="select-option" data-value="rounded">Rounded</div>
+              <div class="select-option" data-value="dots">Dots</div>
+              <div class="select-option" data-value="classy">Classy</div>
+              <div class="select-option" data-value="classy-rounded">
+                Classy Rounded
+              </div>
+              <div class="select-option" data-value="extra-rounded">
+                Extra Rounded
+              </div>
+            </div>
+            <select id="qr-border-style" class="native-select">
+              <option value="dot">Dot</option>
+              <option value="square" selected>Square</option>
+              <option value="rounded">Rounded</option>
+              <option value="dots">Dots</option>
+              <option value="classy">Classy</option>
+              <option value="classy-rounded">Classy Rounded</option>
+              <option value="extra-rounded">Extra Rounded</option>
+            </select>
+          </div>
 
           <label style="margin-top: 1rem">Marker Center</label>
-          <select id="qr-eye-style">
-            <option value="dot">Dot</option>
-            <option value="square" selected>Square</option>
-            <option value="rounded">Rounded</option>
-            <option value="dots">Dots</option>
-            <option value="classy">Classy</option>
-            <option value="classy-rounded">Classy Rounded</option>
-            <option value="extra-rounded">Extra Rounded</option>
-          </select>
+          <div class="custom-select-container" data-id="qr-eye-style">
+            <div class="select-trigger">
+              <span>Square</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+            <div class="select-options">
+              <div class="select-option" data-value="dot">Dot</div>
+              <div class="select-option selected" data-value="square">
+                Square
+              </div>
+              <div class="select-option" data-value="rounded">Rounded</div>
+              <div class="select-option" data-value="dots">Dots</div>
+              <div class="select-option" data-value="classy">Classy</div>
+              <div class="select-option" data-value="classy-rounded">
+                Classy Rounded
+              </div>
+              <div class="select-option" data-value="extra-rounded">
+                Extra Rounded
+              </div>
+            </div>
+            <select id="qr-eye-style" class="native-select">
+              <option value="dot">Dot</option>
+              <option value="square" selected>Square</option>
+              <option value="rounded">Rounded</option>
+              <option value="dots">Dots</option>
+              <option value="classy">Classy</option>
+              <option value="classy-rounded">Classy Rounded</option>
+              <option value="extra-rounded">Extra Rounded</option>
+            </select>
+          </div>
 
           <label style="margin-top: 1rem">Logo</label>
           <input type="file" id="qr-logo" accept="image/*" />

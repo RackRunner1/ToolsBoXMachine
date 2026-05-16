@@ -95,10 +95,19 @@ function handleInput() {
 }
 
 qrInput.addEventListener("input", handleInput);
-qrColorDark.addEventListener("input", generateQR);
-qrColorLight.addEventListener("input", () => {
+qrColorDark.addEventListener("input", () => {
+  const color = qrColorDark.value;
+  document.getElementById("swatch-dark").style.backgroundColor = color;
+  document.getElementById("text-dark").textContent = color.toUpperCase();
   generateQR();
-  qrContainer.style.backgroundColor = qrColorLight.value;
+});
+
+qrColorLight.addEventListener("input", () => {
+  const color = qrColorLight.value;
+  document.getElementById("swatch-light").style.backgroundColor = color;
+  document.getElementById("text-light").textContent = color.toUpperCase();
+  generateQR();
+  qrContainer.style.backgroundColor = color;
 });
 qrSize.addEventListener("input", () => {
   sizeValue.textContent = `${qrSize.value}px`;
@@ -162,3 +171,53 @@ copyBtn.addEventListener("click", async () => {
 // Initial state
 sizeValue.textContent = `${qrSize.value}px`;
 qrContainer.style.backgroundColor = qrColorLight.value;
+
+// Init custom color pickers
+document.getElementById("swatch-dark").style.backgroundColor = qrColorDark.value;
+document.getElementById("text-dark").textContent = qrColorDark.value.toUpperCase();
+document.getElementById("swatch-light").style.backgroundColor = qrColorLight.value;
+document.getElementById("text-light").textContent = qrColorLight.value.toUpperCase();
+
+// CUSTOM SELECT LOGIC
+document.querySelectorAll(".custom-select-container").forEach((container) => {
+  const trigger = container.querySelector(".select-trigger");
+  const options = container.querySelectorAll(".select-option");
+  const nativeSelect = container.querySelector(".native-select");
+  const labelText = trigger.querySelector("span");
+
+  // Toggle dropdown
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    // Close other dropdowns
+    document.querySelectorAll(".custom-select-container").forEach((other) => {
+      if (other !== container) other.classList.remove("active");
+    });
+    container.classList.toggle("active");
+  });
+
+  // Handle option selection
+  options.forEach((option) => {
+    option.addEventListener("click", () => {
+      const value = option.dataset.value;
+      const text = option.textContent.trim();
+
+      // Update UI
+      labelText.textContent = text;
+      options.forEach((opt) => opt.classList.remove("selected"));
+      option.classList.add("selected");
+
+      // Update native select and trigger change
+      nativeSelect.value = value;
+      generateQR();
+
+      container.classList.remove("active");
+    });
+  });
+});
+
+// Close dropdowns when clicking outside
+document.addEventListener("click", () => {
+  document.querySelectorAll(".custom-select-container").forEach((container) => {
+    container.classList.remove("active");
+  });
+});
