@@ -9,7 +9,31 @@ const qrPlaceholder = document.getElementById("qr-placeholder");
 const downloadBtn = document.getElementById("download-qr");
 const copyBtn = document.getElementById("copy-btn");
 
+const qrDotStyle = document.getElementById("qr-dot-style");
+const qrEyeStyle = document.getElementById("qr-eye-style");
+const qrBorderStyle = document.getElementById("qr-border-style");
+const qrLogo = document.getElementById("qr-logo");
+
 let debounceTimer;
+let qr = null;
+let logoDataUrl = null;
+
+// Convert uploaded logo to base64
+qrLogo.addEventListener("change", () => {
+  const file = qrLogo.files[0];
+  if (!file) {
+    logoDataUrl = null;
+    generateQR();
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    logoDataUrl = reader.result;
+    generateQR();
+  };
+  reader.readAsDataURL(file);
+});
 
 function generateQR() {
   const text = qrInput.value.trim();
@@ -29,27 +53,40 @@ function generateQR() {
 
   const size = parseInt(qrSize.value);
 
-  QRCode.toCanvas(
-    document.createElement("canvas"),
-    text,
-    {
-      width: size,
-      margin: 2,
-      color: {
-        dark: qrColorDark.value,
-        light: qrColorLight.value,
-      },
+  qr = new QRCodeStyling({
+    width: size,
+    height: size,
+    data: text,
+    margin: 2,
+
+    dotsOptions: {
+      color: qrColorDark.value,
+      type: qrDotStyle.value,
     },
-    function (error, canvas) {
-      if (error) {
-        console.error(error);
-        return;
-      }
-      qrcodeDiv.appendChild(canvas);
-      canvas.style.maxWidth = "100%";
-      canvas.style.height = "auto";
+
+    cornersDotOptions: {
+      type: qrEyeStyle.value,
+      color: qrColorDark.value,
     },
-  );
+
+    cornersSquareOptions: {
+      type: qrBorderStyle.value,
+      color: qrColorDark.value,
+    },
+
+    backgroundOptions: {
+      color: qrColorLight.value,
+    },
+
+    image: logoDataUrl || undefined,
+    imageOptions: {
+      crossOrigin: "anonymous",
+      margin: 4,
+      hideBackgroundDots: true,
+    },
+  });
+
+  qr.append(qrcodeDiv);
 }
 
 function handleInput() {
@@ -67,20 +104,24 @@ qrSize.addEventListener("input", () => {
   sizeValue.textContent = `${qrSize.value}px`;
   generateQR();
 });
+qrDotStyle.addEventListener("change", generateQR);
+qrEyeStyle.addEventListener("change", generateQR);
+qrBorderStyle.addEventListener("change", generateQR);
 
-downloadBtn.addEventListener("click", () => {
-  const canvas = qrcodeDiv.querySelector("canvas");
-  if (!canvas) return;
+// DOWNLOAD PNG
+downloadBtn.addEventListener("click", async () => {
+  if (!qr) return;
 
+  const blob = await qr.getRawData("png");
   const link = document.createElement("a");
   link.download = "tbxm-qrcode.png";
-  link.href = canvas.toDataURL("image/png");
+  link.href = URL.createObjectURL(blob);
   link.click();
 });
 
-copyBtn.addEventListener("click", () => {
-  const canvas = qrcodeDiv.querySelector("canvas");
-  if (!canvas) return;
+// COPY IMAGE
+copyBtn.addEventListener("click", async () => {
+  if (!qr) return;
 
   const originalContent = copyBtn.innerHTML;
 
@@ -108,10 +149,7 @@ copyBtn.addEventListener("click", () => {
     <span>Copied!</span>
   `;
 
-  canvas.toBlob((blob) => {
-    if (!blob) return;
-
-    // works only if the page use HTTPS protocol
+  qr.getRawData("png").then((blob) => {
     const item = new ClipboardItem({ "image/png": blob });
     navigator.clipboard.write([item]);
   });

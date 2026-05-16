@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="https://github.com/ddrayko/logo-and-assets/blob/main/tbxm%20logo/blanc.png?raw=true#gh-dark-mode-only" width="10000">
-  <img src="https://github.com/ddrayko/logo-and-assets/blob/main/tbxm%20logo/noir.png?raw=true#gh-light-mode-only" width="10000">
+  <img src="https://github.com/ToolsBoXMachine/ToolsBoXMachine/blob/main/.assets/logo/blanc.png?raw=true#gh-dark-mode-only" width="10000">
+  <img src="https://github.com/ToolsBoXMachine/ToolsBoXMachine/blob/main/.assets/logo/noir.png?raw=true?raw=true#gh-light-mode-only" width="10000">
 </p>
 
 ---

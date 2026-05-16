@@ -4,8 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QR Code Generator (TBXM)</title>
+
     <link rel="icon" href="../../.assets/logo/fav.png" />
     <link rel="stylesheet" href="../../style.css" />
+
     <style>
       .qr-preview-container {
         background: white;
@@ -70,13 +72,27 @@
         cursor: pointer;
       }
 
+      select {
+        width: 100%;
+        padding: 0.5rem;
+        margin-top: 0.3rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--card-border);
+        background: #fff;
+        color: #000;
+      }
+
+      input[type="file"] {
+        margin-top: 0.5rem;
+        width: 100%;
+      }
+
       .copy-icon-wrapper {
         position: relative;
         width: 20px;
         height: 20px;
       }
 
-      /* Icône fade-out */
       .copy-icon-original.fade {
         animation: fadeInOut 2s ease-in-out;
       }
@@ -105,9 +121,7 @@
         pointer-events: none;
       }
 
-      /* Animation du checkmark */
       .checkmark polyline {
-        /* stroke: #10b981; */
         stroke-dasharray: 30;
         stroke-dashoffset: -30;
         animation: drawCheck 0.8s ease-in-out forwards;
@@ -117,6 +131,92 @@
         to {
           stroke-dashoffset: 0;
         }
+      }
+
+      /* --- Inputs & selects sombres --- */
+
+      .blur-sidebar select,
+      .blur-sidebar input[type="color"],
+      .blur-sidebar input[type="file"],
+      .blur-sidebar input[type="range"],
+      .blur-sidebar input[type="text"] {
+        background: rgba(20, 20, 20, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #e2e8f0;
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        width: 100%;
+      }
+
+      /* Texte des labels */
+      .blur-sidebar label {
+        color: #cbd5e1;
+        font-size: 0.85rem;
+      }
+
+      /* Select dropdown */
+      .blur-sidebar select {
+        appearance: none;
+        background-image:
+          linear-gradient(45deg, transparent 50%, #64748b 50%),
+          linear-gradient(135deg, #64748b 50%, transparent 50%);
+        background-position:
+          calc(100% - 15px) calc(50% - 3px),
+          calc(100% - 10px) calc(50% + 3px);
+        background-size:
+          5px 5px,
+          5px 5px;
+        background-repeat: no-repeat;
+        cursor: pointer;
+      }
+
+      /* Input file */
+      .blur-sidebar input[type="file"] {
+        padding: 0.4rem;
+        cursor: pointer;
+      }
+
+      /* Color pickers */
+      .blur-sidebar input[type="color"] {
+        padding: 0;
+        height: 40px;
+        border-radius: 0.5rem;
+        background: #111;
+      }
+
+      /* Range slider */
+      .blur-sidebar input[type="range"] {
+        background: transparent;
+      }
+
+      .blur-sidebar input[type="range"]::-webkit-slider-thumb {
+        background: #6366f1;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+
+      .blur-sidebar input[type="range"]::-webkit-slider-runnable-track {
+        background: rgba(255, 255, 255, 0.15);
+        height: 4px;
+        border-radius: 2px;
+      }
+
+      /* Placeholder du QR */
+      #qr-placeholder {
+        color: #94a3b8;
+      }
+
+      /* Boutons */
+      #copy-btn {
+        background: #1e293b;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #e2e8f0;
+      }
+
+      #copy-btn:hover {
+        background: #334155;
       }
     </style>
   </head>
@@ -143,6 +243,7 @@
 
         <div class="sidebar-section">
           <h3>2. Appearance</h3>
+
           <div class="color-picker-group">
             <div class="color-input-wrapper">
               <label>Foreground</label>
@@ -154,34 +255,67 @@
             </div>
           </div>
 
-          <div class="sidebar-section">
-            <label
-              style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem"
-              >Size</label
-            >
-            <input
-              type="range"
-              id="qr-size"
-              min="128"
-              max="512"
-              step="32"
-              value="256"
-              style="width: 100%"
-            />
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                font-size: 0.75rem;
-                color: #64748b;
-                margin-top: 0.5rem;
-              "
-            >
-              <span>Small</span>
-              <span id="size-value">256px</span>
-              <span>Large</span>
-            </div>
+          <label>Size</label>
+          <input
+            type="range"
+            id="qr-size"
+            min="128"
+            max="512"
+            step="32"
+            value="256"
+          />
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.75rem;
+              color: #64748b;
+              margin-top: 0.5rem;
+            "
+          >
+            <span>Small</span>
+            <span id="size-value">256px</span>
+            <span>Large</span>
           </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>3. Style</h3>
+
+          <label>Dot Style</label>
+          <select id="qr-dot-style">
+            <option value="square">Square</option>
+            <option value="dots">Dots</option>
+            <option value="rounded">Rounded</option>
+            <option value="classy">Classy</option>
+            <option value="classy-rounded">Classy Rounded</option>
+            <option value="extra-rounded">Extra Rounded</option>
+          </select>
+
+          <label style="margin-top: 1rem">Marker border</label>
+          <select id="qr-border-style">
+            <option value="dot">Dot</option>
+            <option value="square" selected>Square</option>
+            <option value="rounded">Rounded</option>
+            <option value="dots">Dots</option>
+            <option value="classy">Classy</option>
+            <option value="classy-rounded">Classy Rounded</option>
+            <option value="extra-rounded">Extra Rounded</option>
+          </select>
+
+          <label style="margin-top: 1rem">Marker Center</label>
+          <select id="qr-eye-style">
+            <option value="dot">Dot</option>
+            <option value="square" selected>Square</option>
+            <option value="rounded">Rounded</option>
+            <option value="dots">Dots</option>
+            <option value="classy">Classy</option>
+            <option value="classy-rounded">Classy Rounded</option>
+            <option value="extra-rounded">Extra Rounded</option>
+          </select>
+
+          <label style="margin-top: 1rem">Logo</label>
+          <input type="file" id="qr-logo" accept="image/*" />
         </div>
 
         <div id="btn">
@@ -206,6 +340,7 @@
             </span>
             <span>Copy Image</span>
           </button>
+
           <button
             id="download-qr"
             class="btn btn-primary download-btn"
@@ -241,7 +376,10 @@
 
     <load src="../../ui/footer.html" />
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <!-- QR Code Styling Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
+
+    <!-- Your Script -->
     <script type="module" src="./qr-gen.js"></script>
     <script type="module" src="/ui/navbar.js"></script>
   </body>
