@@ -159,19 +159,11 @@
         width: 100%;
       }
 
-      .custom-input-group svg {
-        position: absolute;
-        left: 1rem;
-        color: #64748b;
-        pointer-events: none;
-        transition: color 0.3s ease;
-      }
-
       .custom-input-group input {
         width: 100%;
         background: rgba(15, 23, 42, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        padding: 0.75rem 1rem;
         border-radius: 0.75rem;
         color: white;
         font-size: 0.95rem;
@@ -187,10 +179,6 @@
           0 0 0 4px rgba(59, 130, 246, 0.1),
           0 0 20px rgba(59, 130, 246, 0.2);
         transform: translateY(-1px);
-      }
-
-      .custom-input-group input:focus + svg {
-        color: var(--primary-color);
       }
 
       .custom-input-group input::placeholder {
@@ -280,20 +268,6 @@
         <div class="sidebar-section">
           <h3>1. Content</h3>
           <div class="custom-input-group">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-            </svg>
             <input
               type="text"
               id="qr-text"
