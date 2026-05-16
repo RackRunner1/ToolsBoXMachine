@@ -9,7 +9,8 @@ const indentSelect = document.getElementById("json-indent");
 
 function updateStatus(isValid, message) {
   if (!inputStatus) return;
-  inputStatus.textContent = message || (isValid ? "Valid JSON" : "Invalid JSON");
+  inputStatus.textContent =
+    message || (isValid ? "Valid JSON" : "Invalid JSON");
   inputStatus.className = `status-badge ${isValid ? "status-valid" : "status-invalid"}`;
   if (!message && !jsonInput.value.trim()) {
     inputStatus.textContent = "Empty";
