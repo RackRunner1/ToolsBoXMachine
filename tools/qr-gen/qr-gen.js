@@ -95,10 +95,19 @@ function handleInput() {
 }
 
 qrInput.addEventListener("input", handleInput);
-qrColorDark.addEventListener("input", generateQR);
-qrColorLight.addEventListener("input", () => {
+qrColorDark.addEventListener("input", () => {
+  const color = qrColorDark.value;
+  document.getElementById("swatch-dark").style.backgroundColor = color;
+  document.getElementById("text-dark").textContent = color.toUpperCase();
   generateQR();
-  qrContainer.style.backgroundColor = qrColorLight.value;
+});
+
+qrColorLight.addEventListener("input", () => {
+  const color = qrColorLight.value;
+  document.getElementById("swatch-light").style.backgroundColor = color;
+  document.getElementById("text-light").textContent = color.toUpperCase();
+  generateQR();
+  qrContainer.style.backgroundColor = color;
 });
 qrSize.addEventListener("input", () => {
   sizeValue.textContent = `${qrSize.value}px`;
@@ -162,3 +171,9 @@ copyBtn.addEventListener("click", async () => {
 // Initial state
 sizeValue.textContent = `${qrSize.value}px`;
 qrContainer.style.backgroundColor = qrColorLight.value;
+
+// Init custom color pickers
+document.getElementById("swatch-dark").style.backgroundColor = qrColorDark.value;
+document.getElementById("text-dark").textContent = qrColorDark.value.toUpperCase();
+document.getElementById("swatch-light").style.backgroundColor = qrColorLight.value;
+document.getElementById("text-light").textContent = qrColorLight.value.toUpperCase();
