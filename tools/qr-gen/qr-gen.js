@@ -173,10 +173,14 @@ sizeValue.textContent = `${qrSize.value}px`;
 qrContainer.style.backgroundColor = qrColorLight.value;
 
 // Init custom color pickers
-document.getElementById("swatch-dark").style.backgroundColor = qrColorDark.value;
-document.getElementById("text-dark").textContent = qrColorDark.value.toUpperCase();
-document.getElementById("swatch-light").style.backgroundColor = qrColorLight.value;
-document.getElementById("text-light").textContent = qrColorLight.value.toUpperCase();
+document.getElementById("swatch-dark").style.backgroundColor =
+  qrColorDark.value;
+document.getElementById("text-dark").textContent =
+  qrColorDark.value.toUpperCase();
+document.getElementById("swatch-light").style.backgroundColor =
+  qrColorLight.value;
+document.getElementById("text-light").textContent =
+  qrColorLight.value.toUpperCase();
 
 // CUSTOM SELECT LOGIC
 document.querySelectorAll(".custom-select-container").forEach((container) => {
