@@ -29,6 +29,10 @@
         max-width: 100%;
       }
 
+      .blur-sidebar {
+        gap: 1.25rem !important;
+      }
+
       .qr-preview-container.empty {
         background: rgba(255, 255, 255, 0.05);
         color: #64748b;
@@ -36,12 +40,12 @@
       }
 
       div#btn {
-        margin-top: 0;
+        margin-top: 0.5rem;
       }
 
       .download-btn,
       #copy-btn {
-        margin: 0.6rem auto;
+        margin: 0.4rem auto;
         width: 100%;
         display: flex;
         align-items: center;
@@ -142,14 +146,47 @@
       .blur-sidebar select,
       .blur-sidebar input[type="color"],
       .blur-sidebar input[type="file"],
-      .blur-sidebar input[type="range"],
-      .blur-sidebar input[type="text"] {
+      .blur-sidebar input[type="range"] {
         background: rgba(20, 20, 20, 0.8);
         border: 1px solid rgba(255, 255, 255, 0.15);
         color: #e2e8f0;
         border-radius: 0.5rem;
         padding: 0.5rem;
         width: 100%;
+      }
+
+      /* Custom Premium Input */
+      .custom-input-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+
+      .custom-input-group input {
+        width: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        color: white;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(4px);
+      }
+
+      .custom-input-group input:focus {
+        outline: none;
+        background: rgba(15, 23, 42, 0.9);
+        border-color: var(--primary-color);
+        box-shadow: 
+          0 0 0 4px rgba(59, 130, 246, 0.1),
+          0 0 20px rgba(59, 130, 246, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .custom-input-group input::placeholder {
+        color: #475569;
       }
 
       /* Texte des labels */
@@ -234,13 +271,12 @@
       <div class="blur-sidebar">
         <div class="sidebar-section">
           <h3>1. Content</h3>
-          <div class="search-input-wrapper" style="margin: 0; max-width: none">
+          <div class="custom-input-group">
             <input
               type="text"
               id="qr-text"
               placeholder="Enter URL or text..."
               autocomplete="off"
-              style="padding-left: 1rem"
             />
           </div>
         </div>
