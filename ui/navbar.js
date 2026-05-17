@@ -59,6 +59,14 @@ const tools = [
     keywords: "base64 encode decode string convert text",
     url: "/tools/base64/base64.html",
   },
+  {
+    id: "card-timer",
+    name: "Pomodoro Timer",
+    emoji: "⏱️",
+    desc: "Stay focused with timed work sessions.",
+    keywords: "pomodoro timer time clock focus break study work productivity",
+    url: "/tools/timer/timer.html",
+  },
 ];
 
 function updateSearch() {
