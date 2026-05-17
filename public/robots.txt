@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tbxm.drayko.xyz/sitemap.xml
