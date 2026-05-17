@@ -1,7 +1,6 @@
 const jsonInput = document.getElementById("json-input");
 const jsonOutput = document.getElementById("json-output");
 const formatBtn = document.getElementById("format-btn");
-const minifyBtn = document.getElementById("minify-btn");
 const clearBtn = document.getElementById("clear-btn");
 const copyBtn = document.getElementById("copy-btn");
 const inputStatus = document.getElementById("input-status");
@@ -45,25 +44,7 @@ function formatJSON() {
   }
 }
 
-function minifyJSON() {
-  const input = jsonInput.value.trim();
-  if (!input) return;
-
-  try {
-    const obj = JSON.parse(input);
-    const minified = JSON.stringify(obj);
-    jsonOutput.textContent = minified;
-    jsonOutput.style.color = "#e2e8f0";
-    updateStatus(true);
-  } catch (e) {
-    jsonOutput.textContent = e.message;
-    jsonOutput.style.color = "#ef4444";
-    updateStatus(false);
-  }
-}
-
 if (formatBtn) formatBtn.addEventListener("click", formatJSON);
-if (minifyBtn) minifyBtn.addEventListener("click", minifyJSON);
 
 if (clearBtn) {
   clearBtn.addEventListener("click", () => {
