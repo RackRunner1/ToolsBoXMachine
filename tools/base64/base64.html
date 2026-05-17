@@ -77,10 +77,18 @@
       }
 
       @keyframes fadeInOut {
-        0% { opacity: 1; }
-        25% { opacity: 0; }
-        75% { opacity: 0; }
-        100% { opacity: 1; }
+        0% {
+          opacity: 1;
+        }
+        25% {
+          opacity: 0;
+        }
+        75% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
       }
 
       .copy-icon-check {
@@ -99,7 +107,9 @@
       }
 
       @keyframes drawCheck {
-        to { stroke-dashoffset: 0; }
+        to {
+          stroke-dashoffset: 0;
+        }
       }
 
       /* Custom Premium Select */
@@ -209,12 +219,24 @@
           <div class="custom-select-container" data-id="b64-mode">
             <div class="select-trigger">
               <span id="mode-label">Encode</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <path d="m6 9 6 6 6-6" />
               </svg>
             </div>
             <div class="select-options">
-              <div class="select-option selected" data-value="encode">Encode</div>
+              <div class="select-option selected" data-value="encode">
+                Encode
+              </div>
               <div class="select-option" data-value="decode">Decode</div>
             </div>
             <select id="b64-mode" class="native-select">
@@ -234,9 +256,22 @@
         <div id="btn">
           <button class="btn btn-primary w-full" id="copy-btn">
             <span class="copy-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="copy-icon-original">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="copy-icon-original"
+              >
                 <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                <path
+                  d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                ></path>
               </svg>
             </span>
             <span>Copy Result</span>
@@ -251,7 +286,11 @@
               <span>INPUT</span>
             </div>
             <div class="editor-wrapper">
-              <textarea id="b64-input" placeholder="Type or paste content here..." spellcheck="false"></textarea>
+              <textarea
+                id="b64-input"
+                placeholder="Type or paste content here..."
+                spellcheck="false"
+              ></textarea>
             </div>
           </div>
 
@@ -260,7 +299,12 @@
               <span>OUTPUT</span>
             </div>
             <div class="editor-wrapper">
-              <textarea id="b64-output" placeholder="Result will appear here..." spellcheck="false" readonly></textarea>
+              <textarea
+                id="b64-output"
+                placeholder="Result will appear here..."
+                spellcheck="false"
+                readonly
+              ></textarea>
             </div>
           </div>
         </div>
