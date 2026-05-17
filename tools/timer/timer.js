@@ -37,13 +37,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
     options.forEach((option) => {
       option.addEventListener('click', () => {
+        const val = option.dataset.value;
+        let minutes;
+        
+        if (val === 'custom') {
+          const input = prompt("Enter duration in minutes:");
+          minutes = parseInt(input, 10);
+          if (isNaN(minutes) || minutes <= 0) {
+            // Cancelled or invalid, do not change selection
+            return;
+          }
+          labelSpan.textContent = `Custom (${minutes}:00)`;
+        } else {
+          minutes = parseInt(val, 10);
+          labelSpan.textContent = option.textContent;
+        }
+
         options.forEach((opt) => opt.classList.remove('selected'));
         option.classList.add('selected');
-        labelSpan.textContent = option.textContent;
-        nativeSelect.value = option.dataset.value;
+        
+        nativeSelect.value = val;
         container.classList.remove('active');
         
-        changeMode(parseInt(option.dataset.value));
+        changeMode(minutes, val === 'custom');
       });
     });
   });
@@ -62,12 +78,15 @@ document.addEventListener('DOMContentLoaded', () => {
     progressCircle.style.strokeDashoffset = offset;
   }
 
-  function changeMode(minutes) {
+  function changeMode(minutes, isCustom = false) {
     pauseTimer();
     totalSeconds = minutes * 60;
     remainingSeconds = totalSeconds;
     
-    if (minutes === 25) {
+    if (isCustom) {
+      timeLabel.textContent = "Custom";
+      progressCircle.classList.remove('break-mode');
+    } else if (minutes === 25) {
       timeLabel.textContent = "Focus";
       progressCircle.classList.remove('break-mode');
     } else {
