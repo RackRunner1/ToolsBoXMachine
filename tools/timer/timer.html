@@ -178,6 +178,60 @@
         margin-right: 0.5rem;
       }
 
+      .custom-inputs-wrapper {
+        display: none;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+      }
+
+      .custom-inputs-wrapper.active {
+        display: flex;
+        animation: fadeIn 0.3s ease-out;
+      }
+
+      .custom-input-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .custom-input-group label {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .custom-input-group input {
+        width: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        color: white;
+        font-family: var(--font-mono, monospace);
+        font-size: 0.9rem;
+        text-align: center;
+        outline: none;
+        transition: border-color 0.3s;
+      }
+
+      .custom-input-group input:focus {
+        border-color: var(--primary-color);
+      }
+
+      .btn-apply-custom {
+        margin-top: 0.75rem;
+        display: none;
+      }
+
+      .btn-apply-custom.active {
+        display: block;
+        animation: fadeIn 0.3s ease-out;
+      }
+
       @media (max-width: 1024px) {
         .timer-layout {
           height: auto;
@@ -217,6 +271,22 @@
               <option value="custom">Custom...</option>
             </select>
           </div>
+
+          <div class="custom-inputs-wrapper" id="custom-inputs">
+            <div class="custom-input-group">
+              <label>HRS</label>
+              <input type="number" id="custom-h" min="0" max="99" value="0">
+            </div>
+            <div class="custom-input-group">
+              <label>MIN</label>
+              <input type="number" id="custom-m" min="0" max="59" value="25">
+            </div>
+            <div class="custom-input-group">
+              <label>SEC</label>
+              <input type="number" id="custom-s" min="0" max="59" value="0">
+            </div>
+          </div>
+          <button class="btn btn-primary w-full btn-apply-custom" id="apply-custom-btn">Apply Custom Time</button>
         </div>
 
         <div class="sidebar-section">

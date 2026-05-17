@@ -7,6 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const startIcon = document.getElementById('start-icon');
   const resetBtn = document.getElementById('reset-btn');
   
+  const applyCustomBtn = document.getElementById('apply-custom-btn');
+  const customInputs = document.getElementById('custom-inputs');
+  const customH = document.getElementById('custom-h');
+  const customM = document.getElementById('custom-m');
+  const customS = document.getElementById('custom-s');
+  
   // Audio for alarm
   const alarmSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 
@@ -38,59 +44,88 @@ document.addEventListener('DOMContentLoaded', () => {
     options.forEach((option) => {
       option.addEventListener('click', () => {
         const val = option.dataset.value;
-        let minutes;
         
         if (val === 'custom') {
-          const input = prompt("Enter duration in minutes:");
-          minutes = parseInt(input, 10);
-          if (isNaN(minutes) || minutes <= 0) {
-            // Cancelled or invalid, do not change selection
-            return;
-          }
-          labelSpan.textContent = `Custom (${minutes}:00)`;
-        } else {
-          minutes = parseInt(val, 10);
+          customInputs.classList.add('active');
+          applyCustomBtn.classList.add('active');
+          
+          options.forEach((opt) => opt.classList.remove('selected'));
+          option.classList.add('selected');
           labelSpan.textContent = option.textContent;
-        }
+          nativeSelect.value = val;
+          container.classList.remove('active');
+          return;
+        } else {
+          customInputs.classList.remove('active');
+          applyCustomBtn.classList.remove('active');
+          
+          let seconds = parseInt(val, 10) * 60;
+          labelSpan.textContent = option.textContent;
 
-        options.forEach((opt) => opt.classList.remove('selected'));
-        option.classList.add('selected');
-        
-        nativeSelect.value = val;
-        container.classList.remove('active');
-        
-        changeMode(minutes, val === 'custom');
+          options.forEach((opt) => opt.classList.remove('selected'));
+          option.classList.add('selected');
+          
+          nativeSelect.value = val;
+          container.classList.remove('active');
+          
+          changeMode(seconds, false);
+        }
       });
     });
   });
+
+  if (applyCustomBtn) {
+    applyCustomBtn.addEventListener('click', () => {
+      const h = parseInt(customH.value) || 0;
+      const m = parseInt(customM.value) || 0;
+      const s = parseInt(customS.value) || 0;
+      
+      const totalSecs = (h * 3600) + (m * 60) + s;
+      if (totalSecs <= 0) return;
+      
+      const triggerLabel = document.querySelector('.select-trigger span');
+      triggerLabel.textContent = `Custom (${h > 0 ? h + ':' : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')})`;
+      
+      changeMode(totalSecs, true);
+    });
+  }
 
   document.addEventListener('click', () => {
     selectContainers.forEach((c) => c.classList.remove('active'));
   });
 
   function updateDisplay() {
-    const minutes = Math.floor(remainingSeconds / 60);
+    const hours = Math.floor(remainingSeconds / 3600);
+    const minutes = Math.floor((remainingSeconds % 3600) / 60);
     const seconds = remainingSeconds % 60;
-    timeDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    document.title = `${timeDisplay.textContent} - Pomodoro Timer`;
+    
+    let timeString = '';
+    if (hours > 0) {
+      timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+      timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    timeDisplay.textContent = timeString;
+    document.title = `${timeString} - Pomodoro Timer`;
     
     const offset = circumference - (remainingSeconds / totalSeconds) * circumference;
     progressCircle.style.strokeDashoffset = offset;
   }
 
-  function changeMode(minutes, isCustom = false) {
+  function changeMode(seconds, isCustom = false) {
     pauseTimer();
-    totalSeconds = minutes * 60;
+    totalSeconds = seconds;
     remainingSeconds = totalSeconds;
     
     if (isCustom) {
       timeLabel.textContent = "Custom";
       progressCircle.classList.remove('break-mode');
-    } else if (minutes === 25) {
+    } else if (seconds === 25 * 60) {
       timeLabel.textContent = "Focus";
       progressCircle.classList.remove('break-mode');
     } else {
-      timeLabel.textContent = minutes === 5 ? "Short Break" : "Long Break";
+      timeLabel.textContent = seconds === 5 * 60 ? "Short Break" : "Long Break";
       progressCircle.classList.add('break-mode');
     }
     
