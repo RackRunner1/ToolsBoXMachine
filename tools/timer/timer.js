@@ -102,8 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let timeString = '';
     if (hours > 0) {
       timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      timeDisplay.classList.add('long-format');
     } else {
       timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      timeDisplay.classList.remove('long-format');
     }
     
     timeDisplay.textContent = timeString;
