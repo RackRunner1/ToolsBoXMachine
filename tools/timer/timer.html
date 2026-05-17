@@ -237,6 +237,69 @@
         animation: fadeIn 0.3s ease-out;
       }
 
+      .fullscreen-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #94a3b8;
+        border-radius: 0.5rem;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 20;
+      }
+
+      .fullscreen-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .blur-main {
+        position: relative;
+      }
+
+      #timer-main-area:fullscreen {
+        background: #020617;
+        border: none;
+        border-radius: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      #timer-main-area:fullscreen .timer-layout {
+        height: 100vh;
+        margin: 0;
+      }
+
+      #timer-main-area:fullscreen .timer-container {
+        transform: scale(1.6);
+      }
+
+      #timer-main-area:-webkit-full-screen {
+        background: #020617;
+        border: none;
+        border-radius: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      
+      #timer-main-area:-webkit-full-screen .timer-layout {
+        height: 100vh;
+        margin: 0;
+      }
+
+      #timer-main-area:-webkit-full-screen .timer-container {
+        transform: scale(1.6);
+      }
+
       @media (max-width: 1024px) {
         .timer-layout {
           height: auto;
@@ -312,7 +375,10 @@
         </div>
       </div>
 
-      <div class="blur-main">
+      <div class="blur-main" id="timer-main-area">
+        <button class="fullscreen-btn" id="fullscreen-btn" title="Toggle Fullscreen">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+        </button>
         <div class="timer-layout">
           <div class="timer-container">
             <svg class="timer-svg" viewBox="0 0 340 340">
