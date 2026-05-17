@@ -52,6 +52,14 @@ const tools = [
     url: "/tools/json-formatter/json-formatter.html",
   },
   {
+    id: "card-base64",
+    name: "Base64 Converter",
+    emoji: "🔄",
+    desc: "Encode and decode Base64 strings.",
+    keywords: "base64 encode decode string convert text",
+    url: "/tools/base64/base64.html",
+  },
+  {
     id: "card-timer",
     name: "Pomodoro Timer",
     emoji: "⏱️",

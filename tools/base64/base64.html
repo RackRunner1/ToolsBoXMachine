@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Base64 Encoder & Decoder (TBXM)</title>
+
+    <link rel="icon" href="../../.assets/logo/fav.png" />
+    <link rel="stylesheet" href="../../style.css" />
+
+    <style>
+      .b64-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        height: 500px;
+        margin-top: 1rem;
+      }
+
+      .editor-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        height: 100%;
+      }
+
+      .editor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.5rem;
+      }
+
+      .editor-wrapper {
+        flex: 1;
+        position: relative;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        overflow: hidden;
+        backdrop-filter: blur(4px);
+        transition: all 0.3s ease;
+      }
+
+      .editor-wrapper:focus-within {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.1);
+      }
+
+      textarea {
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        border: none;
+        padding: 1.25rem;
+        color: #e2e8f0;
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        resize: none;
+        outline: none;
+      }
+
+      /* Copy Animation */
+      .copy-icon-wrapper {
+        position: relative;
+        width: 20px;
+        height: 20px;
+      }
+
+      .copy-icon-original.fade {
+        animation: fadeInOut 2s ease-in-out;
+      }
+
+      @keyframes fadeInOut {
+        0% {
+          opacity: 1;
+        }
+        25% {
+          opacity: 0;
+        }
+        75% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .copy-icon-check {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+
+      .checkmark polyline {
+        stroke-dasharray: 30;
+        stroke-dashoffset: -30;
+        animation: drawCheck 0.8s ease-in-out forwards;
+      }
+
+      @keyframes drawCheck {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      /* Custom Premium Select */
+      .custom-select-container {
+        position: relative;
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+
+      .select-trigger {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+        font-size: 0.95rem;
+      }
+
+      .select-trigger:hover {
+        background: rgba(15, 23, 42, 0.8);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .select-trigger svg {
+        transition: transform 0.3s ease;
+        color: #64748b;
+      }
+
+      .custom-select-container.active .select-trigger svg {
+        transform: rotate(180deg);
+      }
+
+      .select-options {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        left: 0;
+        right: 0;
+        background: #1e293b;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(12px);
+      }
+
+      .custom-select-container.active .select-options {
+        display: block;
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      .select-option {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #e2e8f0;
+        font-size: 0.9rem;
+      }
+
+      .select-option:hover {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .select-option.selected {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary-color);
+      }
+
+      .native-select {
+        display: none;
+      }
+
+      .blur-sidebar {
+        gap: 1.25rem !important;
+      }
+
+      @media (max-width: 1024px) {
+        .b64-layout {
+          grid-template-columns: 1fr;
+          height: auto;
+        }
+        .editor-container {
+          height: 300px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <load src="../../ui/navbar.html" />
+
+    <h1>Base64 Encoder/Decoder</h1>
+
+    <div class="blur-tool-layout">
+      <div class="blur-sidebar">
+        <div class="sidebar-section">
+          <h3>1. Mode</h3>
+          <label>Operation</label>
+          <div class="custom-select-container" data-id="b64-mode">
+            <div class="select-trigger">
+              <span id="mode-label">Encode</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+            <div class="select-options">
+              <div class="select-option selected" data-value="encode">
+                Encode
+              </div>
+              <div class="select-option" data-value="decode">Decode</div>
+            </div>
+            <select id="b64-mode" class="native-select">
+              <option value="encode" selected>Encode</option>
+              <option value="decode">Decode</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>2. Actions</h3>
+          <button class="btn btn-secondary w-full" id="clear-btn">
+            <span>Clear All</span>
+          </button>
+        </div>
+
+        <div id="btn">
+          <button class="btn btn-primary w-full" id="copy-btn">
+            <span class="copy-icon-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="copy-icon-original"
+              >
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                <path
+                  d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                ></path>
+              </svg>
+            </span>
+            <span>Copy Result</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="blur-main">
+        <div class="b64-layout">
+          <div class="editor-container">
+            <div class="editor-header">
+              <span>INPUT</span>
+            </div>
+            <div class="editor-wrapper">
+              <textarea
+                id="b64-input"
+                placeholder="Type or paste content here..."
+                spellcheck="false"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="editor-container">
+            <div class="editor-header">
+              <span>OUTPUT</span>
+            </div>
+            <div class="editor-wrapper">
+              <textarea
+                id="b64-output"
+                placeholder="Result will appear here..."
+                spellcheck="false"
+                readonly
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <load src="../../ui/footer.html" />
+
+    <script type="module" src="./base64.js"></script>
+    <script type="module" src="/ui/navbar.js"></script>
+  </body>
+</html>
