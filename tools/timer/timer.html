@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pomodoro Timer (TBXM)</title>
+
+    <link rel="icon" href="../../.assets/logo/fav.png" />
+    <link rel="stylesheet" href="../../style.css" />
+
+    <style>
+      .timer-layout {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 500px;
+        margin-top: 1rem;
+      }
+
+      .timer-container {
+        position: relative;
+        width: 340px;
+        height: 340px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(15, 23, 42, 0.4);
+        border-radius: 50%;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), inset 0 0 40px rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .timer-svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+      }
+
+      .timer-circle-bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.05);
+        stroke-width: 8;
+      }
+
+      .timer-circle-progress {
+        fill: none;
+        stroke: var(--primary-color, #3b82f6);
+        stroke-width: 8;
+        stroke-linecap: round;
+        /* r=160, 2*pi*r = 1005.3 */
+        stroke-dasharray: 1005.3;
+        stroke-dashoffset: 0;
+        transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+        filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.6));
+      }
+
+      .timer-circle-progress.break-mode {
+        stroke: #10b981; /* Emerald green for breaks */
+        filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.6));
+      }
+
+      .timer-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 10;
+      }
+
+      .timer-time {
+        font-size: 5.5rem;
+        font-weight: 800;
+        font-family: var(--font-mono, monospace);
+        color: white;
+        line-height: 1;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        letter-spacing: -2px;
+      }
+
+      .timer-label {
+        margin-top: 0.5rem;
+        font-size: 1rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        font-weight: 600;
+      }
+
+      /* Custom Premium Select */
+      .custom-select-container {
+        position: relative;
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+
+      .select-trigger {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(4px);
+        font-size: 0.95rem;
+      }
+
+      .select-trigger:hover {
+        background: rgba(15, 23, 42, 0.8);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .select-trigger svg {
+        transition: transform 0.3s ease;
+        color: #64748b;
+      }
+
+      .custom-select-container.active .select-trigger svg {
+        transform: rotate(180deg);
+      }
+
+      .select-options {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        left: 0;
+        right: 0;
+        background: #1e293b;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        z-index: 1000;
+        display: none;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(12px);
+      }
+
+      .custom-select-container.active .select-options {
+        display: block;
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      .select-option {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #e2e8f0;
+        font-size: 0.9rem;
+      }
+
+      .select-option:hover {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .select-option.selected {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary-color);
+      }
+
+      .native-select {
+        display: none;
+      }
+
+      .blur-sidebar {
+        gap: 1.25rem !important;
+      }
+
+      .btn-play-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.5rem;
+      }
+
+      @media (max-width: 1024px) {
+        .timer-layout {
+          height: auto;
+          padding: 2rem 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <load src="../../ui/navbar.html" />
+
+    <h1>Pomodoro Timer</h1>
+
+    <div class="blur-tool-layout">
+      <div class="blur-sidebar">
+        <div class="sidebar-section">
+          <h3>1. Timer Mode</h3>
+          <label>Select Duration</label>
+          <div class="custom-select-container" data-id="timer-mode">
+            <div class="select-trigger">
+              <span id="mode-label">Pomodoro (25:00)</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </div>
+            <div class="select-options">
+              <div class="select-option selected" data-value="25">Pomodoro (25:00)</div>
+              <div class="select-option" data-value="5">Short Break (5:00)</div>
+              <div class="select-option" data-value="15">Long Break (15:00)</div>
+            </div>
+            <select id="timer-mode" class="native-select">
+              <option value="25" selected>Pomodoro (25:00)</option>
+              <option value="5">Short Break (5:00)</option>
+              <option value="15">Long Break (15:00)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>2. Controls</h3>
+          <button class="btn btn-primary w-full" id="start-btn">
+            <span class="btn-play-icon" id="start-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            </span>
+            <span id="start-text">Start Timer</span>
+          </button>
+
+          <button class="btn btn-secondary w-full" id="reset-btn" style="margin-top: 0.75rem">
+            <span class="btn-play-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+            </span>
+            <span>Reset Timer</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="blur-main">
+        <div class="timer-layout">
+          <div class="timer-container">
+            <svg class="timer-svg" viewBox="0 0 340 340">
+              <circle class="timer-circle-bg" cx="170" cy="170" r="160"></circle>
+              <circle class="timer-circle-progress" id="timer-progress" cx="170" cy="170" r="160"></circle>
+            </svg>
+            <div class="timer-display">
+              <div class="timer-time" id="time-display">25:00</div>
+              <div class="timer-label" id="time-label">Focus</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <load src="../../ui/footer.html" />
+
+    <script type="module" src="./timer.js"></script>
+    <script type="module" src="/ui/navbar.js"></script>
+  </body>
+</html>

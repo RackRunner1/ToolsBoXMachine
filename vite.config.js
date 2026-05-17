@@ -61,6 +61,8 @@ export default defineConfig({
           __dirname,
           "tools/json-formatter/json-formatter.html",
         ),
+        base64: resolve(__dirname, "tools/base64/base64.html"),
+        timer: resolve(__dirname, "tools/timer/timer.html"),
       },
     },
   },
