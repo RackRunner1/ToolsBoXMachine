@@ -51,6 +51,14 @@ document.addEventListener("DOMContentLoaded", () => {
     "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3",
   );
 
+  // Audio for tick
+  const tickSound = new Audio(
+    "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"
+  );
+  tickSound.volume = 0.15;
+
+  const tickingSoundToggle = document.getElementById("ticking-sound-toggle");
+
   let timerInterval;
   let totalSeconds = 25 * 60;
   let remainingSeconds = totalSeconds;
@@ -227,6 +235,12 @@ document.addEventListener("DOMContentLoaded", () => {
     timerInterval = setInterval(() => {
       remainingSeconds--;
       updateDisplay();
+
+      // Play tick sound if checkbox is checked
+      if (tickingSoundToggle && tickingSoundToggle.checked && remainingSeconds > 0) {
+        tickSound.currentTime = 0;
+        tickSound.play().catch((e) => console.log("Tick play failed:", e));
+      }
 
       if (remainingSeconds <= 0) {
         clearInterval(timerInterval);
