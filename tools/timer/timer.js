@@ -60,6 +60,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const circumference = 2 * Math.PI * 160;
   progressCircle.style.strokeDasharray = circumference;
 
+  // Sounds Map
+  const sounds = {
+    digital: "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3",
+    beep: "https://assets.mixkit.co/active_storage/sfx/911/911-preview.mp3",
+    chime: "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"
+  };
+
+  const volumeSlider = document.getElementById("alarm-volume");
+  const volumeVal = document.getElementById("volume-val");
+  const soundSelect = document.getElementById("alarm-sound-select");
+
+  if (soundSelect) {
+    soundSelect.addEventListener("change", (e) => {
+      const selectedSound = e.target.value;
+      alarmSound.src = sounds[selectedSound] || sounds.digital;
+      alarmSound.play().catch(err => console.log("Sound test failed:", err));
+    });
+  }
+
+  if (volumeSlider) {
+    volumeSlider.addEventListener("input", (e) => {
+      const vol = e.target.value;
+      if (volumeVal) volumeVal.textContent = `${vol}%`;
+      alarmSound.volume = vol / 100;
+    });
+    // Set initial volume
+    alarmSound.volume = volumeSlider.value / 100;
+  }
+
   // Custom Select Logic
   const selectContainers = document.querySelectorAll(
     ".custom-select-container",
@@ -91,12 +120,16 @@ document.addEventListener("DOMContentLoaded", () => {
           labelSpan.textContent = option.textContent;
           nativeSelect.value = val;
           container.classList.remove("active");
+          nativeSelect.dispatchEvent(new Event("change"));
           return;
         } else {
-          customInputs.classList.remove("active");
-          applyCustomBtn.classList.remove("active");
+          if (container.dataset.id === "timer-mode") {
+            customInputs.classList.remove("active");
+            applyCustomBtn.classList.remove("active");
+            let seconds = parseInt(val, 10) * 60;
+            changeMode(seconds, false);
+          }
 
-          let seconds = parseInt(val, 10) * 60;
           labelSpan.textContent = option.textContent;
 
           options.forEach((opt) => opt.classList.remove("selected"));
@@ -104,8 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           nativeSelect.value = val;
           container.classList.remove("active");
-
-          changeMode(seconds, false);
+          nativeSelect.dispatchEvent(new Event("change"));
         }
       });
     });
