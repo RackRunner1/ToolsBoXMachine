@@ -21,7 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const totalFocusTimeEl = document.getElementById("total-focus-time");
   const clearStatsBtn = document.getElementById("clear-stats-btn");
 
-  let stats = JSON.parse(localStorage.getItem("tbxm_timer_stats")) || { sessions: 0, totalTime: 0 };
+  let stats = JSON.parse(localStorage.getItem("tbxm_timer_stats")) || {
+    sessions: 0,
+    totalTime: 0,
+  };
 
   function updateStatsUI() {
     if (sessionsCountEl) sessionsCountEl.textContent = stats.sessions;
@@ -53,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Audio for tick
   const tickSound = new Audio(
-    "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"
+    "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3",
   );
   tickSound.volume = 0.15;
 
@@ -70,9 +73,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Sounds Map
   const sounds = {
-    digital: "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3",
+    digital:
+      "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3",
     beep: "https://assets.mixkit.co/active_storage/sfx/911/911-preview.mp3",
-    chime: "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"
+    chime: "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3",
   };
 
   const volumeSlider = document.getElementById("alarm-volume");
@@ -83,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     soundSelect.addEventListener("change", (e) => {
       const selectedSound = e.target.value;
       alarmSound.src = sounds[selectedSound] || sounds.digital;
-      alarmSound.play().catch(err => console.log("Sound test failed:", err));
+      alarmSound.play().catch((err) => console.log("Sound test failed:", err));
     });
   }
 
@@ -237,7 +241,11 @@ document.addEventListener("DOMContentLoaded", () => {
       updateDisplay();
 
       // Play tick sound if checkbox is checked
-      if (tickingSoundToggle && tickingSoundToggle.checked && remainingSeconds > 0) {
+      if (
+        tickingSoundToggle &&
+        tickingSoundToggle.checked &&
+        remainingSeconds > 0
+      ) {
         tickSound.currentTime = 0;
         tickSound.play().catch((e) => console.log("Tick play failed:", e));
       }
@@ -246,17 +254,20 @@ document.addEventListener("DOMContentLoaded", () => {
         clearInterval(timerInterval);
         isRunning = false;
         alarmSound.play().catch((e) => console.log("Audio play failed:", e));
-        
+
         // Show notification
         if ("Notification" in window && Notification.permission === "granted") {
           new Notification("Timer Finished!", {
             body: `${timeLabel.textContent} session has ended!`,
-            icon: "/.assets/logo/fav.png"
+            icon: "/.assets/logo/fav.png",
           });
         }
 
         // Record focus session stats
-        if (timeLabel.textContent !== "Short Break" && timeLabel.textContent !== "Long Break") {
+        if (
+          timeLabel.textContent !== "Short Break" &&
+          timeLabel.textContent !== "Long Break"
+        ) {
           stats.sessions++;
           stats.totalTime += Math.round(totalSeconds / 60);
           localStorage.setItem("tbxm_timer_stats", JSON.stringify(stats));
@@ -318,7 +329,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // Keyboard Shortcuts
   document.addEventListener("keydown", (e) => {
     const activeElement = document.activeElement;
-    if (activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "SELECT" || activeElement.tagName === "TEXTAREA")) {
+    if (
+      activeElement &&
+      (activeElement.tagName === "INPUT" ||
+        activeElement.tagName === "SELECT" ||
+        activeElement.tagName === "TEXTAREA")
+    ) {
       return;
     }
     if (e.code === "Space") {

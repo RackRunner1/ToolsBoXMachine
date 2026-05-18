@@ -390,15 +390,37 @@
 
         <div class="sidebar-section">
           <h3>2. Alarm Options</h3>
-          <div style="margin-bottom: 0.75rem;">
-            <label style="display: block; font-size: 0.85rem; color: #cbd5e1; margin-bottom: 0.25rem;">Alarm Sound</label>
+          <div style="margin-bottom: 0.75rem">
+            <label
+              style="
+                display: block;
+                font-size: 0.85rem;
+                color: #cbd5e1;
+                margin-bottom: 0.25rem;
+              "
+              >Alarm Sound</label
+            >
             <div class="custom-select-container" data-id="alarm-sound-select">
               <div class="select-trigger">
                 <span id="sound-label">Classic Digital</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
               </div>
               <div class="select-options">
-                <div class="select-option selected" data-value="digital">Classic Digital</div>
+                <div class="select-option selected" data-value="digital">
+                  Classic Digital
+                </div>
                 <div class="select-option" data-value="beep">Retro Beep</div>
                 <div class="select-option" data-value="chime">Gentle Chime</div>
               </div>
@@ -410,15 +432,49 @@
             </div>
           </div>
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-              <label style="font-size: 0.85rem; color: #cbd5e1;">Volume</label>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.25rem;
+              "
+            >
+              <label style="font-size: 0.85rem; color: #cbd5e1">Volume</label>
               <span id="volume-val" class="val-badge">80%</span>
             </div>
-            <input type="range" id="alarm-volume" min="0" max="100" value="80" style="margin-top: 0.25rem;" />
+            <input
+              type="range"
+              id="alarm-volume"
+              min="0"
+              max="100"
+              value="80"
+              style="margin-top: 0.25rem"
+            />
           </div>
-          <div style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
-            <label style="font-size: 0.85rem; color: #cbd5e1; cursor: pointer;" for="ticking-sound-toggle">Play Ticking Sound</label>
-            <input type="checkbox" id="ticking-sound-toggle" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-color);" />
+          <div
+            style="
+              margin-top: 0.75rem;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+            "
+          >
+            <label
+              style="font-size: 0.85rem; color: #cbd5e1; cursor: pointer"
+              for="ticking-sound-toggle"
+              >Play Ticking Sound</label
+            >
+            <input
+              type="checkbox"
+              id="ticking-sound-toggle"
+              style="
+                width: 18px;
+                height: 18px;
+                cursor: pointer;
+                accent-color: var(--primary-color);
+              "
+            />
           </div>
         </div>
 
@@ -472,15 +528,41 @@
 
         <div class="sidebar-section" id="stats-section">
           <h3>4. Focus Stats</h3>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 0.5rem;
+              font-size: 0.9rem;
+            "
+          >
             <span>Completed Sessions:</span>
-            <span id="sessions-count" style="font-weight: 700; color: var(--primary-color);">0</span>
+            <span
+              id="sessions-count"
+              style="font-weight: 700; color: var(--primary-color)"
+              >0</span
+            >
           </div>
-          <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.75rem;">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              font-size: 0.9rem;
+              margin-bottom: 0.75rem;
+            "
+          >
             <span>Total Focus Time:</span>
-            <span id="total-focus-time" style="font-weight: 700; color: var(--secondary-color);">0m</span>
+            <span
+              id="total-focus-time"
+              style="font-weight: 700; color: var(--secondary-color)"
+              >0m</span
+            >
           </div>
-          <button class="btn btn-secondary w-full" id="clear-stats-btn" style="padding: 0.5rem; font-size: 0.8rem;">
+          <button
+            class="btn btn-secondary w-full"
+            id="clear-stats-btn"
+            style="padding: 0.5rem; font-size: 0.8rem"
+          >
             Reset Stats
           </button>
         </div>
