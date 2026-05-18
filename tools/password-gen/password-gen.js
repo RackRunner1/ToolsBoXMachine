@@ -16,7 +16,8 @@ const historyContainer = document.getElementById("history-container");
 const historyList = document.getElementById("history-list");
 const clearHistoryBtn = document.getElementById("clear-history-btn");
 
-let passwordHistory = JSON.parse(localStorage.getItem("tbxm_password_history")) || [];
+let passwordHistory =
+  JSON.parse(localStorage.getItem("tbxm_password_history")) || [];
 let isInitialGen = true;
 
 function updateHistoryUI() {
@@ -32,17 +33,20 @@ function updateHistoryUI() {
 
   passwordHistory.forEach((item) => {
     const historyItem = document.createElement("div");
-    historyItem.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.4); padding: 0.75rem 1rem; border-radius: 0.5rem; border: 1px solid var(--card-border); width: 100%; gap: 1rem;";
+    historyItem.style.cssText =
+      "display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.4); padding: 0.75rem 1rem; border-radius: 0.5rem; border: 1px solid var(--card-border); width: 100%; gap: 1rem;";
 
     const textWrapper = document.createElement("div");
-    textWrapper.style.cssText = "font-family: var(--font-mono); font-size: 0.95rem; word-break: break-all; flex: 1;";
-    
+    textWrapper.style.cssText =
+      "font-family: var(--font-mono); font-size: 0.95rem; word-break: break-all; flex: 1;";
+
     const dotsText = "•".repeat(Math.min(item.length, 16));
     textWrapper.textContent = dotsText;
     textWrapper.style.color = "#94a3b8";
 
     const actionsWrapper = document.createElement("div");
-    actionsWrapper.style.cssText = "display: flex; gap: 0.5rem; flex-shrink: 0;";
+    actionsWrapper.style.cssText =
+      "display: flex; gap: 0.5rem; flex-shrink: 0;";
 
     const revealBtn = document.createElement("button");
     revealBtn.className = "btn btn-secondary";
@@ -83,18 +87,25 @@ function updateHistoryUI() {
 }
 
 function addPasswordToHistory(pwd) {
-  if (!pwd || pwd === "Select at least one option" || pwd === "Click Generate") return;
+  if (!pwd || pwd === "Select at least one option" || pwd === "Click Generate")
+    return;
   if (passwordHistory[0] === pwd) return;
   passwordHistory.unshift(pwd);
   if (passwordHistory.length > 5) passwordHistory.pop();
-  localStorage.setItem("tbxm_password_history", JSON.stringify(passwordHistory));
+  localStorage.setItem(
+    "tbxm_password_history",
+    JSON.stringify(passwordHistory),
+  );
   updateHistoryUI();
 }
 
 if (clearHistoryBtn) {
   clearHistoryBtn.onclick = () => {
     passwordHistory = [];
-    localStorage.setItem("tbxm_password_history", JSON.stringify(passwordHistory));
+    localStorage.setItem(
+      "tbxm_password_history",
+      JSON.stringify(passwordHistory),
+    );
     updateHistoryUI();
   };
 }
@@ -272,7 +283,11 @@ function generatePassword() {
     if (includeNumbers.checked) charSet += chars.numbers;
     if (includeSymbols.checked) charSet += chars.symbols;
 
-    if (includeCustomCharset && includeCustomCharset.checked && customCharsetInput) {
+    if (
+      includeCustomCharset &&
+      includeCustomCharset.checked &&
+      customCharsetInput
+    ) {
       charSet += customCharsetInput.value;
     }
 
