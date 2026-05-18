@@ -11,6 +11,96 @@ const strengthBar = document.getElementById("strength-bar");
 const strengthText = document.getElementById("strength-text");
 const copyFeedback = document.getElementById("copy-feedback");
 
+// History Setup
+const historyContainer = document.getElementById("history-container");
+const historyList = document.getElementById("history-list");
+const clearHistoryBtn = document.getElementById("clear-history-btn");
+
+let passwordHistory = JSON.parse(localStorage.getItem("tbxm_password_history")) || [];
+let isInitialGen = true;
+
+function updateHistoryUI() {
+  if (!historyList) return;
+  historyList.innerHTML = "";
+
+  if (passwordHistory.length === 0) {
+    if (historyContainer) historyContainer.style.display = "none";
+    return;
+  }
+
+  if (historyContainer) historyContainer.style.display = "flex";
+
+  passwordHistory.forEach((item) => {
+    const historyItem = document.createElement("div");
+    historyItem.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.4); padding: 0.75rem 1rem; border-radius: 0.5rem; border: 1px solid var(--card-border); width: 100%; gap: 1rem;";
+
+    const textWrapper = document.createElement("div");
+    textWrapper.style.cssText = "font-family: var(--font-mono); font-size: 0.95rem; word-break: break-all; flex: 1;";
+    
+    const dotsText = "•".repeat(Math.min(item.length, 16));
+    textWrapper.textContent = dotsText;
+    textWrapper.style.color = "#94a3b8";
+
+    const actionsWrapper = document.createElement("div");
+    actionsWrapper.style.cssText = "display: flex; gap: 0.5rem; flex-shrink: 0;";
+
+    const revealBtn = document.createElement("button");
+    revealBtn.className = "btn btn-secondary";
+    revealBtn.style.cssText = "padding: 0.25rem 0.5rem; font-size: 0.75rem;";
+    revealBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+    let isRevealed = false;
+    revealBtn.onclick = () => {
+      isRevealed = !isRevealed;
+      if (isRevealed) {
+        textWrapper.textContent = item;
+        textWrapper.style.color = "var(--primary-color)";
+        revealBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>`;
+      } else {
+        textWrapper.textContent = dotsText;
+        textWrapper.style.color = "#94a3b8";
+        revealBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+      }
+    };
+
+    const copyItemBtn = document.createElement("button");
+    copyItemBtn.className = "btn btn-primary";
+    copyItemBtn.style.cssText = "padding: 0.25rem 0.5rem; font-size: 0.75rem;";
+    copyItemBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>`;
+    copyItemBtn.onclick = () => {
+      navigator.clipboard.writeText(item).then(() => {
+        const copyFeedback = document.getElementById("copy-feedback");
+        copyFeedback.classList.add("show");
+        setTimeout(() => copyFeedback.classList.remove("show"), 2000);
+      });
+    };
+
+    actionsWrapper.appendChild(revealBtn);
+    actionsWrapper.appendChild(copyItemBtn);
+    historyItem.appendChild(textWrapper);
+    historyItem.appendChild(actionsWrapper);
+    historyList.appendChild(historyItem);
+  });
+}
+
+function addPasswordToHistory(pwd) {
+  if (!pwd || pwd === "Select at least one option" || pwd === "Click Generate") return;
+  if (passwordHistory[0] === pwd) return;
+  passwordHistory.unshift(pwd);
+  if (passwordHistory.length > 5) passwordHistory.pop();
+  localStorage.setItem("tbxm_password_history", JSON.stringify(passwordHistory));
+  updateHistoryUI();
+}
+
+if (clearHistoryBtn) {
+  clearHistoryBtn.onclick = () => {
+    passwordHistory = [];
+    localStorage.setItem("tbxm_password_history", JSON.stringify(passwordHistory));
+    updateHistoryUI();
+  };
+}
+
+updateHistoryUI();
+
 // Mode elements
 const genModeRadios = document.querySelectorAll('input[name="genMode"]');
 const passwordOptions = document.getElementById("password-options");
@@ -218,6 +308,9 @@ function generatePassword() {
 
   passwordOutput.textContent = password;
   updateStrength(password);
+  if (!isInitialGen) {
+    addPasswordToHistory(password);
+  }
 }
 
 function updateStrength(password) {
@@ -311,3 +404,4 @@ copyBtn.addEventListener("click", () => {
 
 // Initial generation
 generatePassword();
+isInitialGen = false;
