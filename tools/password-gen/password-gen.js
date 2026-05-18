@@ -112,6 +112,9 @@ const includeLowercase = document.getElementById("include-lowercase");
 const includeNumbers = document.getElementById("include-numbers");
 const includeSymbols = document.getElementById("include-symbols");
 const excludeAmbiguous = document.getElementById("exclude-ambiguous");
+const includeCustomCharset = document.getElementById("include-custom-charset");
+const customCharsetInput = document.getElementById("custom-charset-input");
+const customCharsetWrapper = document.getElementById("custom-charset-wrapper");
 
 // Passphrase options
 const includeNumbersPhrase = document.getElementById("include-numbers-phrase");
@@ -269,6 +272,10 @@ function generatePassword() {
     if (includeNumbers.checked) charSet += chars.numbers;
     if (includeSymbols.checked) charSet += chars.symbols;
 
+    if (includeCustomCharset && includeCustomCharset.checked && customCharsetInput) {
+      charSet += customCharsetInput.value;
+    }
+
     if (excludeAmbiguous.checked) {
       for (const amb of chars.ambiguous) {
         charSet = charSet.split(amb).join("");
@@ -383,6 +390,19 @@ genModeRadios.forEach((radio) => {
     generatePassword();
   });
 });
+
+if (includeCustomCharset) {
+  includeCustomCharset.addEventListener("change", (e) => {
+    if (customCharsetWrapper) {
+      customCharsetWrapper.style.display = e.target.checked ? "block" : "none";
+    }
+    generatePassword();
+  });
+}
+
+if (customCharsetInput) {
+  customCharsetInput.addEventListener("input", generatePassword);
+}
 
 generateBtn.addEventListener("click", generatePassword);
 
