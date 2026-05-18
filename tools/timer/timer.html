@@ -435,6 +435,21 @@
             <span>Reset Timer</span>
           </button>
         </div>
+
+        <div class="sidebar-section" id="stats-section">
+          <h3>3. Focus Stats</h3>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;">
+            <span>Completed Sessions:</span>
+            <span id="sessions-count" style="font-weight: 700; color: var(--primary-color);">0</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 0.75rem;">
+            <span>Total Focus Time:</span>
+            <span id="total-focus-time" style="font-weight: 700; color: var(--secondary-color);">0m</span>
+          </div>
+          <button class="btn btn-secondary w-full" id="clear-stats-btn" style="padding: 0.5rem; font-size: 0.8rem;">
+            Reset Stats
+          </button>
+        </div>
       </div>
 
       <div class="blur-main" id="timer-main-area">

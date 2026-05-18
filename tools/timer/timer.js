@@ -16,6 +16,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const fullscreenBtn = document.getElementById("fullscreen-btn");
   const timerMainArea = document.getElementById("timer-main-area");
 
+  // Focus Stats Elements
+  const sessionsCountEl = document.getElementById("sessions-count");
+  const totalFocusTimeEl = document.getElementById("total-focus-time");
+  const clearStatsBtn = document.getElementById("clear-stats-btn");
+
+  let stats = JSON.parse(localStorage.getItem("tbxm_timer_stats")) || { sessions: 0, totalTime: 0 };
+
+  function updateStatsUI() {
+    if (sessionsCountEl) sessionsCountEl.textContent = stats.sessions;
+    if (totalFocusTimeEl) {
+      if (stats.totalTime < 60) {
+        totalFocusTimeEl.textContent = `${stats.totalTime}m`;
+      } else {
+        const hrs = Math.floor(stats.totalTime / 60);
+        const mins = stats.totalTime % 60;
+        totalFocusTimeEl.textContent = `${hrs}h ${mins}m`;
+      }
+    }
+  }
+
+  if (clearStatsBtn) {
+    clearStatsBtn.addEventListener("click", () => {
+      stats = { sessions: 0, totalTime: 0 };
+      localStorage.setItem("tbxm_timer_stats", JSON.stringify(stats));
+      updateStatsUI();
+    });
+  }
+
+  updateStatsUI();
+
   // Audio for alarm
   const alarmSound = new Audio(
     "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3",
@@ -177,6 +207,14 @@ document.addEventListener("DOMContentLoaded", () => {
             body: `${timeLabel.textContent} session has ended!`,
             icon: "/.assets/logo/fav.png"
           });
+        }
+
+        // Record focus session stats
+        if (timeLabel.textContent !== "Short Break" && timeLabel.textContent !== "Long Break") {
+          stats.sessions++;
+          stats.totalTime += Math.round(totalSeconds / 60);
+          localStorage.setItem("tbxm_timer_stats", JSON.stringify(stats));
+          updateStatsUI();
         }
 
         startText.textContent = "Start Timer";
