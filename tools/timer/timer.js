@@ -217,6 +217,22 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);
   }
 
+  // Keyboard Shortcuts
+  document.addEventListener("keydown", (e) => {
+    const activeElement = document.activeElement;
+    if (activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "SELECT" || activeElement.tagName === "TEXTAREA")) {
+      return;
+    }
+    if (e.code === "Space") {
+      e.preventDefault();
+      toggleTimer();
+    } else if (e.key.toLowerCase() === "r") {
+      resetTimer();
+    } else if (e.key.toLowerCase() === "f") {
+      if (fullscreenBtn) fullscreenBtn.click();
+    }
+  });
+
   // Initialize
   updateDisplay();
 });
