@@ -16,9 +16,11 @@
 
 1. Ensure you have [Node.js](https://nodejs.org/) and [Git](https://git-scm.com/) installed on your machine.
 2. Clone the repo with Git :
+
 ```bash
 https://github.com/ToolsBoXMachine/ToolsBoXMachine.git
 ```
+
 4. Open a terminal in the project's current folder.
 5. Install the necessary dependencies:
 
