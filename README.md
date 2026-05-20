@@ -18,7 +18,7 @@
 2. Clone the repo with Git :
 
 ```bash
-https://github.com/ToolsBoXMachine/ToolsBoXMachine.git
+git clone https://github.com/ToolsBoXMachine/ToolsBoXMachine.git
 ```
 
 4. Open a terminal in the project's current folder.
