@@ -25,11 +25,9 @@ function updateHistoryUI() {
   historyList.innerHTML = "";
 
   if (passwordHistory.length === 0) {
-    if (historyContainer) historyContainer.style.display = "none";
+    historyList.innerHTML = "<div style='color: #94a3b8; text-align: center; padding: 1rem;'>No password history yet.</div>";
     return;
   }
-
-  if (historyContainer) historyContainer.style.display = "flex";
 
   passwordHistory.forEach((item) => {
     const historyItem = document.createElement("div");
@@ -440,3 +438,50 @@ copyBtn.addEventListener("click", () => {
 // Initial generation
 generatePassword();
 isInitialGen = false;
+
+// History Modal Logic
+const viewHistoryBtn = document.getElementById("view-history-btn");
+const historyModal = document.getElementById("history-modal");
+const closeHistoryModal = document.getElementById("close-history-modal");
+const historyModalContent = document.getElementById("history-modal-content");
+
+function openHistoryModal() {
+  if (historyModal) {
+    historyModal.style.display = "flex";
+    setTimeout(() => {
+      historyModal.style.opacity = "1";
+      if (historyModalContent) {
+        historyModalContent.style.transform = "scale(1)";
+      }
+    }, 10);
+    updateHistoryUI();
+  }
+}
+
+function closeHistoryModalFunc() {
+  if (historyModal) {
+    historyModal.style.opacity = "0";
+    if (historyModalContent) {
+      historyModalContent.style.transform = "scale(0.95)";
+    }
+    setTimeout(() => {
+      historyModal.style.display = "none";
+    }, 300);
+  }
+}
+
+if (viewHistoryBtn) {
+  viewHistoryBtn.addEventListener("click", openHistoryModal);
+}
+
+if (closeHistoryModal) {
+  closeHistoryModal.addEventListener("click", closeHistoryModalFunc);
+}
+
+if (historyModal) {
+  historyModal.addEventListener("click", (e) => {
+    if (e.target === historyModal) {
+      closeHistoryModalFunc();
+    }
+  });
+}
