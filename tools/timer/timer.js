@@ -347,6 +347,71 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Advanced Options Toggle
+  const advancedOptionsBtn = document.getElementById("advanced-options-btn");
+  const advancedOptionsContent = document.getElementById("advanced-options-content");
+  const advancedOptionsIcon = document.getElementById("advanced-options-icon");
+
+  if (advancedOptionsBtn && advancedOptionsContent) {
+    advancedOptionsBtn.addEventListener("click", () => {
+      const isHidden = advancedOptionsContent.style.display === "none";
+      if (isHidden) {
+        advancedOptionsContent.style.display = "flex";
+        if (advancedOptionsIcon) advancedOptionsIcon.style.transform = "rotate(180deg)";
+      } else {
+        advancedOptionsContent.style.display = "none";
+        if (advancedOptionsIcon) advancedOptionsIcon.style.transform = "rotate(0deg)";
+      }
+    });
+  }
+
+  // Stats Modal Logic
+  const viewStatsBtn = document.getElementById("view-stats-btn");
+  const statsModal = document.getElementById("stats-modal");
+  const closeStatsModal = document.getElementById("close-stats-modal");
+  const statsModalContent = document.getElementById("stats-modal-content");
+
+  function openModal() {
+    if (statsModal) {
+      statsModal.style.display = "flex";
+      setTimeout(() => {
+        statsModal.style.opacity = "1";
+        if (statsModalContent) {
+          statsModalContent.style.transform = "scale(1)";
+        }
+      }, 10);
+      updateStatsUI();
+    }
+  }
+
+  function closeModal() {
+    if (statsModal) {
+      statsModal.style.opacity = "0";
+      if (statsModalContent) {
+        statsModalContent.style.transform = "scale(0.95)";
+      }
+      setTimeout(() => {
+        statsModal.style.display = "none";
+      }, 300);
+    }
+  }
+
+  if (viewStatsBtn) {
+    viewStatsBtn.addEventListener("click", openModal);
+  }
+
+  if (closeStatsModal) {
+    closeStatsModal.addEventListener("click", closeModal);
+  }
+
+  if (statsModal) {
+    statsModal.addEventListener("click", (e) => {
+      if (e.target === statsModal) {
+        closeModal();
+      }
+    });
+  }
+
   // Initialize
   updateDisplay();
 });
