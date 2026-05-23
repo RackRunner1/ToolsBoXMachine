@@ -349,7 +349,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Advanced Options Toggle
   const advancedOptionsBtn = document.getElementById("advanced-options-btn");
-  const advancedOptionsContent = document.getElementById("advanced-options-content");
+  const advancedOptionsContent = document.getElementById(
+    "advanced-options-content",
+  );
   const advancedOptionsIcon = document.getElementById("advanced-options-icon");
 
   if (advancedOptionsBtn && advancedOptionsContent) {
@@ -357,10 +359,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const isHidden = advancedOptionsContent.style.display === "none";
       if (isHidden) {
         advancedOptionsContent.style.display = "flex";
-        if (advancedOptionsIcon) advancedOptionsIcon.style.transform = "rotate(180deg)";
+        if (advancedOptionsIcon)
+          advancedOptionsIcon.style.transform = "rotate(180deg)";
       } else {
         advancedOptionsContent.style.display = "none";
-        if (advancedOptionsIcon) advancedOptionsIcon.style.transform = "rotate(0deg)";
+        if (advancedOptionsIcon)
+          advancedOptionsIcon.style.transform = "rotate(0deg)";
       }
     });
   }
