@@ -25,7 +25,8 @@ function updateHistoryUI() {
   historyList.innerHTML = "";
 
   if (passwordHistory.length === 0) {
-    historyList.innerHTML = "<div style='color: #94a3b8; text-align: center; padding: 1rem;'>No password history yet.</div>";
+    historyList.innerHTML =
+      "<div style='color: #94a3b8; text-align: center; padding: 1rem;'>No password history yet.</div>";
     return;
   }
 
