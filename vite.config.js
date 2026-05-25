@@ -63,6 +63,7 @@ export default defineConfig({
         ),
         base64: resolve(__dirname, "tools/base64/base64.html"),
         timer: resolve(__dirname, "tools/timer/timer.html"),
+        note: resolve(__dirname, "tools/note/note.html"),
       },
     },
   },
