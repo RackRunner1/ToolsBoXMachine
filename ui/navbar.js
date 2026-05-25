@@ -67,6 +67,14 @@ const tools = [
     keywords: "pomodoro timer time clock focus break study work productivity",
     url: "/tools/timer/timer.html",
   },
+  {
+    id: "card-note",
+    name: "Notes",
+    emoji: "📝",
+    desc: "Create, save, and manage your notes.",
+    keywords: "note notes text write diary jot record save",
+    url: "/tools/note/note.html",
+  },
 ];
 
 function updateSearch() {
