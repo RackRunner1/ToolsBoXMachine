@@ -85,7 +85,7 @@ function renderNotes() {
     `;
 
     card.addEventListener("click", () => openModal(note));
-    
+
     const delBtn = card.querySelector(".delete-note-btn");
     delBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -117,7 +117,7 @@ function openModal(note = null) {
     elements.contentInput.value = "";
     elements.dateDisplay.textContent = "";
   }
-  
+
   elements.modal.classList.add("active");
   elements.titleInput.focus();
 }
@@ -130,7 +130,7 @@ function closeModal() {
 function saveNote() {
   const title = elements.titleInput.value.trim();
   const content = elements.contentInput.value.trim();
-  
+
   // Don't save empty notes
   if (!title && !content) {
     closeModal();
@@ -161,7 +161,7 @@ function saveNote() {
 
   // Sort by modified date descending
   notes.sort((a, b) => b.modifiedAt - a.modifiedAt);
-  
+
   saveNotesToStorage();
   renderNotes();
   closeModal();
@@ -187,12 +187,12 @@ function showNotification(message) {
 
 function setupEventListeners() {
   elements.createBtn.addEventListener("click", () => openModal());
-  
+
   elements.closeBtn.addEventListener("click", closeModal);
   elements.cancelBtn.addEventListener("click", closeModal);
-  
+
   elements.saveBtn.addEventListener("click", saveNote);
-  
+
   // Close on outside click
   elements.modal.addEventListener("click", (e) => {
     if (e.target === elements.modal) {

@@ -105,7 +105,9 @@
         align-items: center;
         cursor: pointer;
         opacity: 0;
-        transition: opacity 0.2s, background 0.2s;
+        transition:
+          opacity 0.2s,
+          background 0.2s;
         z-index: 10;
       }
 
@@ -243,7 +245,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: background 0.2s, color 0.2s;
+        transition:
+          background 0.2s,
+          color 0.2s;
       }
 
       .close-btn:hover {
@@ -286,8 +290,15 @@
     <div class="notes-container">
       <div class="notes-header">
         <div>
-          <h2 style="margin: 0; font-size: 1.25rem;">My Notes</h2>
-          <p style="margin: 0; font-size: 0.85rem; color: #94a3b8; margin-top: 0.25rem;">
+          <h2 style="margin: 0; font-size: 1.25rem">My Notes</h2>
+          <p
+            style="
+              margin: 0;
+              font-size: 0.85rem;
+              color: #94a3b8;
+              margin-top: 0.25rem;
+            "
+          >
             Stored securely in your browser
           </p>
         </div>
@@ -352,7 +363,12 @@
         <div class="modal-footer">
           <span
             id="modal-note-date"
-            style="color: #64748b; font-size: 0.85rem; margin-right: auto; align-self: center;"
+            style="
+              color: #64748b;
+              font-size: 0.85rem;
+              margin-right: auto;
+              align-self: center;
+            "
           ></span>
           <button class="btn btn-secondary" id="cancel-note-btn">Cancel</button>
           <button class="btn btn-primary btn-icon" id="save-note-btn">
@@ -367,7 +383,9 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+              <path
+                d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"
+              />
               <polyline points="17 21 17 13 7 13 7 21" />
               <polyline points="7 3 7 8 15 8" />
             </svg>
