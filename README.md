@@ -43,9 +43,3 @@ No problem ! ToolsBoxMachine is a free to use tool, just use the [online version
 
 Got an idea for a new tool? Contributions are highly encouraged!
 Feel free to open an **Issue** to suggest your idea, or directly submit a **Pull Request** if you want to build it yourself.
-
----
-
-# GitHub Stats :
-
-![Alt](https://repobeats.axiom.co/api/embed/839a7c8994c49552b46865caca4ce1b965f0ce5f.svg "Repobeats analytics image")
