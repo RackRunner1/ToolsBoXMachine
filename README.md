@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/ToolsBoXMachine/ToolsBoXMachine/blob/main/.assets/logo/blanc.png?raw=true#gh-dark-mode-only" width="10000">
+  <img src="https://codeberg.org/ddrayko/ToolsBoXMachine/raw/branch/main/.assets/logo/blanc.png" width="10000">
 </p>
 
 ---
