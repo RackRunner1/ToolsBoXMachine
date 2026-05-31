@@ -35,6 +35,11 @@ const maxHistory = 20;
 let showBrushPreview = false;
 let previewTimeout = null;
 
+// Selector state
+let selectionStart = null;
+let selectionEnd = null;
+let isSelecting = false;
+
 function saveState() {
   if (blurHistory.length >= maxHistory) {
     blurHistory.shift();
@@ -153,18 +158,46 @@ function updateCanvas() {
   if (!imageObjects) return;
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
 
-  if (mode === "full") {
+  if (mode === "full" || mode === "selector") {
     brushSizeContainer.style.display = "none";
-    ctx.drawImage(offscreenCanvas, 0, 0);
   } else {
     brushSizeContainer.style.display = "block";
+  }
+
+  if (mode === "full") {
+    ctx.drawImage(offscreenCanvas, 0, 0);
+  } else {
     ctx.drawImage(imageObjects, 0, 0);
     ctx.drawImage(paintCanvas, 0, 0);
   }
 
-  if (showBrushPreview) {
+  if (showBrushPreview && mode !== "selector") {
     drawBrushPreview();
   }
+
+  if (mode === "selector" && selectionStart && selectionEnd && isSelecting) {
+    drawSelectorOverlay();
+  }
+}
+
+function drawSelectorOverlay() {
+  const x = Math.min(selectionStart.x, selectionEnd.x);
+  const y = Math.min(selectionStart.y, selectionEnd.y);
+  const w = Math.abs(selectionEnd.x - selectionStart.x);
+  const h = Math.abs(selectionEnd.y - selectionStart.y);
+
+  ctx.save();
+  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(x, y, w, h);
+
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.setLineDash([6, 4]);
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
 }
 
 function drawBrushPreview() {
@@ -204,7 +237,14 @@ function drawBrushPreview() {
   ctx.restore();
 }
 
-modeRadios.forEach((radio) => radio.addEventListener("change", updateCanvas));
+modeRadios.forEach((radio) =>
+  radio.addEventListener("change", () => {
+    selectionStart = null;
+    selectionEnd = null;
+    isSelecting = false;
+    updateCanvas();
+  }),
+);
 
 brushSizeInput.addEventListener("input", (e) => {
   sizeVal.textContent = e.target.value;
@@ -351,6 +391,15 @@ canvas.addEventListener("mousedown", (e) => {
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
   if (mode === "full") return;
 
+  if (mode === "selector") {
+    saveState();
+    selectionStart = getMousePos(e);
+    selectionEnd = getMousePos(e);
+    isSelecting = true;
+    updateCanvas();
+    return;
+  }
+
   saveState(); // Save state before drawing begins
 
   isDrawing = true;
@@ -364,16 +413,36 @@ canvas.addEventListener("mousemove", (e) => {
     applyTransform();
     return;
   }
+  if (isSelecting) {
+    selectionEnd = getMousePos(e);
+    updateCanvas();
+    return;
+  }
   if (isDrawing) {
     drawBlur(e);
   }
 });
 
 canvas.addEventListener("mouseup", () => {
+  if (isSelecting) {
+    isSelecting = false;
+    applySelectorBlur();
+    selectionStart = null;
+    selectionEnd = null;
+    updateCanvas();
+    return;
+  }
   isPanning = false;
   isDrawing = false;
 });
 canvas.addEventListener("mouseleave", () => {
+  if (isSelecting) {
+    isSelecting = false;
+    selectionStart = null;
+    selectionEnd = null;
+    updateCanvas();
+    return;
+  }
   isPanning = false;
   isDrawing = false;
 });
@@ -402,6 +471,24 @@ function drawBlur(e) {
 
   paintCtx.restore();
   updateCanvas();
+}
+
+function applySelectorBlur() {
+  if (!selectionStart || !selectionEnd) return;
+
+  const x = Math.min(selectionStart.x, selectionEnd.x);
+  const y = Math.min(selectionStart.y, selectionEnd.y);
+  const w = Math.abs(selectionEnd.x - selectionStart.x);
+  const h = Math.abs(selectionEnd.y - selectionStart.y);
+
+  if (w < 2 || h < 2) return;
+
+  paintCtx.save();
+  paintCtx.beginPath();
+  paintCtx.rect(x, y, w, h);
+  paintCtx.clip();
+  paintCtx.drawImage(offscreenCanvas, 0, 0);
+  paintCtx.restore();
 }
 
 downloadBtn.addEventListener("click", () => {
