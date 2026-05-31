@@ -240,8 +240,14 @@ function drawBrushPreview() {
   ctx.restore();
 }
 
+function cleanupSelectorListeners() {
+  document.removeEventListener("mousemove", onSelectorMouseMove);
+  document.removeEventListener("mouseup", onSelectorMouseUp);
+}
+
 modeRadios.forEach((radio) =>
   radio.addEventListener("change", () => {
+    cleanupSelectorListeners();
     selectionStart = null;
     selectionEnd = null;
     isSelecting = false;
@@ -273,6 +279,7 @@ blurIntensityInput.addEventListener("input", (e) => {
 function loadImage(src) {
   const img = new Image();
   img.onload = () => {
+    cleanupSelectorListeners();
     canvas.width = img.width;
     canvas.height = img.height;
     offscreenCanvas.width = img.width;
@@ -377,12 +384,29 @@ function getMousePos(evt) {
   };
 }
 
+function onSelectorMouseMove(e) {
+  if (!isSelecting) return;
+  selectionEnd = getMousePos(e);
+  updateCanvas();
+}
+
+function onSelectorMouseUp() {
+  if (!isSelecting) return;
+  isSelecting = false;
+  applySelectorBlur();
+  selectionStart = null;
+  selectionEnd = null;
+  updateCanvas();
+  document.removeEventListener("mousemove", onSelectorMouseMove);
+  document.removeEventListener("mouseup", onSelectorMouseUp);
+}
+
 canvas.addEventListener("mousedown", (e) => {
   if (!imageObjects) return;
 
   if (e.button === 2) {
     // Right click for panning
-    if (currentTransform.scale <= 1) return; // Nothing to pan at natural size
+    if (currentTransform.scale <= 1) return;
     isPanning = true;
     startPan = {
       x: e.clientX - currentTransform.x,
@@ -400,10 +424,12 @@ canvas.addEventListener("mousedown", (e) => {
     selectionEnd = getMousePos(e);
     isSelecting = true;
     updateCanvas();
+    document.addEventListener("mousemove", onSelectorMouseMove);
+    document.addEventListener("mouseup", onSelectorMouseUp);
     return;
   }
 
-  saveState(); // Save state before drawing begins
+  saveState();
 
   isDrawing = true;
   drawBlur(e);
@@ -416,36 +442,16 @@ canvas.addEventListener("mousemove", (e) => {
     applyTransform();
     return;
   }
-  if (isSelecting) {
-    selectionEnd = getMousePos(e);
-    updateCanvas();
-    return;
-  }
   if (isDrawing) {
     drawBlur(e);
   }
 });
 
 canvas.addEventListener("mouseup", () => {
-  if (isSelecting) {
-    isSelecting = false;
-    applySelectorBlur();
-    selectionStart = null;
-    selectionEnd = null;
-    updateCanvas();
-    return;
-  }
   isPanning = false;
   isDrawing = false;
 });
 canvas.addEventListener("mouseleave", () => {
-  if (isSelecting) {
-    isSelecting = false;
-    selectionStart = null;
-    selectionEnd = null;
-    updateCanvas();
-    return;
-  }
   isPanning = false;
   isDrawing = false;
 });
