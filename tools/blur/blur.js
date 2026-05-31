@@ -187,10 +187,13 @@ function drawSelectorOverlay() {
   const h = Math.abs(selectionEnd.y - selectionStart.y);
 
   ctx.save();
-  ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.clearRect(x, y, w, h);
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+  ctx.drawImage(offscreenCanvas, 0, 0);
+  ctx.restore();
 
+  ctx.save();
   ctx.beginPath();
   ctx.rect(x, y, w, h);
   ctx.setLineDash([6, 4]);
