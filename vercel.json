@@ -3,7 +3,7 @@
   "framework": null,
   "builds": [
     {
-      "src": "**/*.html",
+      "src": "**/*.{html,js,css}",
       "use": "@vercel/static"
     }
   ]
