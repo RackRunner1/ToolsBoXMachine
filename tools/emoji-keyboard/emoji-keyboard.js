@@ -1,3 +1,4 @@
+(function() {
 const rawCategories = [
   {
     name: "Smileys",
@@ -500,3 +501,4 @@ searchInput.addEventListener("input", () => {
 
 renderTabs();
 renderEmojis(0);
+})();
