@@ -480,6 +480,16 @@ function getEmojiName(emoji) {
   return names[emoji] || "";
 }
 
+document.getElementById("tab-arrow-left").addEventListener("click", () => {
+  const tabs = document.getElementById("category-tabs");
+  tabs.scrollBy({ left: -200, behavior: "smooth" });
+});
+
+document.getElementById("tab-arrow-right").addEventListener("click", () => {
+  const tabs = document.getElementById("category-tabs");
+  tabs.scrollBy({ left: 200, behavior: "smooth" });
+});
+
 searchInput.addEventListener("input", () => {
   filterEmojis(searchInput.value);
 });

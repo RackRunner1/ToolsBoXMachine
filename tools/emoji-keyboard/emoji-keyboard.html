@@ -24,14 +24,59 @@
         margin: 0 auto;
       }
 
+      .tabs-slider-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
+      }
+
+      .tab-arrow {
+        flex-shrink: 0;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #1e293b;
+        border: 1px solid var(--card-border);
+        border-radius: 0.5rem;
+        color: #94a3b8;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+        line-height: 1;
+      }
+
+      .tab-arrow:hover {
+        border-color: var(--primary-color);
+        color: #e2e8f0;
+      }
+
+      .tab-arrow:active {
+        background: #334155;
+      }
+
       .category-tabs {
         display: flex;
-        flex-wrap: wrap;
         gap: 0.5rem;
-        justify-content: center;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        flex-wrap: nowrap;
+        padding: 0.25rem 0;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+
+      .category-tabs::-webkit-scrollbar {
+        display: none;
       }
 
       .category-tab {
+        flex-shrink: 0;
         background: #1e293b;
         border: 1px solid var(--card-border);
         border-radius: 0.5rem;
@@ -40,6 +85,7 @@
         font-size: 0.875rem;
         cursor: pointer;
         transition: all 0.2s ease;
+        white-space: nowrap;
       }
 
       .category-tab:hover {
@@ -216,7 +262,11 @@
         <input type="text" id="emoji-search" placeholder="Search emojis..." autocomplete="off" />
       </div>
 
-      <div class="category-tabs" id="category-tabs"></div>
+      <div class="tabs-slider-wrapper">
+        <button class="tab-arrow tab-arrow-left" id="tab-arrow-left">‹</button>
+        <div class="category-tabs" id="category-tabs"></div>
+        <button class="tab-arrow tab-arrow-right" id="tab-arrow-right">›</button>
+      </div>
 
       <div class="emoji-grid" id="emoji-grid"></div>
     </div>
