@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Browse and copy emojis with a single click. A fast emoji picker for everyday use."
+    />
+    <meta
+      name="keywords"
+      content="emoji, emoji keyboard, emoji picker, copy emoji, smiley, emoticon, symbols, tbxm, toolsboxmachine"
+    />
+    <title>Emoji Keyboard (TBXM)</title>
+    <link rel="icon" href="../../.assets/logo/fav.png" />
+    <link rel="stylesheet" href="../../style.css" />
+    <style>
+      .emoji-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        width: 100%;
+        max-width: 720px;
+        margin: 0 auto;
+      }
+
+      .category-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+
+      .category-tab {
+        background: #1e293b;
+        border: 1px solid var(--card-border);
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        color: #94a3b8;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .category-tab:hover {
+        border-color: var(--primary-color);
+        color: #e2e8f0;
+      }
+
+      .category-tab.active {
+        background: var(--primary-color);
+        color: #0f172a;
+        border-color: var(--primary-color);
+        font-weight: 600;
+      }
+
+      .emoji-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+        gap: 0.5rem;
+        background: #0f172a;
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        min-height: 200px;
+      }
+
+      .emoji-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        aspect-ratio: 1;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        user-select: none;
+        background: transparent;
+      }
+
+      .emoji-cell:hover {
+        background: #1e293b;
+        transform: scale(1.15);
+      }
+
+      .emoji-cell:active {
+        transform: scale(0.95);
+      }
+
+      .emoji-cell.unsupported {
+        opacity: 0.15;
+        cursor: not-allowed;
+        pointer-events: none;
+        filter: grayscale(1);
+      }
+
+      .emoji-cell.copied {
+        background: #10b981;
+        animation: pop 0.3s ease;
+      }
+
+      @keyframes pop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+      }
+
+      #toast {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #10b981;
+        color: #0f172a;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 1000;
+      }
+
+      #toast.show {
+        opacity: 1;
+      }
+
+      .emoji-search-wrapper {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      #emoji-search {
+        width: 100%;
+        background: #1e293b;
+        border: 1px solid var(--card-border);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        color: #e2e8f0;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s ease;
+        box-sizing: border-box;
+      }
+
+      #emoji-search:focus {
+        border-color: var(--primary-color);
+      }
+
+      #emoji-search::placeholder {
+        color: #64748b;
+      }
+    </style>
+  </head>
+
+  <body>
+<nav class="navbar">
+  <div class="nav-brand">
+    <a href="/">
+      <img
+        src="/.assets/logo/blanc-without-drayko-logo.png"
+        alt="TBXM Logo"
+        class="nav-logo"
+      />
+    </a>
+  </div>
+  <div class="nav-search">
+    <div class="search-input-wrapper">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+      </svg>
+      <input
+        type="text"
+        id="tool-search"
+        placeholder="Search tools..."
+        autocomplete="off"
+      />
+    </div>
+  </div>
+  <div class="nav-links">
+    <a
+      href="https://github.com/TBXM"
+      target="_blank"
+      class="nav-link"
+      >GitHub</a
+    >
+  </div>
+</nav>
+
+<div id="search-dropdown" class="search-dropdown">
+  <div id="search-results" class="search-results-list"></div>
+</div>
+
+    <div class="hero-section">
+      <h1 class="page-title">Emoji Keyboard</h1>
+      <p class="subtitle">
+        Click any emoji to copy it to your clipboard.
+      </p>
+    </div>
+
+    <div class="emoji-container">
+      <div class="emoji-search-wrapper">
+        <input type="text" id="emoji-search" placeholder="Search emojis..." autocomplete="off" />
+      </div>
+
+      <div class="category-tabs" id="category-tabs"></div>
+
+      <div class="emoji-grid" id="emoji-grid"></div>
+    </div>
+
+    <div id="toast">Copied!</div>
+
+    <script type="module" src="./emoji-keyboard.js"></script>
+
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-copyright">
+      &copy; 2026
+      <a href="https://drayko.xyz" target="_blank" class="drayko-link">Drayko</a
+      >. All rights reserved.
+    </div>
+    <div class="footer-links">
+      <a href="/pages/philosophy.html" class="footer-link">Philosophy</a>
+      <a href="/pages/privacy.html" class="footer-link">Privacy Policy</a>
+      <a href="/pages/terms.html" class="footer-link">Terms of Service</a>
+    </div>
+  </div>
+</footer>
+    <script src="/ui/navbar.js"></script>
+  </body>
+</html>

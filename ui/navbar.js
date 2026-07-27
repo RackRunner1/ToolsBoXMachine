@@ -68,6 +68,14 @@ const tools = [
     url: "/tools/timer/timer.html",
   },
   {
+    id: "card-emoji",
+    name: "Emoji Keyboard",
+    emoji: "😀",
+    desc: "Browse and copy emojis with one click.",
+    keywords: "emoji emoticon smiley symbol copy paste picker keyboard",
+    url: "/tools/emoji-keyboard/emoji-keyboard.html",
+  },
+  {
     id: "card-note",
     name: "Notes",
     emoji: "📝",
