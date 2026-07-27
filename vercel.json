@@ -1,4 +1,10 @@
 {
   "version": 2,
-  "framework": null
+  "framework": null,
+  "builds": [
+    {
+      "src": "**/*.html",
+      "use": "@vercel/static"
+    }
+  ]
 }
