@@ -399,7 +399,7 @@
   </head>
 
   <body>
-    <load src="../../ui/navbar.html" />
+    <div id="navbar-placeholder"></div>
 
     <h1>QR Code Generator</h1>
 
@@ -664,13 +664,13 @@
       </div>
     </div>
 
-    <load src="../../ui/footer.html" />
+    <div id="footer-placeholder"></div>
 
     <!-- QR Code Styling Library -->
     <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
 
     <!-- Your Script -->
     <script type="module" src="./qr-gen.js"></script>
-    <script type="module" src="/ui/navbar.js"></script>
-  </body>
+    <script src="/ui/load-ui.js"></script>
+</body>
 </html>
