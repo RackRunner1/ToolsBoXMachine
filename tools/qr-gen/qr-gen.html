@@ -399,7 +399,53 @@
   </head>
 
   <body>
-    <div id="navbar-placeholder"></div>
+<nav class="navbar">
+  <div class="nav-brand">
+    <a href="/">
+      <img
+        src="/.assets/logo/blanc-without-drayko-logo.png"
+        alt="TBXM Logo"
+        class="nav-logo"
+      />
+    </a>
+  </div>
+  <div class="nav-search">
+    <div class="search-input-wrapper">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+      </svg>
+      <input
+        type="text"
+        id="tool-search"
+        placeholder="Search tools..."
+        autocomplete="off"
+      />
+    </div>
+  </div>
+  <div class="nav-links">
+    <a
+      href="https://codeberg.org/ToolsBoXMachine/ToolsBoXMachine"
+      target="_blank"
+      class="nav-link"
+      >Codeberg</a
+    >
+  </div>
+</nav>
+
+<div id="search-dropdown" class="search-dropdown">
+  <div id="search-results" class="search-results-list"></div>
+</div>
 
     <h1>QR Code Generator</h1>
 
@@ -664,13 +710,26 @@
       </div>
     </div>
 
-    <div id="footer-placeholder"></div>
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-copyright">
+      © 2026
+      <a href="https://drayko.xyz" target="_blank" class="drayko-link">Drayko</a
+      >. All rights reserved.
+    </div>
+    <div class="footer-links">
+      <a href="/pages/philosophy.html" class="footer-link">Philosophy</a>
+      <a href="/pages/privacy.html" class="footer-link">Privacy Policy</a>
+      <a href="/pages/terms.html" class="footer-link">Terms of Service</a>
+    </div>
+  </div>
+</footer>
 
     <!-- QR Code Styling Library -->
     <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
 
     <!-- Your Script -->
     <script type="module" src="./qr-gen.js"></script>
-    <script src="/ui/load-ui.js"></script>
+    <script src="/ui/navbar.js"></script>
 </body>
 </html>
