@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://codeberg.org/ddrayko/ToolsBoXMachine/raw/branch/main/.assets/logo/blanc.png" width="10000">
+  <img src="https://codeberg.org/ToolsBoXMachine/ToolsBoXMachine/raw/branch/main/.assets/logo/blanc.png" width="10000">
 </p>
 
 ---
