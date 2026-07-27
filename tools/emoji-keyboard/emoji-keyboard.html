@@ -64,11 +64,14 @@
         display: flex;
         gap: 0.5rem;
         overflow-x: auto;
+        overflow-y: hidden;
         scroll-behavior: smooth;
         flex-wrap: nowrap;
         padding: 0.25rem 0;
         -ms-overflow-style: none;
         scrollbar-width: none;
+        min-width: 0;
+        flex: 1;
       }
 
       .category-tabs::-webkit-scrollbar {

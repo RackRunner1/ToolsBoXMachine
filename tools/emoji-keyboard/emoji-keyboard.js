@@ -233,21 +233,26 @@ const supportedCache = new Map();
 
 function isEmojiSupported(char) {
   if (supportedCache.has(char)) return supportedCache.get(char);
-  const canvas = document.createElement("canvas");
-  canvas.width = 20;
-  canvas.height = 20;
-  const ctx = canvas.getContext("2d");
-  ctx.textBaseline = "top";
-  ctx.font = "16px sans-serif";
-  ctx.fillText(char, 0, 0);
-  const data = ctx.getImageData(0, 0, 20, 20).data;
-  let nonZero = 0;
-  for (let i = 3; i < data.length; i += 4) {
-    if (data[i] !== 0) nonZero++;
+  try {
+    const canvas = document.createElement("canvas");
+    canvas.width = 20;
+    canvas.height = 20;
+    const ctx = canvas.getContext("2d");
+    ctx.textBaseline = "top";
+    ctx.font = "16px sans-serif";
+    ctx.fillText(char, 0, 0);
+    const data = ctx.getImageData(0, 0, 20, 20).data;
+    let nonZero = 0;
+    for (let i = 3; i < data.length; i += 4) {
+      if (data[i] !== 0) nonZero++;
+    }
+    const supported = nonZero > 4;
+    supportedCache.set(char, supported);
+    return supported;
+  } catch {
+    supportedCache.set(char, true);
+    return true;
   }
-  const supported = nonZero > 4;
-  supportedCache.set(char, supported);
-  return supported;
 }
 
 const grid = document.getElementById("emoji-grid");
@@ -480,19 +485,21 @@ function getEmojiName(emoji) {
   return names[emoji] || "";
 }
 
-document.getElementById("tab-arrow-left").addEventListener("click", () => {
-  const tabs = document.getElementById("category-tabs");
-  tabs.scrollBy({ left: -200, behavior: "smooth" });
-});
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("tab-arrow-left").addEventListener("click", () => {
+    const tabs = document.getElementById("category-tabs");
+    tabs.scrollBy({ left: -200, behavior: "smooth" });
+  });
 
-document.getElementById("tab-arrow-right").addEventListener("click", () => {
-  const tabs = document.getElementById("category-tabs");
-  tabs.scrollBy({ left: 200, behavior: "smooth" });
-});
+  document.getElementById("tab-arrow-right").addEventListener("click", () => {
+    const tabs = document.getElementById("category-tabs");
+    tabs.scrollBy({ left: 200, behavior: "smooth" });
+  });
 
-searchInput.addEventListener("input", () => {
-  filterEmojis(searchInput.value);
-});
+  searchInput.addEventListener("input", () => {
+    filterEmojis(searchInput.value);
+  });
 
-renderTabs();
-renderEmojis(0);
+  renderTabs();
+  renderEmojis(0);
+});
