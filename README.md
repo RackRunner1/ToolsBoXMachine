@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/TBXM/ToolsBoXMachine/blob/main/.assets/logo/blanc.png?raw=true" width="10000">
+  <img src="https://github.com/RackRunner1/ToolsBoXMachine/blob/main/.assets/logo/blanc.png?raw=true" width="10000">
 </p>
 
 ---
@@ -17,7 +17,7 @@
 2. Clone the repo with Git :
 
 ```bash
-git clone https://github.com/ToolsBoXMachine/ToolsBoXMachine.git
+git clone https://github.com/RackRunner1/ToolsBoXMachine.git
 ```
 
 4. Open a terminal in the project's current folder.
