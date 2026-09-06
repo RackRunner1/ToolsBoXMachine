@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ToolsBoxMachine (TBXM)</title>
     <link rel="icon" href="./.assets/logo/fav.png" />
+    <link rel="apple-touch-icon" href="./.assets/logo/fav.png" />
     <link rel="stylesheet" href="./style.css" />
 
     <meta property="og:type" content="website" />
@@ -15,29 +16,63 @@
       property="og:description"
       content="🧰 A collection of useful tools for everyday tasks and productivity"
     />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "ToolsBoXMachine",
+  "alternateName": "TBXM",
+  "url": "https://tbxm.drayko.xyz",
+  "description": "A collection of free, privacy-first browser tools for everyday tasks.",
+  "publisher": {
+    "@type": "Person",
+    "name": "RackRunner"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "TBXM Tools",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "SoftwareApplication",
+          "name": "ToolsBoXMachine",
+          "applicationCategory": "UtilitiesApplication",
+          "operatingSystem": "Any"
+        },
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      }
+    ]
+  }
+}
+</script>
+    <meta name="description" content="ToolsBoXMachine (TBXM) — a collection of free, privacy-first browser tools for everyday tasks. No tracking, no accounts required." />
+    <meta name="content-signal" content="ai-train, ai-input, search" />
+    <link rel="canonical" href="https://tbxm.drayko.xyz/" />
+    <link rel="alternate" type="text/markdown" href="/llms.txt" title="LLM-friendly content" />
   </head>
 
   <body>
     <div id="navbar-placeholder"></div>
 
-    <div class="hero-section">
-      <h1 class="page-title">ToolsBoXMachine</h1>
-      <p class="subtitle">
-        Your ultimate workspace for quick digital utilities.
-      </p>
-    </div>
+    <section class="hero-section">
+      <div class="hero-card">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          Free &middot; Open Source &middot; No Tracking
+        </div>
+        <h1 class="page-title">ToolsBoXMachine</h1>
+        <p class="subtitle">Your ultimate workspace for quick digital utilities.</p>
+      </div>
+    </section>
 
-    <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
-      <div style="
-        padding: 2rem 2rem;
-        background: linear-gradient(135deg, #1e293b, #0f172a);
-        border: 1px solid #334155;
-        border-radius: 1.5rem;
-        text-align: center;
-      ">
-        <p style="font-size: 1.15rem; color: #94a3b8; margin: 0; line-height: 1.6;">
-          The <strong style="color: #e2e8f0;">ToolsBoXMachine (TBXM)</strong> project has found a new maintainer!
-          <strong style="color: #60a5fa;">RackRunner</strong> is now taking over, solo, to continue
+    <div class="sub-hero">
+      <div class="announcement-banner">
+        <p class="announcement-text">
+          The <strong>ToolsBoXMachine (TBXM)</strong> project has found a new maintainer!
+          <strong class="announcement-highlight">RackRunner</strong> is now taking over, solo, to continue
           developing, maintaining and keeping this open source toolbox alive.
           After months of initial development by Drayko, RackRunner is committed to bringing new
           features, fixing bugs and improving the user experience for everyone.
@@ -45,7 +80,7 @@
       </div>
     </div>
 
-    <div class="home-container">
+    <div class="home-container" id="tools">
       <a href="/tools/blur/blur.html" class="card-btn" id="card-blur">
         <span style="font-size: 3.5rem">🎨</span>
         <div style="text-align: center">

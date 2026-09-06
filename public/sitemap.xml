@@ -11,6 +11,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://tbxm.drayko.xyz/tools/calculator/calculator.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://tbxm.drayko.xyz/tools/correcteur/correcteur.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -22,11 +27,6 @@
   </url>
   <url>
     <loc>https://tbxm.drayko.xyz/tools/qr-gen/qr-gen.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://tbxm.drayko.xyz/tools/calculator/calculator.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -44,5 +44,35 @@
     <loc>https://tbxm.drayko.xyz/tools/timer/timer.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tbxm.drayko.xyz/tools/emoji-keyboard/emoji-keyboard.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tbxm.drayko.xyz/tools/note/note.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://tbxm.drayko.xyz/pages/philosophy.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://tbxm.drayko.xyz/pages/about.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://tbxm.drayko.xyz/pages/privacy.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://tbxm.drayko.xyz/pages/terms.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>
