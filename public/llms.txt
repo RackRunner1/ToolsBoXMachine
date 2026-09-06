@@ -22,6 +22,17 @@ TBXM is an open-source toolbox running entirely client-side. All processing happ
 - [Tools Index (JSON)](/tools/index.json) — Full tool catalog with metadata
 - [Sitemap](/sitemap.xml) — XML sitemap for crawlers
 - [Robots.txt](/robots.txt) — Crawl rules and bot permissions
+- [MCP Server Card](/.well-known/mcp/server-card.json) — MCP tool definitions
+- [API Catalog](/.well-known/api-catalog) — Public API enumeration
+- [OpenAPI Spec](/openapi.json) — OpenAPI 3.1 specification
+- [Agent Skills](/.well-known/agent-skills/index.json) — Task-specific skill index
+- [Full Documentation](/llms-full.txt) — Complete documentation dump
+
+## Content Signals
+
+- ai-train: allowed (open source, MIT license)
+- ai-input: allowed (all tools run client-side)
+- search: index
 
 ## About
 
