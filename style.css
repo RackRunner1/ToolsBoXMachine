@@ -220,15 +220,7 @@ h1 {
 .hero-card {
   max-width: 720px;
   width: 100%;
-  padding: 2rem 2rem 1.75rem;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.4));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1.5rem;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow:
-    0 4px 24px -4px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  padding: 2rem 2rem 0;
   text-align: center;
 }
 
