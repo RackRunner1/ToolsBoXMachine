@@ -160,7 +160,7 @@ feat(timer) add alarm         ← missing colon after scope
 
 ### What to avoid
 
-- **Large PRs**: ideally < 300 lines. Split if necessary.
+- **Split PRs** if they cover multiple concerns.
 - **WIP PRs**: don't open a PR until it's ready for review.
 - **Force push** after requesting a review (it breaks comments).
 
