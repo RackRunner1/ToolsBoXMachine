@@ -1,0 +1,41 @@
+openapi: 3.1.0
+info:
+  title: ToolsBoXMachine
+  description: Free client-side utility tools for everyday tasks.
+  version: 1.0.0
+  contact:
+    name: RackRunner
+    url: https://github.com/RackRunner1/ToolsBoXMachine
+servers:
+  - url: https://tbxm.drayko.xyz
+paths:
+  /tools/index.json:
+    get:
+      summary: Tool catalog
+      description: Returns all available tools with metadata.
+      operationId: listTools
+      responses:
+        '200':
+          description: Tool list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  tools:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        url:
+                          type: string
+                        category:
+                          type: string

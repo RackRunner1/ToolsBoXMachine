@@ -1,0 +1,42 @@
+# ToolsBoXMachine (TBXM)
+
+> A collection of free, privacy-first browser tools for everyday tasks. No tracking, no accounts required.
+
+TBXM is an open-source toolbox running entirely client-side. All processing happens in the browser — no data ever leaves your device.
+
+## Tools
+
+- [Blur Image](/tools/blur/blur.html) — Protect privacy by blurring sensitive parts of images
+- [Calculator](/tools/calculator/calculator.html) — Perform basic arithmetic calculations
+- [Text Corrector](/tools/correcteur/correcteur.html) — Fix grammar and spelling errors
+- [Password Generator](/tools/password-gen/password-gen.html) — Generate secure passwords or passphrases
+- [QR Code Generator](/tools/qr-gen/qr-gen.html) — Create custom QR codes for any link or text
+- [JSON Formatter](/tools/json-formatter/json-formatter.html) — Format, minify, and validate JSON data
+- [Base64 Converter](/tools/base64/base64.html) — Encode and decode Base64 strings
+- [Pomodoro Timer](/tools/timer/timer.html) — Stay focused with timed work sessions
+- [Emoji Keyboard](/tools/emoji-keyboard/emoji-keyboard.html) — Browse and copy emojis with one click
+- [Notes](/tools/note/note.html) — Create, save, and manage notes
+
+## Machine-Readable Endpoints
+
+- [Tools Index (JSON)](/tools/index.json) — Full tool catalog with metadata
+- [Sitemap](/sitemap.xml) — XML sitemap for crawlers
+- [Robots.txt](/robots.txt) — Crawl rules and bot permissions
+- [MCP Server Card](/.well-known/mcp/server-card.json) — MCP tool definitions
+- [API Catalog](/.well-known/api-catalog) — Public API enumeration
+- [OpenAPI Spec](/openapi.json) — OpenAPI 3.1 specification
+- [Agent Skills](/.well-known/agent-skills/index.json) — Task-specific skill index
+- [Full Documentation](/llms-full.txt) — Complete documentation dump
+
+## Content Signals
+
+- ai-train: allowed (open source, Unlicence)
+- ai-input: allowed (all tools run client-side)
+- search: index
+
+## About
+
+- [About Us](/pages/about.html) — Learn more about TBXM
+- Maintained by RackRunner
+- Source: https://github.com/RackRunner1/ToolsBoXMachine
+- Open source under Unlicence

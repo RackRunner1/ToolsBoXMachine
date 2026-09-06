@@ -1,0 +1,111 @@
+{
+  "name": "ToolsBoXMachine",
+  "shortName": "TBXM",
+  "description": "A collection of free, privacy-first browser tools for everyday tasks.",
+  "url": "https://tbxm.drayko.xyz",
+  "maintainer": "RackRunner",
+  "repository": "https://github.com/RackRunner1/ToolsBoXMachine",
+  "license": "Unlicence",
+  "tools": [
+    {
+      "id": "blur",
+      "name": "Blur Image",
+      "emoji": "🎨",
+      "description": "Protect privacy by blurring sensitive parts of images",
+      "url": "/tools/blur/blur.html",
+      "category": "image",
+      "clientSide": true,
+      "keywords": ["image", "blur", "privacy", "censor", "pixelate"]
+    },
+    {
+      "id": "calculator",
+      "name": "Calculator",
+      "emoji": "🧮",
+      "description": "Perform basic arithmetic calculations",
+      "url": "/tools/calculator/calculator.html",
+      "category": "productivity",
+      "clientSide": true,
+      "keywords": ["math", "calculate", "arithmetic", "numbers"]
+    },
+    {
+      "id": "correcteur",
+      "name": "Text Corrector",
+      "emoji": "✍️",
+      "description": "Fix grammar and spelling errors in text",
+      "url": "/tools/correcteur/correcteur.html",
+      "category": "writing",
+      "clientSide": true,
+      "keywords": ["grammar", "spelling", "text", "correct", "proofread"]
+    },
+    {
+      "id": "password",
+      "name": "Password Generator",
+      "emoji": "🔐",
+      "description": "Generate secure passwords or passphrases",
+      "url": "/tools/password-gen/password-gen.html",
+      "category": "security",
+      "clientSide": true,
+      "keywords": ["password", "security", "generate", "passphrase", "random"]
+    },
+    {
+      "id": "qr",
+      "name": "QR Code Generator",
+      "emoji": "📱",
+      "description": "Create custom QR codes for any link or text",
+      "url": "/tools/qr-gen/qr-gen.html",
+      "category": "utility",
+      "clientSide": true,
+      "keywords": ["qr", "code", "barcode", "scan", "link"]
+    },
+    {
+      "id": "json",
+      "name": "JSON Formatter",
+      "emoji": "📦",
+      "description": "Format, minify, and validate JSON data",
+      "url": "/tools/json-formatter/json-formatter.html",
+      "category": "developer",
+      "clientSide": true,
+      "keywords": ["json", "format", "minify", "validate", "beautify"]
+    },
+    {
+      "id": "base64",
+      "name": "Base64 Converter",
+      "emoji": "🔄",
+      "description": "Encode and decode Base64 strings",
+      "url": "/tools/base64/base64.html",
+      "category": "developer",
+      "clientSide": true,
+      "keywords": ["base64", "encode", "decode", "convert"]
+    },
+    {
+      "id": "timer",
+      "name": "Pomodoro Timer",
+      "emoji": "⏱️",
+      "description": "Stay focused with timed work sessions",
+      "url": "/tools/timer/timer.html",
+      "category": "productivity",
+      "clientSide": true,
+      "keywords": ["timer", "pomodoro", "focus", "productivity", "clock"]
+    },
+    {
+      "id": "emoji",
+      "name": "Emoji Keyboard",
+      "emoji": "😀",
+      "description": "Browse and copy emojis with one click",
+      "url": "/tools/emoji-keyboard/emoji-keyboard.html",
+      "category": "utility",
+      "clientSide": true,
+      "keywords": ["emoji", "emoticon", "copy", "paste", "keyboard"]
+    },
+    {
+      "id": "note",
+      "name": "Notes",
+      "emoji": "📝",
+      "description": "Create, save, and manage notes",
+      "url": "/tools/note/note.html",
+      "category": "productivity",
+      "clientSide": true,
+      "keywords": ["note", "text", "write", "save", "diary"]
+    }
+  ]
+}

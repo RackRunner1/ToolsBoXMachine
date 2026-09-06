@@ -37,7 +37,7 @@ npm run dev
 
 ## 🖥️ You are not a developper ?
 
-No problem ! ToolsBoxMachine is a free to use tool, just use the [online version](https://tbxm.drayko.xyz).
+No problem ! ToolsBoxMachine is a free to use tool, just use the [online version](https://tbxm.pages.dev).
 
 ## 🤝 Contributing
 
