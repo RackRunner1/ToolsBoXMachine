@@ -64,24 +64,40 @@
       </p>
     </div>
 
-    <div style="max-width: 800px; margin: 0 auto; padding: 0 2rem; text-align: center;">
-      <p style="color: #94a3b8; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1rem;">
-        ToolsBoXMachine is a free, open-source collection of browser-based utility tools designed
-        for developers, students, and anyone who needs quick digital helpers. Every tool runs
-        entirely in your browser — no data is ever sent to a server, no tracking, no accounts
-        required. Your privacy is fully respected.
-      </p>
-      <p style="color: #94a3b8; font-size: 1.05rem; line-height: 1.8; margin-bottom: 1rem;">
-        Whether you need to blur sensitive parts of an image, generate a strong password, format
-        JSON, create a QR code, or simply run a quick calculation, TBXM has you covered. Each tool
-        is crafted to do one thing and do it well, following the Unix philosophy of simplicity
-        and reliability.
-      </p>
-      <p style="color: #94a3b8; font-size: 1.05rem; line-height: 1.8;">
-        Built with pure HTML, CSS, and JavaScript — no frameworks, no bloat — the site loads fast
-        and works on any device. Maintained by RackRunner and licensed under the Unlicence, TBXM is
-        community-driven and always improving.
-      </p>
+    <div style="max-width: 800px; margin: 0 auto; padding: 0 2rem;">
+      <div id="about-card" style="
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        border: 1px solid #334155;
+        border-radius: 1.5rem;
+        overflow: hidden;
+        max-height: 3.5rem;
+        transition: max-height 0.5s ease;
+        cursor: pointer;
+      " onclick="document.getElementById('about-card').style.maxHeight = this.style.maxHeight === 'none' ? '3.5rem' : 'none'">
+        <div style="padding: 1.25rem 2rem; display: flex; align-items: center; gap: 0.75rem;">
+          <span style="font-size: 1.25rem; color: #60a5fa; transition: transform 0.3s ease;" id="about-arrow">&#10132;</span>
+          <span style="font-size: 1.15rem; font-weight: 700; color: #e2e8f0;">About Us</span>
+        </div>
+        <div style="padding: 0 2rem 2rem; color: #94a3b8; line-height: 1.8;">
+          <p style="font-size: 1.05rem; margin-bottom: 1rem;">
+            ToolsBoXMachine is a free, open-source collection of browser-based utility tools designed
+            for developers, students, and anyone who needs quick digital helpers. Every tool runs
+            entirely in your browser — no data is ever sent to a server, no tracking, no accounts
+            required. Your privacy is fully respected.
+          </p>
+          <p style="font-size: 1.05rem; margin-bottom: 1rem;">
+            Whether you need to blur sensitive parts of an image, generate a strong password, format
+            JSON, create a QR code, or simply run a quick calculation, TBXM has you covered. Each tool
+            is crafted to do one thing and do it well, following the Unix philosophy of simplicity
+            and reliability.
+          </p>
+          <p style="font-size: 1.05rem;">
+            Built with pure HTML, CSS, and JavaScript — no frameworks, no bloat — the site loads fast
+            and works on any device. Maintained by RackRunner and licensed under the Unlicence, TBXM is
+            community-driven and always improving.
+          </p>
+        </div>
+      </div>
     </div>
 
     <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
@@ -292,5 +308,12 @@
 
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>
+    <script>
+      document.getElementById('about-card').addEventListener('click', function() {
+        var arrow = document.getElementById('about-arrow');
+        var isOpen = this.style.maxHeight === 'none';
+        arrow.style.transform = isOpen ? 'rotate(90deg)' : 'rotate(0deg)';
+      });
+    </script>
 </body>
 </html>
