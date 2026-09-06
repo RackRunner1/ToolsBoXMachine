@@ -36,6 +36,7 @@ TBXM is an open-source toolbox running entirely client-side. All processing happ
 
 ## About
 
+- [About Us](/pages/about.html) — Learn more about TBXM
 - Maintained by RackRunner
 - Source: https://github.com/RackRunner1/ToolsBoXMachine
 - Open source under Unlicence
