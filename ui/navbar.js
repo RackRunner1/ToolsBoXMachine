@@ -1,6 +1,7 @@
-const searchInput = document.getElementById("tool-search");
-const searchDropdown = document.getElementById("search-dropdown");
-const searchResults = document.getElementById("search-results");
+document.addEventListener("components-loaded", () => {
+  const searchInput = document.getElementById("tool-search");
+  const searchDropdown = document.getElementById("search-dropdown");
+  const searchResults = document.getElementById("search-results");
 
 const tools = [
   {
@@ -185,4 +186,5 @@ document.querySelectorAll(".card-btn").forEach((card) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && searchDropdown)
     searchDropdown.classList.remove("active");
+});
 });
