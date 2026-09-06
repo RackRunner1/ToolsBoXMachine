@@ -5,7 +5,7 @@
   "url": "https://tbxm.drayko.xyz",
   "maintainer": "RackRunner",
   "repository": "https://github.com/RackRunner1/ToolsBoXMachine",
-  "license": "MIT",
+  "license": "Unlicence",
   "tools": [
     {
       "id": "blur",

@@ -30,7 +30,7 @@ TBXM is an open-source toolbox running entirely client-side. All processing happ
 
 ## Content Signals
 
-- ai-train: allowed (open source, MIT license)
+- ai-train: allowed (open source, Unlicence)
 - ai-input: allowed (all tools run client-side)
 - search: index
 
@@ -38,4 +38,4 @@ TBXM is an open-source toolbox running entirely client-side. All processing happ
 
 - Maintained by RackRunner
 - Source: https://github.com/RackRunner1/ToolsBoXMachine
-- Open source under MIT license
+- Open source under Unlicence
