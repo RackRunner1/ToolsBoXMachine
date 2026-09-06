@@ -6,7 +6,7 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 
 **Maintained by:** RackRunner
 **Source:** https://github.com/RackRunner1/ToolsBoXMachine
-**License:** MIT
+**License:** Unlicence
 **Domain:** https://tbxm.drayko.xyz
 
 ## Tools
@@ -88,7 +88,7 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 ## Technical Details
 
 - **Rendering:** Static HTML + vanilla JavaScript
-- **Hosting:** Vercel (static site)
+- **Hosting:** Cloudflare Pages (static site)
 - **No frameworks:** Pure HTML, CSS, JS — no React, no build step
 - **Privacy:** All data processed in-browser via localStorage
 - **Accessibility:** Responsive design, keyboard navigable
