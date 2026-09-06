@@ -1,9 +1,11 @@
 ---
 name: Bug Report
 about: Report a bug
-title: "[BUG] "
+title: "[BUG]: "
 labels: bug
-assignees: ''
+assignees: RackRunner1
+type: Bug
+
 ---
 
 ## Description
