@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggérer une nouvelle fonctionnalité ou un nouvel outil
+about: Suggest a new feature or tool
 title: "[FEATURE] "
 labels: enhancement
 assignees: ''
@@ -8,28 +8,28 @@ assignees: ''
 
 ## Description
 
-<!-- Décris la fonctionnalité ou l'outil que tu souhaites -->
+<!-- Describe the feature or tool you'd like -->
 
-## Problème résolu
+## Problem Solved
 
-<!-- Quel problème cette fonctionnalité résout-elle ? -->
+<!-- What problem does this feature solve? -->
 
-## Solution envisagée
+## Proposed Solution
 
-<!-- Décris comment tu imagines la mise en œuvre -->
+<!-- Describe how you envision the implementation -->
 
-## Alternatives envisagées
+## Alternatives Considered
 
-<!-- As-tu envisagé d'autres approches ? -->
+<!-- Have you thought of other approaches? -->
 
-## Comportement attendu
+## Expected Behavior
 
-<!-- Décris le résultat final attendu -->
+<!-- Describe the expected end result -->
 
-## Exemples de référence
+## Reference Examples
 
-<!-- Liens vers des sites/apps qui ont une fonctionnalité similaire -->
+<!-- Links to sites/apps with similar functionality -->
 
-## Notes supplémentaires
+## Additional Notes
 
-<!-- Toute autre information pertinente -->
+<!-- Any other relevant information -->

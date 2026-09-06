@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Signaler un bug
+about: Report a bug
 title: "[BUG] "
 labels: bug
 assignees: ''
@@ -8,34 +8,34 @@ assignees: ''
 
 ## Description
 
-<!-- Décris le bug de manière claire et concise -->
+<!-- Clearly and concisely describe the bug -->
 
-## Étapes pour reproduire
+## Steps to Reproduce
 
-1. Aller sur '...'
-2. Cliquer sur '...'
-3. Scroll vers '...'
-4. Voir l'erreur
+1. Go to '...'
+2. Click on '...'
+3. Scroll down to '...'
+4. See error
 
-## Comportement attendu
+## Expected Behavior
 
-<!-- Décris ce qui devrait se passer -->
+<!-- Describe what should happen -->
 
-## Comportement actuel
+## Actual Behavior
 
-<!-- Décris ce qui se passe réellement -->
+<!-- Describe what actually happens -->
 
-## Capture d'écran
+## Screenshot
 
-<!-- Si applicable, ajoute des captures d'écran pour expliquer le problème -->
+<!-- If applicable, add screenshots to help explain the problem -->
 
-## Environnement
+## Environment
 
-- **Navigateur** : [ex: Chrome 120, Firefox 121]
-- **OS** : [ex: macOS 14, Windows 11, iOS 17]
-- **Appareil** : [ex: Desktop, iPhone 15, Samsung Galaxy S23]
-- **Résolution** : [ex: 1920x1080, 375x812]
+- **Browser**: [e.g. Chrome 120, Firefox 121]
+- **OS**: [e.g. macOS 14, Windows 11, iOS 17]
+- **Device**: [e.g. Desktop, iPhone 15, Samsung Galaxy S23]
+- **Resolution**: [e.g. 1920x1080, 375x812]
 
-## Notes supplémentaires
+## Additional Notes
 
-<!-- Toute autre information qui pourrait aider à résoudre le bug -->
+<!-- Any other information that might help resolve the bug -->

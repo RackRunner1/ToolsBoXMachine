@@ -1,15 +1,19 @@
-blank: false
+---
 name: Question
-about: Poser une question sur le projet
+about: Ask a question about the project (please use Discussions instead)
 title: "[QUESTION] "
 labels: question
 assignees: ''
 ---
 
+**Note: Please use [Discussions](../../discussions) for questions instead of Issues.**
+
+This template is kept for reference only.
+
 ## Question
 
-<!-- Ta question -->
+<!-- Your question -->
 
-## Contexte
+## Context
 
-<!-- Pourquoi tu poses cette question ? As-tu déjà essayé quelque chose ? -->
+<!-- Why are you asking this? Have you tried anything already? -->

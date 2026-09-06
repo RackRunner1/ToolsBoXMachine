@@ -1,51 +1,51 @@
 ## Description
 
-<!-- Décris brièvement ce que fait cette PR -->
+<!-- Briefly describe what this PR does -->
 
-## Type de changement
+## Type of Change
 
-<!-- Coche les cases pertinentes -->
+<!-- Check the relevant boxes -->
 
-- [ ] Nouvel outil
-- [ ] Correction de bug (`fix`)
-- [ ] Nouvelle fonctionnalité (`feat`)
+- [ ] New tool
+- [ ] Bug fix (`fix`)
+- [ ] New feature (`feat`)
 - [ ] Documentation (`docs`)
 - [ ] Style (`style`)
-- [ ] Refactorisation (`refactor`)
-- [ ] Amélioration de performance (`perf`)
-- [ ] Tâche de maintenance (`chore`)
+- [ ] Refactor (`refactor`)
+- [ ] Performance improvement (`perf`)
+- [ ] Maintenance (`chore`)
 
 ## Scope
 
-<!-- Quelle partie du projet est concernée ? (ex: timer, blur, ui, root) -->
+<!-- Which part of the project is affected? (e.g., timer, blur, ui, root) -->
 
-## Comment tester ?
+## How to Test
 
-<!-- Décris les étapes pour tester cette modification -->
+<!-- Describe the steps to test this change -->
 
 1.
 2.
 3.
 
-## Capture d'écran (si applicable)
+## Screenshot (if applicable)
 
-<!-- Ajoute une capture d'écran ou une vidéo du changement visuel -->
+<!-- Add a screenshot or video of the visual change -->
 
 ## Checklist
 
-<!-- Coche chaque point avant de demander une review -->
+<!-- Check each item before requesting a review -->
 
-- [ ] Mon commit suit le format Conventional Commits
-- [ ] J'ai testé cette modification sur desktop
-- [ ] J'ai testé cette modification sur mobile
-- [ ] Mes modifications ne génèrent pas de nouvelles erreurs dans la console
-- [ ] J'ai mis à jour la documentation si nécessaire
-- [ ] Mon code suit le style du projet (2 espaces, ES6+, etc.)
-- [ ] Je n'ai pas ajouté de commentaires inutiles dans le code
-- [ ] Mes fichiers n'ont pas de taille excessive (< 500 lignes)
+- [ ] My commit follows the Conventional Commits format
+- [ ] I tested this change on desktop
+- [ ] I tested this change on mobile
+- [ ] My changes don't generate new console errors
+- [ ] I updated the documentation if needed
+- [ ] My code follows the project style (2 spaces, ES6+, etc.)
+- [ ] I didn't add unnecessary comments in the code
+- [ ] My files aren't too large (< 500 lines)
 
-## Références
+## References
 
-<!-- Ajoute les numéros d'issues liées : Closes #123, Fixes #456 -->
+<!-- Add related issue numbers: Closes #123, Fixes #456 -->
 
 Closes #
