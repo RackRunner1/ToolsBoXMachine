@@ -1,0 +1,103 @@
+# ToolsBoXMachine (TBXM) — Full Documentation
+
+## Overview
+
+ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utility tools. Every tool runs entirely client-side — no data is sent to any server. Built for privacy, speed, and simplicity.
+
+**Maintained by:** RackRunner
+**Source:** https://github.com/RackRunner1/ToolsBoXMachine
+**License:** MIT
+**Domain:** https://tbxm.drayko.xyz
+
+## Tools
+
+### Blur Image
+- **URL:** /tools/blur/blur.html
+- **Description:** Protect privacy by blurring sensitive parts of images
+- **Category:** Image Editing
+- **Client-side:** Yes
+- **Input:** Image file (local)
+- **Output:** Blurred image (downloadable)
+
+### Calculator
+- **URL:** /tools/calculator/calculator.html
+- **Description:** Perform basic arithmetic calculations
+- **Category:** Productivity
+- **Client-side:** Yes
+- **Operations:** Addition, subtraction, multiplication, division
+
+### Text Corrector
+- **URL:** /tools/correcteur/correcteur.html
+- **Description:** Fix grammar and spelling errors in text
+- **Category:** Writing
+- **Client-side:** Yes
+- **Input:** Text
+- **Output:** Corrected text
+
+### Password Generator
+- **URL:** /tools/password-gen/password-gen.html
+- **Description:** Generate secure passwords or passphrases
+- **Category:** Security
+- **Client-side:** Yes
+- **Options:** Length, character types, passphrases
+
+### QR Code Generator
+- **URL:** /tools/qr-gen/qr-gen.html
+- **Description:** Create custom QR codes for any link or text
+- **Category:** Utility
+- **Client-side:** Yes
+- **Input:** URL or text
+- **Output:** QR code image (downloadable)
+
+### JSON Formatter
+- **URL:** /tools/json-formatter/json-formatter.html
+- **Description:** Format, minify, and validate JSON data
+- **Category:** Developer Tools
+- **Client-side:** Yes
+- **Features:** Pretty-print, minify, validate, error detection
+
+### Base64 Converter
+- **URL:** /tools/base64/base64.html
+- **Description:** Encode and decode Base64 strings
+- **Category:** Developer Tools
+- **Client-side:** Yes
+- **Operations:** Encode text to Base64, decode Base64 to text
+
+### Pomodoro Timer
+- **URL:** /tools/timer/timer.html
+- **Description:** Stay focused with timed work sessions
+- **Category:** Productivity
+- **Client-side:** Yes
+- **Features:** Custom durations, break intervals, notifications
+
+### Emoji Keyboard
+- **URL:** /tools/emoji-keyboard/emoji-keyboard.html
+- **Description:** Browse and copy emojis with one click
+- **Category:** Utility
+- **Client-side:** Yes
+- **Features:** Search, categories, click-to-copy
+
+### Notes
+- **URL:** /tools/note/note.html
+- **Description:** Create, save, and manage notes
+- **Category:** Productivity
+- **Client-side:** Yes
+- **Storage:** localStorage (no server)
+- **Features:** Create, edit, delete notes
+
+## Technical Details
+
+- **Rendering:** Static HTML + vanilla JavaScript
+- **Hosting:** Vercel (static site)
+- **No frameworks:** Pure HTML, CSS, JS — no React, no build step
+- **Privacy:** All data processed in-browser via localStorage
+- **Accessibility:** Responsive design, keyboard navigable
+
+## Machine-Readable Endpoints
+
+| Endpoint | Format | Description |
+|---|---|---|
+| /tools/index.json | JSON | Full tool catalog with metadata |
+| /sitemap.xml | XML | Sitemap for search engines |
+| /llms.txt | Text | LLM-friendly site summary |
+| /robots.txt | Text | Crawl rules and bot permissions |
