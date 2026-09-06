@@ -1,0 +1,85 @@
+{
+  "version": "1.0.0",
+  "skills": [
+    {
+      "id": "image-blur",
+      "name": "Blur Image",
+      "description": "Protect privacy by blurring sensitive parts of images",
+      "url": "/tools/blur/blur.html",
+      "category": "image",
+      "tags": ["blur", "privacy", "image", "censor"]
+    },
+    {
+      "id": "calculator",
+      "name": "Calculator",
+      "description": "Perform basic arithmetic calculations",
+      "url": "/tools/calculator/calculator.html",
+      "category": "productivity",
+      "tags": ["math", "calculate", "numbers"]
+    },
+    {
+      "id": "text-corrector",
+      "name": "Text Corrector",
+      "description": "Fix grammar and spelling errors in text",
+      "url": "/tools/correcteur/correcteur.html",
+      "category": "writing",
+      "tags": ["grammar", "spelling", "text", "correct"]
+    },
+    {
+      "id": "password-gen",
+      "name": "Password Generator",
+      "description": "Generate secure passwords and passphrases",
+      "url": "/tools/password-gen/password-gen.html",
+      "category": "security",
+      "tags": ["password", "security", "random", "passphrase"]
+    },
+    {
+      "id": "qr-gen",
+      "name": "QR Code Generator",
+      "description": "Create custom QR codes for any link or text",
+      "url": "/tools/qr-gen/qr-gen.html",
+      "category": "utility",
+      "tags": ["qr", "code", "barcode", "link"]
+    },
+    {
+      "id": "json-formatter",
+      "name": "JSON Formatter",
+      "description": "Format, minify, and validate JSON data",
+      "url": "/tools/json-formatter/json-formatter.html",
+      "category": "developer",
+      "tags": ["json", "format", "validate", "minify"]
+    },
+    {
+      "id": "base64",
+      "name": "Base64 Converter",
+      "description": "Encode and decode Base64 strings",
+      "url": "/tools/base64/base64.html",
+      "category": "developer",
+      "tags": ["base64", "encode", "decode"]
+    },
+    {
+      "id": "pomodoro-timer",
+      "name": "Pomodoro Timer",
+      "description": "Stay focused with timed work sessions",
+      "url": "/tools/timer/timer.html",
+      "category": "productivity",
+      "tags": ["timer", "pomodoro", "focus", "productivity"]
+    },
+    {
+      "id": "emoji-keyboard",
+      "name": "Emoji Keyboard",
+      "description": "Browse and copy emojis with one click",
+      "url": "/tools/emoji-keyboard/emoji-keyboard.html",
+      "category": "utility",
+      "tags": ["emoji", "copy", "paste", "keyboard"]
+    },
+    {
+      "id": "notes",
+      "name": "Notes",
+      "description": "Create, save, and manage notes locally",
+      "url": "/tools/note/note.html",
+      "category": "productivity",
+      "tags": ["note", "text", "write", "save"]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "$schema": "https://modelcontextprotocol.io/schema/2025-03-26/server.json",
+  "name": "ToolsBoXMachine",
+  "description": "A collection of free, privacy-first browser tools for everyday tasks.",
+  "version": "1.0.0",
+  "url": "https://tbxm.drayko.xyz",
+  "repository": "https://github.com/RackRunner1/ToolsBoXMachine",
+  "capabilities": ["tools"],
+  "tools": [
+    {
+      "name": "blur_image",
+      "description": "Protect privacy by blurring sensitive parts of images",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "image": { "type": "string", "description": "Base64 encoded image data" },
+          "regions": { "type": "array", "items": { "type": "object", "properties": { "x": {"type":"number"}, "y": {"type":"number"}, "width": {"type":"number"}, "height": {"type":"number"} } } }
+        },
+        "required": ["image"]
+      }
+    },
+    {
+      "name": "calculate",
+      "description": "Perform arithmetic calculations",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "expression": { "type": "string", "description": "Mathematical expression to evaluate" }
+        },
+        "required": ["expression"]
+      }
+    },
+    {
+      "name": "correct_text",
+      "description": "Fix grammar and spelling errors in text",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string", "description": "Text to correct" }
+        },
+        "required": ["text"]
+      }
+    },
+    {
+      "name": "generate_password",
+      "description": "Generate a secure random password",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "length": { "type": "integer", "description": "Password length", "default": 16 },
+          "uppercase": { "type": "boolean", "default": true },
+          "lowercase": { "type": "boolean", "default": true },
+          "numbers": { "type": "boolean", "default": true },
+          "symbols": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    {
+      "name": "generate_qr",
+      "description": "Generate a QR code from text or URL",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "data": { "type": "string", "description": "Text or URL to encode" },
+          "size": { "type": "integer", "description": "Image size in pixels", "default": 256 }
+        },
+        "required": ["data"]
+      }
+    },
+    {
+      "name": "format_json",
+      "description": "Format, minify, or validate JSON data",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "input": { "type": "string", "description": "JSON string to process" },
+          "mode": { "type": "string", "enum": ["format", "minify", "validate"], "default": "format" }
+        },
+        "required": ["input"]
+      }
+    },
+    {
+      "name": "base64_encode",
+      "description": "Encode text to Base64",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string", "description": "Text to encode" }
+        },
+        "required": ["text"]
+      }
+    },
+    {
+      "name": "base64_decode",
+      "description": "Decode Base64 to text",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "encoded": { "type": "string", "description": "Base64 string to decode" }
+        },
+        "required": ["encoded"]
+      }
+    }
+  ]
+}

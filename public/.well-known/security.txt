@@ -1,0 +1,5 @@
+Contact: mailto:security@tbxm.drayko.xyz
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://tbxm.drayko.xyz/.well-known/security.txt
+Policy: https://github.com/RackRunner1/ToolsBoXMachine/security
