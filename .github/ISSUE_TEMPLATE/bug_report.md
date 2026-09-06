@@ -2,7 +2,7 @@
 name: Bug Report
 about: Report a bug
 title: "[BUG]: "
-labels: bug, question
+labels: bug
 assignees: RackRunner1
 type: Bug
 
