@@ -287,21 +287,6 @@ h1 {
   gap: 1rem;
 }
 
-/* Hero About Link */
-.hero-about-link {
-  display: inline-block;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #60a5fa;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.hero-about-link:hover {
-  color: #93c5fd;
-}
-
 /* Announcement Banner */
 .announcement-banner {
   width: 100%;
