@@ -49,19 +49,6 @@ h1 {
   text-align: center;
 }
 
-h4 {
-  font-size: 1.8rem;
-  margin-top: 0;
-  margin-bottom: 1.3rem;
-  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  text-align: center;
-}
-
 
 /* Navbar */
 .navbar {
@@ -222,6 +209,33 @@ h4 {
   margin: 8rem auto 4rem;
   padding: 0 2rem;
   animation: fadeIn 0.8s ease-out;
+}
+
+.hero-card {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 3rem 2rem 2.5rem;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.6), rgba(30, 41, 59, 0.4));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 4px 24px -4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 2rem;
+  letter-spacing: 0.02em;
 }
 
 .page-title {
