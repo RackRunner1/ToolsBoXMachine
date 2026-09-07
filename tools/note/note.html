@@ -19,10 +19,11 @@
         display: grid;
         grid-template-columns: 280px 1fr;
         gap: 1.5rem;
-        max-width: 1800px;
+        width: 100%;
+        max-width: none;
         margin: 1rem auto 4rem;
         padding: 0 2rem;
-        height: calc(100vh - 10rem);
+        height: calc(100vh - 14rem);
         min-height: 500px;
         animation: fadeIn 0.6s ease-out;
       }
@@ -47,6 +48,8 @@
         flex-direction: column;
         overflow: hidden;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        min-width: 0;
       }
 
       .notes-main-header {
@@ -147,7 +150,7 @@
         flex-direction: column;
         overflow: hidden;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        align-self: start;
+        min-width: 0;
       }
 
       .sidebar-header {
@@ -340,7 +343,7 @@
           <p>Create a new note or select one from the sidebar</p>
         </div>
 
-        <div id="editor-view" style="display:none; flex-direction:column; flex:1;">
+        <div id="editor-view" style="display:none; flex-direction:column; flex:1; width:100%;">
           <div class="notes-main-header">
             <input
               type="text"
