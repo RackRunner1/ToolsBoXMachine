@@ -138,7 +138,7 @@ function createNote() {
   elements.titleInput.focus();
 }
 
-function saveCurrentNote() {
+function saveCurrentNote(autoSave = false) {
   if (!activeNoteId) return;
 
   const title = elements.titleInput.value.trim();
@@ -147,7 +147,7 @@ function saveCurrentNote() {
 
   if (index === -1) return;
 
-  if (!title && !content) {
+  if (!title && !content && !autoSave) {
     notes.splice(index, 1);
     saveNotesToStorage();
     if (notes.length > 0) {
@@ -169,7 +169,7 @@ function saveCurrentNote() {
 function scheduleAutoSave() {
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
-    saveCurrentNote();
+    saveCurrentNote(true);
     renderList();
     elements.dateDisplay.textContent = new Date().toLocaleString();
   }, 400);
