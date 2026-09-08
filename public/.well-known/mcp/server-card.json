@@ -3,7 +3,7 @@
   "name": "ToolsBoXMachine",
   "description": "A collection of free, privacy-first browser tools for everyday tasks.",
   "version": "1.0.0",
-  "url": "https://tbxm.drayko.xyz",
+  "url": "https://tbxm.pages.dev",
   "repository": "https://github.com/RackRunner1/ToolsBoXMachine",
   "capabilities": ["tools"],
   "tools": [

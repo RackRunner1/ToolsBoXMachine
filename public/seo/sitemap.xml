@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://tbxm.drayko.xyz/</loc>
+    <loc>https://tbxm.pages.dev/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/tools/blur/blur.html</loc>
+    <loc>https://tbxm.pages.dev/tools/blur/blur.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/tools/calculator/calculator.html</loc>
+    <loc>https://tbxm.pages.dev/tools/calculator/calculator.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/tools/password-gen/password-gen.html</loc>
+    <loc>https://tbxm.pages.dev/tools/password-gen/password-gen.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/tools/qr-gen/qr-gen.html</loc>
+    <loc>https://tbxm.pages.dev/tools/qr-gen/qr-gen.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/tools/json-formatter/json-formatter.html</loc>
+    <loc>https://tbxm.pages.dev/tools/json-formatter/json-formatter.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/tools/base64/base64.html</loc>
+    <loc>https://tbxm.pages.dev/tools/base64/base64.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/tools/timer/timer.html</loc>
+    <loc>https://tbxm.pages.dev/tools/timer/timer.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/tools/emoji-keyboard/emoji-keyboard.html</loc>
+    <loc>https://tbxm.pages.dev/tools/emoji-keyboard/emoji-keyboard.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/tools/note/note.html</loc>
+    <loc>https://tbxm.pages.dev/tools/note/note.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/pages/philosophy.html</loc>
+    <loc>https://tbxm.pages.dev/pages/philosophy.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/pages/about.html</loc>
+    <loc>https://tbxm.pages.dev/pages/about.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/pages/privacy.html</loc>
+    <loc>https://tbxm.pages.dev/pages/privacy.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://tbxm.drayko.xyz/pages/terms.html</loc>
+    <loc>https://tbxm.pages.dev/pages/terms.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

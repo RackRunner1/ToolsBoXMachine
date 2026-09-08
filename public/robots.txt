@@ -25,5 +25,5 @@ Allow: /
 User-agent: YouBot
 Allow: /
 
-Sitemap: https://tbxm.drayko.xyz/seo/sitemap.xml
-LLMs: https://tbxm.drayko.xyz/llms.txt
+Sitemap: https://tbxm.pages.dev/seo/sitemap.xml
+LLMs: https://tbxm.pages.dev/llms.txt
