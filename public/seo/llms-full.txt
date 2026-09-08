@@ -7,7 +7,7 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 **Maintained by:** RackRunner
 **Source:** https://github.com/RackRunner1/ToolsBoXMachine
 **License:** Unlicense
-**Domain:** https://tbxm.pages.dev
+**Domain:** https://tbxm.drayko.xyz
 
 ## Tools
 
@@ -25,14 +25,6 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 - **Category:** Productivity
 - **Client-side:** Yes
 - **Operations:** Addition, subtraction, multiplication, division
-
-### Text Corrector
-- **URL:** /tools/correcteur/correcteur.html
-- **Description:** Fix grammar and spelling errors in text
-- **Category:** Writing
-- **Client-side:** Yes
-- **Input:** Text
-- **Output:** Corrected text
 
 ### Password Generator
 - **URL:** /tools/password-gen/password-gen.html
@@ -98,6 +90,8 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 | Endpoint | Format | Description |
 |---|---|---|
 | /tools/index.json | JSON | Full tool catalog with metadata |
-| /sitemap.xml | XML | Sitemap for search engines |
+| /seo/sitemap.xml | XML | Sitemap for search engines |
 | /llms.txt | Text | LLM-friendly site summary |
 | /robots.txt | Text | Crawl rules and bot permissions |
+| /.well-known/agent-skills/index.json | JSON | Task-specific skill index |
+| /.well-known/mcp/server-card.json | JSON | MCP tool definitions |

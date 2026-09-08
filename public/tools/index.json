@@ -5,7 +5,7 @@
   "url": "https://tbxm.drayko.xyz",
   "maintainer": "RackRunner",
   "repository": "https://github.com/RackRunner1/ToolsBoXMachine",
-  "license": "Unlicence",
+  "license": "Unlicense",
   "tools": [
     {
       "id": "blur",
@@ -26,16 +26,6 @@
       "category": "productivity",
       "clientSide": true,
       "keywords": ["math", "calculate", "arithmetic", "numbers"]
-    },
-    {
-      "id": "correcteur",
-      "name": "Text Corrector",
-      "emoji": "✍️",
-      "description": "Fix grammar and spelling errors in text",
-      "url": "/tools/correcteur/correcteur.html",
-      "category": "writing",
-      "clientSide": true,
-      "keywords": ["grammar", "spelling", "text", "correct", "proofread"]
     },
     {
       "id": "password",

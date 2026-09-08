@@ -31,17 +31,6 @@
       }
     },
     {
-      "name": "correct_text",
-      "description": "Fix grammar and spelling errors in text",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "text": { "type": "string", "description": "Text to correct" }
-        },
-        "required": ["text"]
-      }
-    },
-    {
       "name": "generate_password",
       "description": "Generate a secure random password",
       "inputSchema": {
