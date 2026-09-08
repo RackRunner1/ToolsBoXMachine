@@ -453,6 +453,7 @@ h1 {
   cursor: pointer;
   transition: background 0.3s;
   font-weight: 600;
+  text-decoration: none;
 }
 
 .btn:hover {
