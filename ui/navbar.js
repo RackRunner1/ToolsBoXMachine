@@ -21,14 +21,6 @@ const tools = [
     url: "/tools/calculator/calculator.html",
   },
   {
-    id: "card-correcteur",
-    name: "Text Corrector",
-    emoji: "✍️",
-    desc: "Fix grammar and spelling in seconds.",
-    keywords: "spelling grammar writing fix spell check",
-    url: "/tools/correcteur/correcteur.html",
-  },
-  {
     id: "card-password",
     name: "Password Gen",
     emoji: "🔐",

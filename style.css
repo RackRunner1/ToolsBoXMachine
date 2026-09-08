@@ -482,122 +482,12 @@ h1 {
   transform: translateX(-5px);
 }
 
-/* Simple Corrector */
-.simple-corrector {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.view-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  animation: fadeIn 0.4s ease-out;
-}
-
-#text-input {
-  width: 100%;
-  min-height: 400px;
-  background: #0f172a;
-  border: 1px solid var(--card-border);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  color: white;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  resize: vertical;
-}
-
-#text-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
-}
-
-.corrected-text-area {
-  width: 100%;
-  min-height: 400px;
-  background: #0f172a;
-  border: 1px solid var(--card-border);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  color: #cbd5e1;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.actions-bar {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
 .btn-secondary {
   background: #334155;
 }
 
 .btn-secondary:hover {
   background: #475569;
-}
-
-/* Corrected Word Styling */
-.corrected-word {
-  border-bottom: 2px solid var(--primary-color);
-  color: white;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0 1px;
-  transition: background 0.2s;
-  position: relative;
-}
-
-.corrected-word:hover {
-  background: rgba(59, 130, 246, 0.2);
-}
-
-/* Alternatives Menu */
-.alternatives-menu {
-  position: absolute;
-  background: #1e293b;
-  border: 1px solid var(--card-border);
-  border-radius: 0.75rem;
-  padding: 0.5rem;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-  display: none;
-  z-index: 1000;
-  min-width: 150px;
-}
-
-.alternatives-menu.active {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.alt-item {
-  padding: 0.6rem 1rem;
-  border-radius: 0.5rem;
-  color: white;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s;
-}
-
-.alt-item:hover {
-  background: var(--primary-color);
-}
-
-.alt-header {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  padding: 0.25rem 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--card-border);
-  margin-bottom: 0.25rem;
 }
 
 /* Blur Tool Redesign */
