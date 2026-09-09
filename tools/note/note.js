@@ -1,4 +1,5 @@
 const STORAGE_KEY = "tbxm_notes";
+const MODAL_KEY = "tbxm_notes_modal_dismissed";
 
 const elements = {
   editorEmpty: document.getElementById("editor-empty"),
@@ -10,6 +11,9 @@ const elements = {
   createBtn: document.getElementById("create-btn"),
   notesList: document.getElementById("notes-list"),
   notification: document.getElementById("notification"),
+  storageModal: document.getElementById("storage-modal"),
+  modalCloseBtn: document.getElementById("modal-close-btn"),
+  dontShowCheckbox: document.getElementById("modal-dont-show"),
 };
 
 let notes = [];
@@ -21,6 +25,29 @@ function init() {
   renderList();
   setupEventListeners();
   selectFirstNote();
+  setupStorageModal();
+}
+
+function setupStorageModal() {
+  if (!elements.storageModal) return;
+  const dismissed = localStorage.getItem(MODAL_KEY);
+  if (dismissed === "true") return;
+
+  requestAnimationFrame(() => {
+    elements.storageModal.classList.add("show");
+  });
+
+  const close = () => {
+    if (elements.dontShowCheckbox.checked) {
+      localStorage.setItem(MODAL_KEY, "true");
+    }
+    elements.storageModal.classList.remove("show");
+  };
+
+  elements.modalCloseBtn.addEventListener("click", close);
+  elements.storageModal.addEventListener("click", (e) => {
+    if (e.target === elements.storageModal) close();
+  });
 }
 
 function loadNotes() {
