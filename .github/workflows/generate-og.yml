@@ -24,20 +24,46 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
+      - name: Check for page additions or removals
+        id: pagechanges
+        run: |
+          BEFORE="${{ github.event.before }}"
+          AFTER="${{ github.event.after }}"
+          CHANGED="false"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            CHANGED="true"
+            echo "Manual dispatch or new branch — running generation"
+          else
+            ADDED=$(git diff --name-only --diff-filter=A "$BEFORE" "$AFTER" -- index.html tools/ pages/ 2>/dev/null || true)
+            DELETED=$(git diff --name-only --diff-filter=D "$BEFORE" "$AFTER" -- index.html tools/ pages/ 2>/dev/null || true)
+            if [ -n "$ADDED" ] || [ -n "$DELETED" ]; then
+              CHANGED="true"
+              echo "Pages added/removed:"
+              echo "$ADDED$DELETED" | sed 's/^/  /'
+            else
+              echo "No pages added or removed — skipping generation"
+            fi
+          fi
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+
       - name: Set up Python
+        if: steps.pagechanges.outputs.changed == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install dependencies
+        if: steps.pagechanges.outputs.changed == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install qrcode[pil]
 
       - name: Generate QR codes and update HTML
+        if: steps.pagechanges.outputs.changed == 'true'
         run: python scripts/generate-og.py
 
       - name: Commit and push changes
+        if: steps.pagechanges.outputs.changed == 'true'
         id: commit
         run: |
           git config user.name "github-actions[bot]"

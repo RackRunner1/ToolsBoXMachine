@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
-Generate QR code OG images for all HTML pages and inject og:image meta tags.
+Generate QR code OG images for all HTML pages and inject OG/Twitter meta tags.
 
 Scans the project for HTML files, generates QR code PNGs pointing to the
 full URL of each page, saves them to public/og/, and updates the HTML
-files with the appropriate og:image meta tag.
+files with the appropriate og:title, og:url, og:image, og:site_name,
+twitter:card, and related meta tags.
 """
 
 import glob
@@ -81,58 +82,69 @@ def generate_qr_png(url, output_path):
     print(f"  Generated: {os.path.relpath(output_path, PROJECT_ROOT)}")
 
 
-def inject_og_image(html_path, og_name):
-    """Inject or update the og:image meta tag in an HTML file."""
+def upsert_meta(content, name, tag_str):
+    """Replace an existing single or multi-line meta tag, or insert it before </head>."""
+    pattern = re.compile(
+        rf'<meta\s+(?:property|name)="{re.escape(name)}"\s+content="[^"]*"\s*/>',
+        re.IGNORECASE | re.DOTALL,
+    )
+    if pattern.search(content):
+        return pattern.sub(tag_str, content, count=1)
+    # Tag not present — insert right before </head>
+    return re.sub(
+        r"(\n)(\s*)(</head>)",
+        r"\1" + f"    {tag_str}\n" + r"\2\3",
+        content,
+        count=1,
+        flags=re.IGNORECASE,
+    )
+
+
+def inject_og_meta(html_path, og_name, page_url):
+    """Upsert the full set of Open Graph and Twitter Card meta tags."""
     with open(html_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    og_image_tag = f'<meta property="og:image" content="/og/{og_name}.png" />'
-    og_image_pattern = re.compile(
-        r"<meta\s+property=\"og:image\"\s+content=\"[^\"]*\"\s*/?>\s*",
-        re.IGNORECASE,
-    )
+    title_match = re.search(r"<title>(.*?)</title>", content, re.IGNORECASE | re.DOTALL)
+    page_title = title_match.group(1).strip() if title_match else "ToolsBoXMachine (TBXM)"
 
-    if og_image_pattern.search(content):
-        # Update existing og:image tag
-        og_image_pattern = re.compile(
-            r"<meta\s+property=\"og:image\"\s+content=\"[^\"]*\"\s*/>",
-            re.IGNORECASE,
-        )
-        content = og_image_pattern.sub(og_image_tag, content)
+    desc_match = re.search(
+        r'<meta\s+(?:property|name)="og:description"\s+content="([^"]*)"',
+        content,
+        re.IGNORECASE | re.DOTALL,
+    )
+    if desc_match:
+        description = desc_match.group(1).strip()
     else:
-        # No og:image tag exists
-        og_tags = list(
-            re.finditer(
-                r'<meta\s+property="og:[^>]*>', content, re.IGNORECASE | re.DOTALL
-            )
+        # Fall back to the standard description meta tag
+        desc_match = re.search(
+            r'<meta\s+name="description"\s+content="([^"]*)"',
+            content,
+            re.IGNORECASE | re.DOTALL,
         )
-        if og_tags:
-            # Has other og: tags — insert og:image after the last one,
-            # matching its indentation
-            last_tag = og_tags[-1]
-            line_start = content.rfind("\n", 0, last_tag.start()) + 1
-            indent_match = re.match(
-                r"^(\s*)", content[line_start : last_tag.start()]
-            )
-            indent = indent_match.group(1) if indent_match else "    "
-            content = (
-                content[: last_tag.end()]
-                + f"\n{indent}{og_image_tag}"
-                + content[last_tag.end() :]
-            )
-        else:
-            # No og: tags at all — insert og:type + og:image before </head>
-            og_block = (
-                f'    <meta property="og:type" content="website" />\n'
-                f'    <meta property="og:image" content="/og/{og_name}.png" />\n'
-            )
-            content = re.sub(
-                r"(\n)(\s*)(</head>)",
-                r"\1" + og_block + r"\2\3",
-                content,
-                count=1,
-                flags=re.IGNORECASE,
-            )
+        description = desc_match.group(1).strip() if desc_match else ""
+
+    image_url = f"{BASE_URL}/og/{og_name}.png"
+
+    tags = [
+        ("og:site_name", f'<meta property="og:site_name" content="ToolsBoXMachine" />'),
+        ("og:type", '<meta property="og:type" content="website" />'),
+        ("og:title", f'<meta property="og:title" content="{page_title}" />'),
+        ("og:url", f'<meta property="og:url" content="{page_url}" />'),
+        ("og:image", f'<meta property="og:image" content="{image_url}" />'),
+        ("og:image:type", '<meta property="og:image:type" content="image/png" />'),
+        ("og:image:width", '<meta property="og:image:width" content="1200" />'),
+        ("og:image:height", '<meta property="og:image:height" content="1200" />'),
+        ("twitter:card", '<meta name="twitter:card" content="summary_large_image" />'),
+        ("twitter:title", f'<meta name="twitter:title" content="{page_title}" />'),
+        ("twitter:image", f'<meta name="twitter:image" content="{image_url}" />'),
+    ]
+    if description:
+        tags.append(("og:description", f'<meta property="og:description" content="{description}" />'))
+        tags.append(("twitter:description", f'<meta name="twitter:description" content="{description}" />'))
+
+    for name, tag_str in tags:
+        content = upsert_meta(content, name, tag_str)
 
     with open(html_path, "w", encoding="utf-8") as f:
         f.write(content)
@@ -171,8 +183,10 @@ def main():
 
     print(f"Found {len(html_files)} HTML files to process:\n")
 
+    og_names = []
     for html_path in html_files:
         og_name = get_og_name(html_path)
+        og_names.append(og_name)
         rel_path = os.path.relpath(html_path, PROJECT_ROOT)
         page_url = BASE_URL if rel_path == "index.html" else f"{BASE_URL}/{rel_path}"
         output_path = os.path.join(OG_DIR, f"{og_name}.png")
@@ -182,8 +196,15 @@ def main():
         print(f"  OG name: {og_name}.png")
 
         generate_qr_png(page_url, output_path)
-        inject_og_image(html_path, og_name)
+        inject_og_meta(html_path, og_name, page_url)
         print()
+
+    # Remove stale QR codes for pages that no longer exist
+    expected = {f"{name}.png" for name in og_names}
+    for existing in sorted(os.listdir(OG_DIR)):
+        if existing.endswith(".png") and existing not in expected:
+            os.remove(os.path.join(OG_DIR, existing))
+            print(f"  Removed stale QR: {existing}")
 
     print(f"Done! Generated {len(html_files)} QR codes in public/og/")
 
