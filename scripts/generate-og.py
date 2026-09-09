@@ -3,7 +3,7 @@
 Generate QR code OG images for all HTML pages and inject OG/Twitter meta tags.
 
 Scans the project for HTML files, generates QR code PNGs pointing to the
-full URL of each page, saves them to public/og/, and updates the HTML
+full URL of each page, saves them to og/, and updates the HTML
 files with the appropriate og:title, og:url, og:image, og:site_name,
 twitter:card, and related meta tags.
 """
@@ -20,7 +20,9 @@ from PIL import Image
 
 BASE_URL = "https://tbxm.pages.dev"
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OG_DIR = os.path.join(PROJECT_ROOT, "public", "og")
+# Cloudflare Pages serves the repo root as the web root, so QR images placed
+# in "og/" at the repo root are served at /og/<name>.png.
+OG_DIR = os.path.join(PROJECT_ROOT, "og")
 
 # Map HTML file paths to OG image names
 # Key: path relative to project root
@@ -206,7 +208,7 @@ def main():
             os.remove(os.path.join(OG_DIR, existing))
             print(f"  Removed stale QR: {existing}")
 
-    print(f"Done! Generated {len(html_files)} QR codes in public/og/")
+    print(f"Done! Generated {len(html_files)} QR codes in og/")
 
 
 if __name__ == "__main__":
