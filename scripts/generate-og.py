@@ -17,7 +17,7 @@ import sys
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-BASE_URL = "https://tbxm.org"
+BASE_URL = "https://www.tbxm.org"
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Cloudflare Pages serves the repo root as the web root, so images placed
 # in "og/" at the repo root are served at /og/<name>.png.

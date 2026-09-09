@@ -1,5 +1,5 @@
 Contact: mailto:security@tbxm.org
 Expires: 2027-12-31T23:59:59.000Z
 Preferred-Languages: en
-Canonical: https://tbxm.org/.well-known/security.txt
+Canonical: https://www.tbxm.org/.well-known/security.txt
 Policy: https://github.com/RackRunner1/ToolsBoXMachine/security
