@@ -873,9 +873,485 @@ input[type="range"] {
   backdrop-filter: blur(12px);
 }
 
-@media (max-width: 640px) {
+/* ===========================
+   RESPONSIVE — Tablet
+   =========================== */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 1rem 1.5rem;
+  }
+
+  .nav-search {
+    max-width: 280px;
+    margin: 0 1rem;
+  }
+
+  .hero-section {
+    margin: 5.5rem auto 1rem;
+  }
+
+  .page-title {
+    font-size: 2.4rem;
+  }
+
+  .home-container {
+    max-width: 1000px;
+    gap: 1.5rem;
+    padding: 0 1.5rem;
+  }
+
+  .tool-container {
+    max-width: 100%;
+    padding: 1.5rem;
+  }
+
+  .blur-tool-layout {
+    padding: 0 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .legal-card {
+    padding: 2rem;
+  }
+
+  .content-container {
+    padding: 0 1.5rem;
+  }
+}
+
+/* ===========================
+   RESPONSIVE — Phone (large)
+   =========================== */
+@media (max-width: 768px) {
+  .blur-tool-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    padding: 0.85rem 1rem;
+  }
+
+  .nav-search {
+    max-width: none;
+    margin: 0 0.75rem;
+    order: 3;
+    flex: 1;
+  }
+
+  .nav-links {
+    order: 2;
+    gap: 0.75rem;
+  }
+
+  .nav-link {
+    font-size: 0.85rem;
+  }
+
+  .hero-section {
+    margin: 4.5rem auto 0.5rem;
+    padding: 0 1rem;
+  }
+
+  .hero-card {
+    padding: 1.25rem 1rem 0;
+  }
+
+  .page-title {
+    font-size: 2rem;
+    margin-top: 0;
+  }
+
+  .hero-badge {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.75rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .sub-hero {
+    padding: 0 1rem;
+  }
+
+  .announcement-banner {
+    padding: 1rem 1.25rem;
+  }
+
+  .announcement-text {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .home-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: 0 1rem;
+    margin: 1.5rem auto 4rem;
+  }
+
+  .card-btn {
+    padding: 2rem 1rem;
+    border-radius: 1rem;
+    gap: 1rem;
+  }
+
+  .card-btn span {
+    font-size: 2.5rem !important;
+  }
+
+  .card-btn div div:first-child {
+    font-size: 1rem;
+  }
+
+  .card-btn div p {
+    font-size: 0.75rem !important;
+    margin-top: 0.3rem !important;
+  }
+
+  .blur-sidebar {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .sidebar-section h3 {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .blur-main {
+    padding: 0.75rem;
+  }
+
+  .canvas-container {
+    min-height: 200px;
+  }
+
+  .custom-radio-group {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .radio-content {
+    padding: 0.75rem 0.5rem;
+    min-height: 65px;
+    font-size: 0.8rem;
+  }
+
+  .radio-content svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .footer {
+    padding: 1.25rem 1rem;
+  }
+
   .footer-content {
     flex-direction: column;
     text-align: center;
+    gap: 1rem;
+  }
+
+  .footer-links {
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .footer-link {
+    font-size: 0.85rem;
+  }
+
+  .footer-copyright {
+    font-size: 0.85rem;
+  }
+
+  .content-container {
+    margin-top: 5rem;
+    padding: 0 1rem;
+  }
+
+  .content-container h1 {
+    font-size: 2rem;
+  }
+
+  .legal-card {
+    padding: 1.5rem;
+    border-radius: 1rem;
+  }
+
+  .tool-container {
+    padding: 1.25rem;
+    border-radius: 1rem;
+    margin: 0 1rem;
+  }
+
+  .copy-feedback {
+    bottom: 1.5rem;
+    padding: 0.6rem 1.25rem;
+    font-size: 0.85rem;
+  }
+
+  .search-result-item {
+    padding: 0.6rem 0.75rem;
+  }
+
+  .result-desc-small {
+    max-width: 180px;
+  }
+
+  .custom-file-upload {
+    padding: 1.5rem 1rem;
+  }
+
+  .btn {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-primary {
+    padding: 0.85rem;
+    border-radius: 0.65rem;
+  }
+}
+
+/* ===========================
+   RESPONSIVE — Phone (small)
+   =========================== */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0.75rem 0.75rem;
+  }
+
+  .nav-logo {
+    height: 26px;
+  }
+
+  .nav-search {
+    margin: 0 0.5rem;
+  }
+
+  .search-input-wrapper input {
+    padding: 0.5rem 0.75rem 0.5rem 2.4rem;
+    font-size: 0.85rem;
+  }
+
+  .search-input-wrapper svg {
+    left: 0.75rem;
+    width: 16px;
+    height: 16px;
+  }
+
+  .hero-section {
+    margin-top: 4rem;
+    margin-bottom: 0;
+  }
+
+  .hero-card {
+    padding: 1rem 0.75rem 0;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .hero-badge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.6rem;
+    gap: 0.35rem;
+  }
+
+  .hero-badge-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .home-container {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 0 0.75rem;
+    margin: 1rem auto 3rem;
+  }
+
+  .card-btn {
+    padding: 1.5rem 1rem;
+    flex-direction: row;
+    gap: 1rem;
+    text-align: left;
+    align-items: center;
+  }
+
+  .card-btn span {
+    font-size: 2.2rem !important;
+  }
+
+  .card-btn div {
+    text-align: left !important;
+  }
+
+  .card-btn div div:first-child {
+    font-size: 0.95rem;
+  }
+
+  .card-btn div p {
+    font-size: 0.7rem !important;
+    margin-top: 0.15rem !important;
+  }
+
+  .announcement-banner {
+    padding: 0.85rem 1rem;
+    border-radius: 1rem;
+  }
+
+  .announcement-text {
+    font-size: 0.82rem;
+  }
+
+  .blur-tool-layout {
+    padding: 0 0.75rem;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .blur-sidebar {
+    padding: 1rem;
+    border-radius: 1rem;
+    gap: 0.85rem;
+  }
+
+  .sidebar-section h3 {
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .sidebar-section label {
+    font-size: 0.8rem;
+  }
+
+  .blur-main {
+    padding: 0.5rem;
+    border-radius: 1rem;
+  }
+
+  .canvas-container {
+    min-height: 180px;
+  }
+
+  .canvas-placeholder svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .canvas-placeholder p {
+    font-size: 0.85rem;
+  }
+
+  .custom-radio-group {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+  }
+
+  .radio-content {
+    padding: 0.6rem 0.4rem;
+    min-height: 55px;
+    font-size: 0.75rem;
+  }
+
+  .radio-content svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .slider-header {
+    font-size: 0.8rem;
+  }
+
+  .val-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .custom-select-container .select-trigger {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .custom-input-group input {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .btn-primary {
+    padding: 0.75rem;
+  }
+
+  .content-container {
+    margin-top: 4rem;
+    padding: 0 0.75rem;
+  }
+
+  .content-container h1 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .content-container h2 {
+    font-size: 1.15rem;
+  }
+
+  .content-container p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .legal-card {
+    padding: 1.25rem;
+    border-radius: 0.875rem;
+  }
+
+  .tool-container {
+    padding: 1rem;
+    border-radius: 0.875rem;
+    margin: 0 0.75rem;
+  }
+
+  .back-link {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .footer {
+    padding: 1rem 0.75rem;
+  }
+
+  .footer-links {
+    gap: 1rem;
+  }
+
+  .footer-link {
+    font-size: 0.8rem;
+  }
+
+  .footer-copyright {
+    font-size: 0.8rem;
+  }
+
+  .copy-feedback {
+    bottom: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    border-radius: 1.5rem;
   }
 }
