@@ -287,6 +287,162 @@
         transform: translateY(0);
         opacity: 1;
       }
+
+      /* Storage notice modal */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 100000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+
+      .modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal-box {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+        max-width: 480px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        transform: translateY(20px) scale(0.97);
+        transition: transform 0.3s ease;
+      }
+
+      .modal-overlay.show .modal-box {
+        transform: translateY(0) scale(1);
+      }
+
+      .modal-box h2 {
+        color: white;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+      }
+
+      .modal-box p {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+      }
+
+      .modal-box p strong {
+        color: #eab308;
+      }
+
+      .modal-box .modal-list {
+        margin: 0 0 1.5rem 1.1rem;
+        padding: 0;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        line-height: 1.8;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .modal-btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+        border: none;
+      }
+
+      .modal-btn.primary {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .modal-btn.primary:hover {
+        background: var(--primary-hover);
+      }
+
+      .modal-check {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        cursor: pointer;
+        user-select: none;
+        color: #cbd5e1;
+        font-size: 0.9rem;
+        font-weight: 500;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .modal-check input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .checkmark-box {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #334155;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: transparent;
+        transition: all 0.2s;
+      }
+
+      .modal-check:hover .checkmark-box {
+        border-color: #475569;
+      }
+
+      .modal-check input:checked + .checkmark-box {
+        border-color: var(--primary-color);
+        background: var(--primary-color);
+      }
+
+      .checkmark {
+        opacity: 0;
+        transition: opacity 0.15s ease;
+      }
+
+      .modal-check input:checked + .checkmark-box .checkmark {
+        opacity: 1;
+      }
+
+      /* Animation du checkmark (depuis le tool blur) */
+      .checkmark polyline {
+        stroke-dasharray: 24;
+        stroke-dashoffset: -24;
+      }
+
+      .modal-check input:checked + .checkmark-box .checkmark polyline {
+        animation: drawCheck 0.4s ease-in-out forwards;
+      }
+
+      @keyframes drawCheck {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
     </style>
     <script type="application/ld+json">
 {
@@ -371,6 +527,35 @@
     </div>
 
     <div id="notification" class="notification"></div>
+
+    <!-- Storage notice modal -->
+    <div class="modal-overlay" id="storage-modal" role="dialog" aria-modal="true" aria-labelledby="storage-modal-title">
+      <div class="modal-box">
+        <h2 id="storage-modal-title">Your notes are stored locally</h2>
+        <p>
+          Your notes are saved <strong>only in your browser</strong>,
+          not on our servers.
+        </p>
+        <ul class="modal-list">
+          <li>Clearing your browsing data (cache, cookies, local storage)</li>
+          <li>Switching browsers or devices</li>
+          <li>Using private / incognito browsing mode</li>
+        </ul>
+        <p>In these cases, <strong>everything you have written will be permanently lost</strong>.</p>
+        <div class="modal-actions">
+          <label class="modal-check">
+            <input type="checkbox" id="modal-dont-show" />
+            <span class="checkmark-box">
+              <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20,6 9,17 4,12"></polyline>
+              </svg>
+            </span>
+            <span class="modal-check-label">Don't show again</span>
+          </label>
+          <button class="modal-btn primary" id="modal-close-btn">Got it</button>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="./note.js"></script>
     <div id="footer-placeholder"></div>
