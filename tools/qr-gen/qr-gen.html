@@ -389,6 +389,43 @@
       #copy-btn:hover {
         background: #334155;
       }
+
+      @media (max-width: 768px) {
+        .qr-preview-container {
+          padding: 1.5rem;
+          min-height: 220px;
+          border-radius: 1rem;
+        }
+        .color-picker-group {
+          gap: 0.75rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .qr-preview-container {
+          padding: 1rem;
+          min-height: 180px;
+          border-radius: 0.875rem;
+        }
+        #qrcode img, #qrcode canvas {
+          max-width: 100%;
+          height: auto;
+        }
+        .color-picker-group {
+          flex-direction: column;
+          gap: 0.75rem;
+        }
+        .color-input-wrapper {
+          width: 100%;
+        }
+        .custom-input-group input {
+          padding: 0.6rem 0.75rem;
+          font-size: 0.85rem;
+        }
+        div#btn {
+          margin-top: 0.25rem;
+        }
+      }
     </style>
     <script type="application/ld+json">
 {

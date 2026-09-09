@@ -313,10 +313,56 @@
         transform: scale(1.6);
       }
 
-      @media (max-width: 1024px) {
+      @media (max-width: 768px) {
         .timer-layout {
           height: auto;
-          padding: 2rem 0;
+          padding: 1.5rem 0;
+        }
+        .timer-container {
+          width: 260px;
+          height: 260px;
+        }
+        .timer-time {
+          font-size: 4rem;
+        }
+        .timer-time.long-format {
+          font-size: 3rem;
+        }
+        .timer-label {
+          font-size: 0.85rem;
+        }
+        .fullscreen-btn {
+          top: 0.5rem;
+          right: 0.5rem;
+          width: 32px;
+          height: 32px;
+        }
+        .fullscreen-btn svg {
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .timer-layout {
+          padding: 1rem 0;
+        }
+        .timer-container {
+          width: 220px;
+          height: 220px;
+        }
+        .timer-time {
+          font-size: 3.2rem;
+        }
+        .timer-time.long-format {
+          font-size: 2.4rem;
+        }
+        .timer-label {
+          font-size: 0.75rem;
+          letter-spacing: 0.15em;
+        }
+        .timer-svg circle {
+          stroke-width: 6;
         }
       }
     </style>

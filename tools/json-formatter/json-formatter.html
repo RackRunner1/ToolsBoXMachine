@@ -254,7 +254,30 @@
           height: auto;
         }
         .editor-container {
-          height: 400px;
+          height: 350px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .json-layout {
+          gap: 1rem;
+        }
+        .editor-container {
+          height: 280px;
+        }
+        .editor-wrapper {
+          border-radius: 0.75rem;
+        }
+        textarea, pre {
+          padding: 1rem;
+          font-size: 0.8rem;
+        }
+        .editor-header {
+          font-size: 0.7rem;
+          margin-bottom: 0.35rem;
+        }
+        .btn-group {
+          gap: 0.5rem;
         }
       }
     </style>
