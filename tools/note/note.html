@@ -287,6 +287,118 @@
         transform: translateY(0);
         opacity: 1;
       }
+
+      /* Storage notice modal */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 100000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+
+      .modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal-box {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+        max-width: 480px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        transform: translateY(20px) scale(0.97);
+        transition: transform 0.3s ease;
+      }
+
+      .modal-overlay.show .modal-box {
+        transform: translateY(0) scale(1);
+      }
+
+      .modal-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 1rem;
+        background: rgba(234, 179, 8, 0.12);
+        color: #eab308;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.25rem;
+      }
+
+      .modal-box h2 {
+        color: white;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+      }
+
+      .modal-box p {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+      }
+
+      .modal-box p strong {
+        color: #eab308;
+      }
+
+      .modal-box .modal-list {
+        margin: 0 0 1.5rem 1.1rem;
+        padding: 0;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        line-height: 1.8;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .modal-btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+        border: none;
+      }
+
+      .modal-btn.primary {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .modal-btn.primary:hover {
+        background: var(--primary-hover);
+      }
+
+      .modal-btn.secondary {
+        background: transparent;
+        color: #cbd5e1;
+        border: 1px solid #334155;
+      }
+
+      .modal-btn.secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
     </style>
     <script type="application/ld+json">
 {
@@ -371,6 +483,34 @@
     </div>
 
     <div id="notification" class="notification"></div>
+
+    <!-- Storage notice modal -->
+    <div class="modal-overlay" id="storage-modal" role="dialog" aria-modal="true" aria-labelledby="storage-modal-title">
+      <div class="modal-box">
+        <div class="modal-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <h2 id="storage-modal-title">Vos notes sont stockées localement</h2>
+        <p>
+          Vos notes sont enregistrées <strong>uniquement dans votre navigateur</strong>,
+          pas sur nos serveurs.
+        </p>
+        <ul class="modal-list">
+          <li>Vider les données de navigation (cache, cookies, stockage local)</li>
+          <li>Changer de navigateur ou d'appareil</li>
+          <li>Utiliser le mode navigation privée / incognito</li>
+        </ul>
+        <p>Dans ces cas, <strong>tout ce qui a été écrit sera définitivement perdu</strong>.</p>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" id="modal-close-btn">Compris</button>
+          <button class="modal-btn primary" id="modal-understood-btn">Ne plus afficher</button>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="./note.js"></script>
     <div id="footer-placeholder"></div>
