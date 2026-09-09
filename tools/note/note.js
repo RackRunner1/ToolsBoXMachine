@@ -13,7 +13,7 @@ const elements = {
   notification: document.getElementById("notification"),
   storageModal: document.getElementById("storage-modal"),
   modalCloseBtn: document.getElementById("modal-close-btn"),
-  modalUnderstoodBtn: document.getElementById("modal-understood-btn"),
+  dontShowCheckbox: document.getElementById("modal-dont-show"),
 };
 
 let notes = [];
@@ -38,14 +38,13 @@ function setupStorageModal() {
   });
 
   const close = () => {
+    if (elements.dontShowCheckbox.checked) {
+      localStorage.setItem(MODAL_KEY, "true");
+    }
     elements.storageModal.classList.remove("show");
   };
 
   elements.modalCloseBtn.addEventListener("click", close);
-  elements.modalUnderstoodBtn.addEventListener("click", () => {
-    localStorage.setItem(MODAL_KEY, "true");
-    close();
-  });
   elements.storageModal.addEventListener("click", (e) => {
     if (e.target === elements.storageModal) close();
   });

@@ -378,14 +378,70 @@
         background: var(--primary-hover);
       }
 
-      .modal-btn.secondary {
-        background: transparent;
+      .modal-check {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        cursor: pointer;
+        user-select: none;
         color: #cbd5e1;
-        border: 1px solid #334155;
+        font-size: 0.9rem;
+        font-weight: 500;
+        flex: 1;
+        min-width: 0;
       }
 
-      .modal-btn.secondary:hover {
-        background: rgba(255, 255, 255, 0.05);
+      .modal-check input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .checkmark-box {
+        width: 24px;
+        height: 24px;
+        border: 2px solid #334155;
+        border-radius: 0.5rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: transparent;
+        transition: all 0.2s;
+      }
+
+      .modal-check:hover .checkmark-box {
+        border-color: #475569;
+      }
+
+      .modal-check input:checked + .checkmark-box {
+        border-color: var(--primary-color);
+        background: var(--primary-color);
+      }
+
+      .checkmark {
+        opacity: 0;
+        transition: opacity 0.15s ease;
+      }
+
+      .modal-check input:checked + .checkmark-box .checkmark {
+        opacity: 1;
+      }
+
+      /* Animation du checkmark (depuis le tool blur) */
+      .checkmark polyline {
+        stroke-dasharray: 24;
+        stroke-dashoffset: -24;
+      }
+
+      .modal-check input:checked + .checkmark-box .checkmark polyline {
+        animation: drawCheck 0.4s ease-in-out forwards;
+      }
+
+      @keyframes drawCheck {
+        to {
+          stroke-dashoffset: 0;
+        }
       }
     </style>
     <script type="application/ld+json">
@@ -487,8 +543,16 @@
         </ul>
         <p>In these cases, <strong>everything you have written will be permanently lost</strong>.</p>
         <div class="modal-actions">
-          <button class="modal-btn secondary" id="modal-close-btn">Got it</button>
-          <button class="modal-btn primary" id="modal-understood-btn">Don't show again</button>
+          <label class="modal-check">
+            <input type="checkbox" id="modal-dont-show" />
+            <span class="checkmark-box">
+              <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20,6 9,17 4,12"></polyline>
+              </svg>
+            </span>
+            <span class="modal-check-label">Don't show again</span>
+          </label>
+          <button class="modal-btn primary" id="modal-close-btn">Got it</button>
         </div>
       </div>
     </div>
