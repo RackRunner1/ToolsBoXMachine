@@ -223,7 +223,7 @@ tools/
      <!-- Open Graph -->
      <meta property="og:title" content="Tool Name - TBXM">
      <meta property="og:description" content="SEO description">
-     <meta property="og:image" content="https://tbxm.pages.dev/og/tool-name.png">
+     <meta property="og:image" content="https://tbxm.org/og/tool-name.png">
      <link rel="stylesheet" href="/style.css">
      <style>
        /* Tool-specific CSS */
