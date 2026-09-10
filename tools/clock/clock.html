@@ -15,6 +15,10 @@
     <link rel="icon" href="../../.assets/logo/fav.png" />
     <link rel="stylesheet" href="../../style.css" />
     <style>
+      :root {
+        --clock-font: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+      }
+
       .clock-layout {
         display: grid;
         grid-template-columns: 320px minmax(0, 1fr);
@@ -203,7 +207,7 @@
 
       /* Digital Clock */
       .digital-clock {
-        font-family: var(--font-mono);
+        font-family: var(--clock-font);
         font-size: 5rem;
         font-weight: 700;
         letter-spacing: 0.05em;
@@ -545,6 +549,23 @@
               <input type="checkbox" id="toggle-date" checked />
               <span class="toggle-slider"></span>
             </label>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Font</h3>
+          <div class="custom-select-container" id="font-select">
+            <div class="select-trigger">
+              <span>Mono</span>
+              <span class="select-arrow">&#9660;</span>
+            </div>
+            <div class="select-options">
+              <div class="select-option selected" data-value="mono">Mono</div>
+              <div class="select-option" data-value="sans">Sans Serif</div>
+              <div class="select-option" data-value="serif">Serif</div>
+              <div class="select-option" data-value="display">Display</div>
+              <div class="select-option" data-value="handwriting">Handwriting</div>
+            </div>
           </div>
         </div>
 

@@ -188,6 +188,18 @@
     timezone = val;
   });
 
+  const fontMap = {
+    mono: '"JetBrains Mono", "Fira Code", "Courier New", monospace',
+    sans: "system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif",
+    serif: "Georgia, 'Times New Roman', Times, serif",
+    display: "'Trebuchet MS', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif",
+    handwriting: "Comic Sans MS, cursive",
+  };
+
+  setupSelect("font-select", (val) => {
+    document.documentElement.style.setProperty("--clock-font", fontMap[val] || fontMap.mono);
+  });
+
   // Color swatches
   document.querySelectorAll(".color-swatch").forEach((swatch) => {
     swatch.addEventListener("click", () => {
