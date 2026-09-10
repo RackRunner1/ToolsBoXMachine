@@ -9,6 +9,12 @@ on:
       - "public/**"
       - "scripts/**"
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Regenerate all OG images even if no pages were added/removed"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -29,8 +35,12 @@ jobs:
         run: |
           BEFORE="${{ github.event.before }}"
           AFTER="${{ github.event.after }}"
+          FORCE="${{ inputs.force }}"
           CHANGED="false"
-          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+          if [ "$FORCE" = "true" ]; then
+            CHANGED="true"
+            echo "Force regeneration enabled — running generation"
+          elif [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
             CHANGED="true"
             echo "Manual dispatch or new branch — running generation"
           else
