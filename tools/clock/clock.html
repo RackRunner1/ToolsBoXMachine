@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A customizable online clock with analog and digital display, 12/24h format, and multiple timezones."
+    />
+    <meta
+      name="keywords"
+      content="online clock, world clock, analog clock, digital clock, customizable clock, time display, timezone clock, tbxm, toolsboxmachine, tbxm website, tbxm drayko, toolsboxmachine drayko, drayko tools, drayko"
+    />
+    <title>Customizable Clock: Analog & Digital Display (TBXM)</title>
+    <link rel="icon" href="../../.assets/logo/fav.png" />
+    <link rel="stylesheet" href="../../style.css" />
+    <style>
+      .clock-layout {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr);
+        gap: 2rem;
+        width: 100%;
+        max-width: 1200px;
+        padding: 0 2rem;
+        margin: 1rem auto 4rem;
+      }
+
+      .clock-sidebar {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1.25rem;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        height: fit-content;
+      }
+
+      .sidebar-section h3 {
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #94a3b8;
+        margin-bottom: 1rem;
+        font-weight: 600;
+      }
+
+      .clock-main {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 460px;
+        gap: 1.5rem;
+      }
+
+      /* Analog Clock */
+      .analog-clock {
+        position: relative;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(15, 23, 42, 0.6);
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        box-shadow:
+          0 20px 50px rgba(0, 0, 0, 0.3),
+          inset 0 0 40px rgba(255, 255, 255, 0.02);
+      }
+
+      .analog-clock .number {
+        position: absolute;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #94a3b8;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .analog-clock .hand {
+        position: absolute;
+        bottom: 50%;
+        left: 50%;
+        transform-origin: bottom center;
+        border-radius: 4px;
+      }
+
+      .hand-hour {
+        width: 5px;
+        height: 75px;
+        background: #e2e8f0;
+        z-index: 3;
+      }
+
+      .hand-minute {
+        width: 3.5px;
+        height: 100px;
+        background: #94a3b8;
+        z-index: 4;
+      }
+
+      .hand-second {
+        width: 1.5px;
+        height: 110px;
+        z-index: 5;
+      }
+
+      .center-dot {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 6;
+      }
+
+      .tick-mark {
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        width: 2px;
+        height: 10px;
+        background: #475569;
+        transform-origin: bottom center;
+        transform: translateX(-50%);
+      }
+
+      .tick-mark.major {
+        height: 14px;
+        width: 2.5px;
+        background: #64748b;
+      }
+
+      /* Digital Clock */
+      .digital-clock {
+        font-family: var(--font-mono);
+        font-size: 5rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-align: center;
+      }
+
+      .digital-clock .time-period {
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin-left: 0.5rem;
+        vertical-align: super;
+      }
+
+      .digital-clock .blink {
+        animation: blink 1s step-end infinite;
+      }
+
+      @keyframes blink {
+        50% { opacity: 0; }
+      }
+
+      /* Date display */
+      .date-display {
+        font-size: 1rem;
+        color: #94a3b8;
+        text-align: center;
+      }
+
+      /* Analog hidden */
+      .clock-main.analog-hidden .analog-clock {
+        display: none;
+      }
+
+      .clock-main.digital-hidden .digital-clock {
+        display: none;
+      }
+
+      /* Toggle switches */
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+      }
+
+      .toggle-row span {
+        font-size: 0.9rem;
+        color: #cbd5e1;
+      }
+
+      .toggle-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        cursor: pointer;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        inset: 0;
+        background: #334155;
+        border-radius: 24px;
+        transition: background 0.3s;
+      }
+
+      .toggle-slider::before {
+        content: "";
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        transition: transform 0.3s;
+      }
+
+      .toggle-switch input:checked + .toggle-slider {
+        background: var(--primary-color);
+      }
+
+      .toggle-switch input:checked + .toggle-slider::before {
+        transform: translateX(20px);
+      }
+
+      /* Color picker */
+      .color-options {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
+      }
+
+      .color-swatch {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        justify-self: center;
+      }
+
+      .color-swatch:hover {
+        transform: scale(1.15);
+      }
+
+      .color-swatch.active {
+        border-color: #fff;
+        box-shadow: 0 0 12px var(--primary-glow);
+      }
+
+      /* Select */
+      .custom-select-container {
+        position: relative;
+        width: 100%;
+      }
+
+      .select-trigger {
+        width: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        color: #e2e8f0;
+        font-size: 0.9rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: border-color 0.2s;
+      }
+
+      .select-trigger:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .select-arrow {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        transition: transform 0.2s;
+      }
+
+      .custom-select-container.open .select-arrow {
+        transform: rotate(180deg);
+      }
+
+      .select-options {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: #1e293b;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 0.75rem;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 10;
+        display: none;
+      }
+
+      .custom-select-container.open .select-options {
+        display: block;
+      }
+
+      .select-option {
+        padding: 0.6rem 1rem;
+        color: #cbd5e1;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background 0.15s;
+      }
+
+      .select-option:hover {
+        background: rgba(59, 130, 246, 0.1);
+      }
+
+      .select-option.selected {
+        color: var(--primary-color);
+        background: rgba(59, 130, 246, 0.1);
+      }
+
+      @media (max-width: 768px) {
+        .clock-layout {
+          grid-template-columns: 1fr;
+          padding: 0 1rem;
+          gap: 1rem;
+          margin-bottom: 2rem;
+        }
+
+        .clock-sidebar {
+          padding: 1.25rem;
+          gap: 1.25rem;
+        }
+
+        .clock-main {
+          min-height: 380px;
+          padding: 1.5rem;
+        }
+
+        .analog-clock {
+          width: 240px;
+          height: 240px;
+        }
+
+        .hand-hour {
+          height: 60px;
+        }
+
+        .hand-minute {
+          height: 80px;
+        }
+
+        .hand-second {
+          height: 88px;
+        }
+
+        .digital-clock {
+          font-size: 3.5rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .clock-main {
+          min-height: 320px;
+          padding: 1rem;
+        }
+
+        .analog-clock {
+          width: 200px;
+          height: 200px;
+        }
+
+        .hand-hour {
+          height: 48px;
+        }
+
+        .hand-minute {
+          height: 64px;
+        }
+
+        .hand-second {
+          height: 70px;
+        }
+
+        .digital-clock {
+          font-size: 2.8rem;
+        }
+      }
+    </style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Customizable Clock",
+  "url": "https://www.tbxm.org/tools/clock/clock.html",
+  "description": "A customizable online clock with analog and digital display.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "creator": { "@type": "Person", "name": "RackRunner" }
+}
+</script>
+    <meta name="description" content="A customizable online clock with analog and digital display, 12/24h format, and multiple timezones." />
+    <meta name="content-signal" content="ai-train, ai-input, search" />
+    <link rel="canonical" href="https://www.tbxm.org/tools/clock/clock.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://www.tbxm.org/og/clock.png" />
+    <meta property="og:site_name" content="ToolsBoXMachine" />
+    <meta property="og:title" content="Customizable Clock: Analog & Digital Display (TBXM)" />
+    <meta property="og:url" content="https://www.tbxm.org/tools/clock/clock.html" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Customizable Clock: Analog & Digital Display (TBXM)" />
+    <meta name="twitter:image" content="https://www.tbxm.org/og/clock.png" />
+    <meta property="og:description" content="A customizable online clock with analog and digital display, 12/24h format, and multiple timezones." />
+    <meta name="twitter:description" content="A customizable online clock with analog and digital display, 12/24h format, and multiple timezones." />
+  </head>
+
+  <body>
+    <div id="navbar-placeholder"></div>
+
+    <div class="hero-section">
+      <h1 class="page-title">Clock</h1>
+      <p class="subtitle">
+        A customizable clock with analog and digital displays.
+      </p>
+    </div>
+
+    <div class="clock-layout">
+      <div class="clock-sidebar">
+        <div class="sidebar-section">
+          <h3>Display</h3>
+          <div class="toggle-row">
+            <span>Analog</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-analog" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <span>Digital</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-digital" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <span>Seconds</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-seconds" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <span>Date</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="toggle-date" checked />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Format</h3>
+          <div class="custom-select-container" id="format-select">
+            <div class="select-trigger">
+              <span>24 Hour</span>
+              <span class="select-arrow">&#9660;</span>
+            </div>
+            <div class="select-options">
+              <div class="select-option selected" data-value="24">24 Hour</div>
+              <div class="select-option" data-value="12">12 Hour</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Timezone</h3>
+          <div class="custom-select-container" id="timezone-select">
+            <div class="select-trigger">
+              <span>Local</span>
+              <span class="select-arrow">&#9660;</span>
+            </div>
+            <div class="select-options">
+              <div class="select-option selected" data-value="local">Local</div>
+              <div class="select-option" data-value="America/New_York">New York (EST)</div>
+              <div class="select-option" data-value="America/Chicago">Chicago (CST)</div>
+              <div class="select-option" data-value="America/Denver">Denver (MST)</div>
+              <div class="select-option" data-value="America/Los_Angeles">Los Angeles (PST)</div>
+              <div class="select-option" data-value="Europe/London">London (GMT)</div>
+              <div class="select-option" data-value="Europe/Paris">Paris (CET)</div>
+              <div class="select-option" data-value="Europe/Berlin">Berlin (CET)</div>
+              <div class="select-option" data-value="Europe/Moscow">Moscow (MSK)</div>
+              <div class="select-option" data-value="Asia/Dubai">Dubai (GST)</div>
+              <div class="select-option" data-value="Asia/Kolkata">India (IST)</div>
+              <div class="select-option" data-value="Asia/Shanghai">Shanghai (CST)</div>
+              <div class="select-option" data-value="Asia/Tokyo">Tokyo (JST)</div>
+              <div class="select-option" data-value="Asia/Seoul">Seoul (KST)</div>
+              <div class="select-option" data-value="Australia/Sydney">Sydney (AEST)</div>
+              <div class="select-option" data-value="Pacific/Auckland">Auckland (NZST)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <h3>Color</h3>
+          <div class="color-options" id="color-options">
+            <div class="color-swatch active" data-color="#3b82f6" style="background: #3b82f6;"></div>
+            <div class="color-swatch" data-color="#a78bfa" style="background: #a78bfa;"></div>
+            <div class="color-swatch" data-color="#10b981" style="background: #10b981;"></div>
+            <div class="color-swatch" data-color="#f59e0b" style="background: #f59e0b;"></div>
+            <div class="color-swatch" data-color="#ef4444" style="background: #ef4444;"></div>
+            <div class="color-swatch" data-color="#ec4899" style="background: #ec4899;"></div>
+            <div class="color-swatch" data-color="#06b6d4" style="background: #06b6d4;"></div>
+            <div class="color-swatch" data-color="#f97316" style="background: #f97316;"></div>
+            <div class="color-swatch" data-color="#e2e8f0" style="background: #e2e8f0;"></div>
+            <div class="color-swatch" data-color="#94a3b8" style="background: #94a3b8;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="clock-main" id="clock-main">
+        <div class="analog-clock" id="analog-clock">
+          <div class="hand hand-hour" id="hand-hour"></div>
+          <div class="hand hand-minute" id="hand-minute"></div>
+          <div class="hand hand-second" id="hand-second"></div>
+          <div class="center-dot" id="center-dot"></div>
+        </div>
+        <div class="digital-clock" id="digital-clock">
+          <span id="digital-time"></span>
+        </div>
+        <div class="date-display" id="date-display"></div>
+      </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <script src="./clock.js"></script>
+    <script src="/ui/include.js"></script>
+    <script src="/ui/navbar.js"></script>
+  </body>
+</html>
