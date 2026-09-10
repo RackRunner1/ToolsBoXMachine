@@ -963,6 +963,7 @@ input[type="range"] {
 
   .subtitle {
     font-size: 0.9rem;
+    margin-bottom: 0.5rem;
   }
 
   .sub-hero {
@@ -1154,6 +1155,7 @@ input[type="range"] {
 
   .subtitle {
     font-size: 0.85rem;
+    margin-bottom: 0.4rem;
   }
 
   .hero-badge {
