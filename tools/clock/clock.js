@@ -7,15 +7,16 @@
   const centerDot = document.getElementById("center-dot");
   const digitalTime = document.getElementById("digital-time");
   const dateDisplay = document.getElementById("date-display");
+  const formatSection = document.getElementById("format-section");
+  const fullscreenBtn = document.getElementById("fullscreen-btn");
 
-  const toggleAnalog = document.getElementById("toggle-analog");
-  const toggleDigital = document.getElementById("toggle-digital");
   const toggleSeconds = document.getElementById("toggle-seconds");
   const toggleDate = document.getElementById("toggle-date");
 
   let accentColor = "#3b82f6";
   let format24 = true;
   let timezone = "local";
+  let mode = "analog";
 
   // Build tick marks
   function buildTicks() {
@@ -89,34 +90,44 @@
     const ms = now.getMilliseconds();
 
     // Analog
-    const secDeg = s * 6 + ms * 0.006;
-    const minDeg = m * 6 + s * 0.1;
-    const hrDeg = (h % 12) * 30 + m * 0.5;
+    if (mode === "analog") {
+      analogClock.style.display = "";
+      digitalTime.style.display = "none";
 
-    handSecond.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
-    handMinute.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
-    handHour.style.transform = `translateX(-50%) rotate(${hrDeg}deg)`;
+      const secDeg = s * 6 + ms * 0.006;
+      const minDeg = m * 6 + s * 0.1;
+      const hrDeg = (h % 12) * 30 + m * 0.5;
 
-    handSecond.style.display = toggleSeconds.checked ? "" : "none";
+      handSecond.style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
+      handMinute.style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+      handHour.style.transform = `translateX(-50%) rotate(${hrDeg}deg)`;
+
+      handSecond.style.display = toggleSeconds.checked ? "" : "none";
+    }
 
     // Digital
-    let displayH = h;
-    let period = "";
-    if (!format24) {
-      period = h >= 12 ? " PM" : " AM";
-      displayH = h % 12 || 12;
-    }
-    const pad = (n) => String(n).padStart(2, "0");
-    let timeStr = `${pad(displayH)}:${pad(m)}`;
-    if (toggleSeconds.checked) {
-      timeStr += `:${pad(s)}`;
-    }
-    digitalTime.textContent = timeStr;
-    if (period) {
-      const span = document.createElement("span");
-      span.className = "time-period";
-      span.textContent = period;
-      digitalTime.appendChild(span);
+    if (mode === "digital") {
+      analogClock.style.display = "none";
+      digitalTime.style.display = "";
+
+      let displayH = h;
+      let period = "";
+      if (!format24) {
+        period = h >= 12 ? " PM" : " AM";
+        displayH = h % 12 || 12;
+      }
+      const pad = (n) => String(n).padStart(2, "0");
+      let timeStr = `${pad(displayH)}:${pad(m)}`;
+      if (toggleSeconds.checked) {
+        timeStr += `:${pad(s)}`;
+      }
+      digitalTime.textContent = timeStr;
+      if (period) {
+        const span = document.createElement("span");
+        span.className = "time-period";
+        span.textContent = period;
+        digitalTime.appendChild(span);
+      }
     }
 
     // Date
@@ -131,14 +142,10 @@
     requestAnimationFrame(updateClock);
   }
 
-  // Toggle handlers
-  toggleAnalog.addEventListener("change", () => {
-    analogClock.style.display = toggleAnalog.checked ? "" : "none";
-  });
-
-  toggleDigital.addEventListener("change", () => {
-    digitalTime.style.display = toggleDigital.checked ? "" : "none";
-  });
+  function setMode(newMode) {
+    mode = newMode;
+    formatSection.style.display = mode === "digital" ? "" : "none";
+  }
 
   // Custom select
   function setupSelect(containerId, onChange) {
@@ -169,6 +176,10 @@
     document.querySelectorAll(".custom-select-container").forEach((c) => c.classList.remove("open"));
   });
 
+  setupSelect("mode-select", (val) => {
+    setMode(val);
+  });
+
   setupSelect("format-select", (val) => {
     format24 = val === "24";
   });
@@ -187,9 +198,40 @@
     });
   });
 
+  // Fullscreen
+  if (fullscreenBtn) {
+    fullscreenBtn.addEventListener("click", () => {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (clockMain.requestFullscreen) {
+          clockMain.requestFullscreen().catch((err) => console.error(err));
+        } else if (clockMain.webkitRequestFullscreen) {
+          clockMain.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    });
+
+    const updateFullscreenIcon = () => {
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        fullscreenBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>`;
+      } else {
+        fullscreenBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>`;
+      }
+    };
+
+    document.addEventListener("fullscreenchange", updateFullscreenIcon);
+    document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);
+  }
+
   // Init
   buildTicks();
   buildNumbers();
   applyColor(accentColor);
+  setMode(mode);
   requestAnimationFrame(updateClock);
 })();
