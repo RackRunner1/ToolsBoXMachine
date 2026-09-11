@@ -575,7 +575,6 @@ const toast = document.getElementById("toast");
 let activeCategory = 0;
 let toastTimeout = null;
 let activeTabEl = null;
-let focusedIndex = -1;
 
 function showToast(text) {
   toast.textContent = text;
@@ -607,8 +606,6 @@ function buildEmojiCell(emoji) {
   const cell = document.createElement("div");
   cell.className = "emoji-cell" + (isEmojiSupported(emoji) ? "" : " unsupported");
   cell.textContent = emoji;
-  cell.setAttribute("role", "gridcell");
-  cell.setAttribute("tabindex", "-1");
   cell.addEventListener("click", () => copyEmoji(emoji, cell));
   return cell;
 }
@@ -622,7 +619,6 @@ function renderEmojis(index) {
   }
   grid.innerHTML = "";
   grid.appendChild(fragment);
-  focusedIndex = -1;
 }
 
 let activeTabButtons = [];
@@ -731,7 +727,6 @@ function doFilter(q) {
   }
   grid.innerHTML = "";
   grid.appendChild(fragment);
-  focusedIndex = -1;
 }
 
 let searchDebounce = null;
@@ -746,50 +741,6 @@ document.getElementById("tab-arrow-left").addEventListener("click", () => {
 
 document.getElementById("tab-arrow-right").addEventListener("click", () => {
   tabsContainer.scrollBy({ left: 200, behavior: "smooth" });
-});
-
-searchInput.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    searchInput.value = "";
-    filterEmojis("");
-    searchInput.blur();
-  }
-});
-
-grid.addEventListener("keydown", (e) => {
-  const cells = grid.querySelectorAll(".emoji-cell:not(.unsupported)");
-  if (cells.length === 0) return;
-
-  if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-    e.preventDefault();
-    focusedIndex = Math.min(focusedIndex + 1, cells.length - 1);
-    cells[focusedIndex].focus();
-  } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-    e.preventDefault();
-    focusedIndex = Math.max(focusedIndex - 1, 0);
-    cells[focusedIndex].focus();
-  } else if (e.key === "Enter" || e.key === " ") {
-    e.preventDefault();
-    if (focusedIndex >= 0 && focusedIndex < cells.length) {
-      cells[focusedIndex].click();
-    }
-  }
-});
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "/" && document.activeElement !== searchInput) {
-    e.preventDefault();
-    searchInput.focus();
-  }
-  if (e.key >= "1" && e.key <= "9" && document.activeElement !== searchInput) {
-    const idx = parseInt(e.key);
-    if (idx < categories.length) {
-      setActiveCategory(idx);
-    }
-  }
-  if (e.key === "0" && document.activeElement !== searchInput) {
-    if (categories.length > 9) setActiveCategory(9);
-  }
 });
 
 renderTabs();
