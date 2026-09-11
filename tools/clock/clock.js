@@ -13,6 +13,7 @@
   const toggleSeconds = document.getElementById("toggle-seconds");
   const toggleDate = document.getElementById("toggle-date");
   const colorSection = document.getElementById("color-section");
+  const fontSection = document.getElementById("font-section");
 
   let accentColor = "#3b82f6";
   let format24 = true;
@@ -147,6 +148,7 @@
     mode = newMode;
     formatSection.style.display = mode === "digital" ? "" : "none";
     colorSection.style.display = mode === "digital" ? "none" : "";
+    fontSection.style.display = mode === "digital" ? "" : "none";
   }
 
   // Custom select
