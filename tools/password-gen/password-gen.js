@@ -236,11 +236,45 @@ genModeRadios.forEach((radio) => {
   excludeAmbiguous,
   includeNumbersPhrase,
   capitalizePhrase,
-  phraseSeparator,
 ].forEach((input) => {
   input.addEventListener("input", () => {
     lengthVal.textContent = lengthInput.value;
     generatePassword();
+  });
+});
+
+// Custom Select Logic
+document.querySelectorAll(".custom-select-container").forEach((container) => {
+  const trigger = container.querySelector(".select-trigger");
+  const options = container.querySelectorAll(".select-option");
+  const nativeSelect = container.querySelector(".native-select");
+  const labelText = trigger.querySelector("span");
+
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    document.querySelectorAll(".custom-select-container").forEach((other) => {
+      if (other !== container) other.classList.remove("active");
+    });
+    container.classList.toggle("active");
+  });
+
+  options.forEach((option) => {
+    option.addEventListener("click", () => {
+      const value = option.dataset.value;
+      const text = option.textContent.trim();
+      labelText.textContent = text;
+      options.forEach((opt) => opt.classList.remove("selected"));
+      option.classList.add("selected");
+      nativeSelect.value = value;
+      container.classList.remove("active");
+      generatePassword();
+    });
+  });
+});
+
+document.addEventListener("click", () => {
+  document.querySelectorAll(".custom-select-container").forEach((container) => {
+    container.classList.remove("active");
   });
 });
 
