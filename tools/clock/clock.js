@@ -18,7 +18,7 @@
   let accentColor = "#3b82f6";
   let format24 = true;
   let timezone = "local";
-  let mode = "analog";
+  let mode = "digital";
 
   // Build tick marks
   function buildTicks() {
