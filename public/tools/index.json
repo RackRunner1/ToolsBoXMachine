@@ -96,6 +96,16 @@
       "category": "productivity",
       "clientSide": true,
       "keywords": ["note", "text", "write", "save", "diary"]
+    },
+    {
+      "id": "clock",
+      "name": "Clock",
+      "emoji": "🕐",
+      "description": "A customizable clock with analog and digital display",
+      "url": "/tools/clock/clock.html",
+      "category": "productivity",
+      "clientSide": true,
+      "keywords": ["clock", "time", "analog", "digital", "timezone", "world clock"]
     }
   ]
 }
