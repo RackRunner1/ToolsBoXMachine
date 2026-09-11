@@ -211,7 +211,7 @@ genModeRadios.forEach((radio) => {
       passwordOptions.style.display = "block";
       passphraseOptions.style.display = "none";
       lengthInput.min = 4;
-      lengthInput.max = 50;
+      lengthInput.max = 128;
       lengthInput.value = 16;
       lengthLabel.textContent = "Characters";
     } else {
