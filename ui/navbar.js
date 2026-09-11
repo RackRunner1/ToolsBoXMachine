@@ -76,6 +76,14 @@ const tools = [
     keywords: "note notes text write diary jot record save",
     url: "/tools/note/note.html",
   },
+  {
+    id: "card-clock",
+    name: "Clock",
+    emoji: "🕐",
+    desc: "A customizable clock with analog and digital display.",
+    keywords: "clock time analog digital timezone world watch",
+    url: "/tools/clock/clock.html",
+  },
 ];
 
 function updateSearch() {
