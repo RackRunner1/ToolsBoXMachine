@@ -284,34 +284,34 @@ const rawCategories = [
       "👬🏿", "💏", "💏🏻", "💏🏼", "💏🏽", "💏🏾", "💏🏿", "🧑🏻‍❤️‍💋‍🧑🏼", 
       "🧑🏻‍❤️‍💋‍🧑🏽", "🧑🏻‍❤️‍💋‍🧑🏾", "🧑🏻‍❤️‍💋‍🧑🏿", "🧑🏼‍❤️‍💋‍🧑🏻", "🧑🏼‍❤️‍💋‍🧑🏽", "🧑🏼‍❤️‍💋‍🧑🏾", "🧑🏼‍❤️‍💋‍🧑🏿", "🧑🏽‍❤️‍💋‍🧑🏻", 
       "🧑🏽‍❤️‍💋‍🧑🏼", "🧑🏽‍❤️‍💋‍🧑🏾", "🧑🏽‍❤️‍💋‍🧑🏿", "🧑🏾‍❤️‍💋‍🧑🏻", "🧑🏾‍❤️‍💋‍🧑🏼", "🧑🏾‍❤️‍💋‍🧑🏽", "🧑🏾‍❤️‍💋‍🧑🏿", "🧑🏿‍❤️‍💋‍🧑🏻", 
-      "🧑🏿‍❤️‍💋‍🧑🏼", "🧑🏿‍❤️‍💋‍🧑🏽", "🧑🏿‍❤️‍💋‍🧑🏾", "👩‍❤️‍💋‍👨", "👩🏻‍❤️‍💋‍👨🏻", "👩🏻‍❤️‍💋‍👨🏼", "👩🏻‍❤️‍💋‍👨🏽", "👩🏻‍❤️‍💋‍👨🏾", 
-      "👩🏻‍❤️‍💋‍👨🏿", "👩🏼‍❤️‍💋‍👨🏻", "👩🏼‍❤️‍💋‍👨🏼", "👩🏼‍❤️‍💋‍👨🏽", "👩🏼‍❤️‍💋‍👨🏾", "👩🏼‍❤️‍💋‍👨🏿", "👩🏽‍❤️‍💋‍👨🏻", "👩🏽‍❤️‍💋‍👨🏼", 
-      "👩🏽‍❤️‍💋‍👨🏽", "👩🏽‍❤️‍💋‍👨🏾", "👩🏽‍❤️‍💋‍👨🏿", "👩🏾‍❤️‍💋‍👨🏻", "👩🏾‍❤️‍💋‍👨🏼", "👩🏾‍❤️‍💋‍👨🏽", "👩🏾‍❤️‍💋‍👨🏾", "👩🏾‍❤️‍💋‍👨🏿", 
-      "👩🏿‍❤️‍💋‍👨🏻", "👩🏿‍❤️‍💋‍👨🏼", "👩🏿‍❤️‍💋‍👨🏽", "👩🏿‍❤️‍💋‍👨🏾", "👩🏿‍❤️‍💋‍👨🏿", "👨‍❤️‍💋‍👨", "👨🏻‍❤️‍💋‍👨🏻", "👨🏻‍❤️‍💋‍👨🏼", 
-      "👨🏻‍❤️‍💋‍👨🏽", "👨🏻‍❤️‍💋‍👨🏾", "👨🏻‍❤️‍💋‍👨🏿", "👨🏼‍❤️‍💋‍👨🏻", "👨🏼‍❤️‍💋‍👨🏼", "👨🏼‍❤️‍💋‍👨🏽", "👨🏼‍❤️‍💋‍👨🏾", "👨🏼‍❤️‍💋‍👨🏿", 
-      "👨🏽‍❤️‍💋‍👨🏻", "👨🏽‍❤️‍💋‍👨🏼", "👨🏽‍❤️‍💋‍👨🏽", "👨🏽‍❤️‍💋‍👨🏾", "👨🏽‍❤️‍💋‍👨🏿", "👨🏾‍❤️‍💋‍👨🏻", "👨🏾‍❤️‍💋‍👨🏼", "👨🏾‍❤️‍💋‍👨🏽", 
-      "👨🏾‍❤️‍💋‍👨🏾", "👨🏾‍❤️‍💋‍👨🏿", "👨🏿‍❤️‍💋‍👨🏻", "👨🏿‍❤️‍💋‍👨🏼", "👨🏿‍❤️‍💋‍👨🏽", "👨🏿‍❤️‍💋‍👨🏾", "👨🏿‍❤️‍💋‍👨🏿", "👩‍❤️‍💋‍👩", 
-      "👩🏻‍❤️‍💋‍👩🏻", "👩🏻‍❤️‍💋‍👩🏼", "👩🏻‍❤️‍💋‍👩🏽", "👩🏻‍❤️‍💋‍👩🏾", "👩🏻‍❤️‍💋‍👩🏿", "👩🏼‍❤️‍💋‍👩🏻", "👩🏼‍❤️‍💋‍👩🏼", "👩🏼‍❤️‍💋‍👩🏽", 
-      "👩🏼‍❤️‍💋‍👩🏾", "👩🏼‍❤️‍💋‍👩🏿", "👩🏽‍❤️‍💋‍👩🏻", "👩🏽‍❤️‍💋‍👩🏼", "👩🏽‍❤️‍💋‍👩🏽", "👩🏽‍❤️‍💋‍👩🏾", "👩🏽‍❤️‍💋‍👩🏿", "👩🏾‍❤️‍💋‍👩🏻", 
-      "👩🏾‍❤️‍💋‍👩🏼", "👩🏾‍❤️‍💋‍👩🏽", "👩🏾‍❤️‍💋‍👩🏾", "👩🏾‍❤️‍💋‍👩🏿", "👩🏿‍❤️‍💋‍👩🏻", "👩🏿‍❤️‍💋‍👩🏼", "👩🏿‍❤️‍💋‍👩🏽", "👩🏿‍❤️‍💋‍👩🏾", 
-      "👩🏿‍❤️‍💋‍👩🏿", "💑", "💑🏻", "💑🏼", "💑🏽", "💑🏾", "💑🏿", "🧑🏻‍❤️‍🧑🏼", 
-      "🧑🏻‍❤️‍🧑🏽", "🧑🏻‍❤️‍🧑🏾", "🧑🏻‍❤️‍🧑🏿", "🧑🏼‍❤️‍🧑🏻", "🧑🏼‍❤️‍🧑🏽", "🧑🏼‍❤️‍🧑🏾", "🧑🏼‍❤️‍🧑🏿", "🧑🏽‍❤️‍🧑🏻", 
-      "🧑🏽‍❤️‍🧑🏼", "🧑🏽‍❤️‍🧑🏾", "🧑🏽‍❤️‍🧑🏿", "🧑🏾‍❤️‍🧑🏻", "🧑🏾‍❤️‍🧑🏼", "🧑🏾‍❤️‍🧑🏽", "🧑🏾‍❤️‍🧑🏿", "🧑🏿‍❤️‍🧑🏻", 
-      "🧑🏿‍❤️‍🧑🏼", "🧑🏿‍❤️‍🧑🏽", "🧑🏿‍❤️‍🧑🏾", "👩‍❤️‍👨", "👩🏻‍❤️‍👨🏻", "👩🏻‍❤️‍👨🏼", "👩🏻‍❤️‍👨🏽", "👩🏻‍❤️‍👨🏾", 
-      "👩🏻‍❤️‍👨🏿", "👩🏼‍❤️‍👨🏻", "👩🏼‍❤️‍👨🏼", "👩🏼‍❤️‍👨🏽", "👩🏼‍❤️‍👨🏾", "👩🏼‍❤️‍👨🏿", "👩🏽‍❤️‍👨🏻", "👩🏽‍❤️‍👨🏼", 
-      "👩🏽‍❤️‍👨🏽", "👩🏽‍❤️‍👨🏾", "👩🏽‍❤️‍👨🏿", "👩🏾‍❤️‍👨🏻", "👩🏾‍❤️‍👨🏼", "👩🏾‍❤️‍👨🏽", "👩🏾‍❤️‍👨🏾", "👩🏾‍❤️‍👨🏿", 
-      "👩🏿‍❤️‍👨🏻", "👩🏿‍❤️‍👨🏼", "👩🏿‍❤️‍👨🏽", "👩🏿‍❤️‍👨🏾", "👩🏿‍❤️‍👨🏿", "👨‍❤️‍👨", "👨🏻‍❤️‍👨🏻", "👨🏻‍❤️‍👨🏼", 
-      "👨🏻‍❤️‍👨🏽", "👨🏻‍❤️‍👨🏾", "👨🏻‍❤️‍👨🏿", "👨🏼‍❤️‍👨🏻", "👨🏼‍❤️‍👨🏼", "👨🏼‍❤️‍👨🏽", "👨🏼‍❤️‍👨🏾", "👨🏼‍❤️‍👨🏿", 
-      "👨🏽‍❤️‍👨🏻", "👨🏽‍❤️‍👨🏼", "👨🏽‍❤️‍👨🏽", "👨🏽‍❤️‍👨🏾", "👨🏽‍❤️‍👨🏿", "👨🏾‍❤️‍👨🏻", "👨🏾‍❤️‍👨🏼", "👨🏾‍❤️‍👨🏽", 
-      "👨🏾‍❤️‍👨🏾", "👨🏾‍❤️‍👨🏿", "👨🏿‍❤️‍👨🏻", "👨🏿‍❤️‍👨🏼", "👨🏿‍❤️‍👨🏽", "👨🏿‍❤️‍👨🏾", "👨🏿‍❤️‍👨🏿", "👩‍❤️‍👩", 
-      "👩🏻‍❤️‍👩🏻", "👩🏻‍❤️‍👩🏼", "👩🏻‍❤️‍👩🏽", "👩🏻‍❤️‍👩🏾", "👩🏻‍❤️‍👩🏿", "👩🏼‍❤️‍👩🏻", "👩🏼‍❤️‍👩🏼", "👩🏼‍❤️‍👩🏽", 
-      "👩🏼‍❤️‍👩🏾", "👩🏼‍❤️‍👩🏿", "👩🏽‍❤️‍👩🏻", "👩🏽‍❤️‍👩🏼", "👩🏽‍❤️‍👩🏽", "👩🏽‍❤️‍👩🏾", "👩🏽‍❤️‍👩🏿", "👩🏾‍❤️‍👩🏻", 
-      "👩🏾‍❤️‍👩🏼", "👩🏾‍❤️‍👩🏽", "👩🏾‍❤️‍👩🏾", "👩🏾‍❤️‍👩🏿", "👩🏿‍❤️‍👩🏻", "👩🏿‍❤️‍👩🏼", "👩🏿‍❤️‍👩🏽", "👩🏿‍❤️‍👩🏾", 
-      "👩🏿‍❤️‍👩🏿", "👨‍👩‍👦", "👨‍👩‍👧", "👨‍👩‍👧‍👦", "👨‍👩‍👦‍👦", "👨‍👩‍👧‍👧", "👨‍👨‍👦", "👨‍👨‍👧", 
-      "👨‍👨‍👧‍👦", "👨‍👨‍👦‍👦", "👨‍👨‍👧‍👧", "👩‍👩‍👦", "👩‍👩‍👧", "👩‍👩‍👧‍👦", "👩‍👩‍👦‍👦", "👩‍👩‍👧‍👧", 
-      "👨‍👦", "👨‍👦‍👦", "👨‍👧", "👨‍👧‍👦", "👨‍👧‍👧", "👩‍👦", "👩‍👦‍👦", "👩‍👧", 
-      "👩‍👧‍👦", "👩‍👧‍👧", "🗣️", "👤", "👥", "🫂", "👪", "🧑‍🧑‍🧒", 
-      "🧑‍🧑‍🧒‍🧒", "🧑‍🧒", "🧑‍🧒‍🧒", "👣", "🫆"
+      "🧑🏿‍❤️‍💋‍🧑🏼", "🧑🏿‍❤️‍💋‍🧑🏾", "👩‍❤️‍💋‍👨", "👩🏻‍❤️‍💋‍👨🏻", "👩🏻‍❤️‍💋‍👨🏼", "👩🏻‍❤️‍💋‍👨🏽", "👩🏻‍❤️‍💋‍👨🏾", "👩🏻‍❤️‍💋‍👨🏿", 
+      "👩🏼‍❤️‍💋‍👨🏻", "👩🏼‍❤️‍💋‍👨🏼", "👩🏼‍❤️‍💋‍👨🏽", "👩🏼‍❤️‍💋‍👨🏾", "👩🏼‍❤️‍💋‍👨🏿", "👩🏽‍❤️‍💋‍👨🏻", "👩🏽‍❤️‍💋‍👨🏼", "👩🏽‍❤️‍💋‍👨🏽", 
+      "👩🏽‍❤️‍💋‍👨🏾", "👩🏽‍❤️‍💋‍👨🏿", "👩🏾‍❤️‍💋‍👨🏻", "👩🏾‍❤️‍💋‍👨🏼", "👩🏾‍❤️‍💋‍👨🏽", "👩🏾‍❤️‍💋‍👨🏾", "👩🏾‍❤️‍💋‍👨🏿", "👩🏿‍❤️‍💋‍👨🏻", 
+      "👩🏿‍❤️‍💋‍👨🏼", "👩🏿‍❤️‍💋‍👨🏽", "👩🏿‍❤️‍💋‍👨🏾", "👩🏿‍❤️‍💋‍👨🏿", "👨‍❤️‍💋‍👨", "👨🏻‍❤️‍💋‍👨🏻", "👨🏻‍❤️‍💋‍👨🏼", "👨🏻‍❤️‍💋‍👨🏽", 
+      "👨🏻‍❤️‍💋‍👨🏾", "👨🏻‍❤️‍💋‍👨🏿", "👨🏼‍❤️‍💋‍👨🏻", "👨🏼‍❤️‍💋‍👨🏼", "👨🏼‍❤️‍💋‍👨🏽", "👨🏼‍❤️‍💋‍👨🏾", "👨🏼‍❤️‍💋‍👨🏿", "👨🏽‍❤️‍💋‍👨🏻", 
+      "👨🏽‍❤️‍💋‍👨🏼", "👨🏽‍❤️‍💋‍👨🏽", "👨🏽‍❤️‍💋‍👨🏾", "👨🏽‍❤️‍💋‍👨🏿", "👨🏾‍❤️‍💋‍👨🏻", "👨🏾‍❤️‍💋‍👨🏼", "👨🏾‍❤️‍💋‍👨🏽", "👨🏾‍❤️‍💋‍👨🏾", 
+      "👨🏾‍❤️‍💋‍👨🏿", "👨🏿‍❤️‍💋‍👨🏻", "👨🏿‍❤️‍💋‍👨🏼", "👨🏿‍❤️‍💋‍👨🏽", "👨🏿‍❤️‍💋‍👨🏾", "👨🏿‍❤️‍💋‍👨🏿", "👩‍❤️‍💋‍👩", "👩🏻‍❤️‍💋‍👩🏻", 
+      "👩🏻‍❤️‍💋‍👩🏼", "👩🏻‍❤️‍💋‍👩🏽", "👩🏻‍❤️‍💋‍👩🏾", "👩🏻‍❤️‍💋‍👩🏿", "👩🏼‍❤️‍💋‍👩🏻", "👩🏼‍❤️‍💋‍👩🏼", "👩🏼‍❤️‍💋‍👩🏽", "👩🏼‍❤️‍💋‍👩🏾", 
+      "👩🏼‍❤️‍💋‍👩🏿", "👩🏽‍❤️‍💋‍👩🏻", "👩🏽‍❤️‍💋‍👩🏼", "👩🏽‍❤️‍💋‍👩🏽", "👩🏽‍❤️‍💋‍👩🏾", "👩🏽‍❤️‍💋‍👩🏿", "👩🏾‍❤️‍💋‍👩🏻", "👩🏾‍❤️‍💋‍👩🏼", 
+      "👩🏾‍❤️‍💋‍👩🏽", "👩🏾‍❤️‍💋‍👩🏾", "👩🏾‍❤️‍💋‍👩🏿", "👩🏿‍❤️‍💋‍👩🏻", "👩🏿‍❤️‍💋‍👩🏼", "👩🏿‍❤️‍💋‍👩🏽", "👩🏿‍❤️‍💋‍👩🏾", "👩🏿‍❤️‍💋‍👩🏿", 
+      "💑", "💑🏻", "💑🏼", "💑🏽", "💑🏾", "💑🏿", "🧑🏻‍❤️‍🧑🏼", "🧑🏻‍❤️‍🧑🏽", 
+      "🧑🏻‍❤️‍🧑🏾", "🧑🏻‍❤️‍🧑🏿", "🧑🏼‍❤️‍🧑🏻", "🧑🏼‍❤️‍🧑🏽", "🧑🏼‍❤️‍🧑🏾", "🧑🏼‍❤️‍🧑🏿", "🧑🏽‍❤️‍🧑🏻", "🧑🏽‍❤️‍🧑🏼", 
+      "🧑🏽‍❤️‍🧑🏾", "🧑🏽‍❤️‍🧑🏿", "🧑🏾‍❤️‍🧑🏻", "🧑🏾‍❤️‍🧑🏼", "🧑🏾‍❤️‍🧑🏽", "🧑🏾‍❤️‍🧑🏿", "🧑🏿‍❤️‍🧑🏻", "🧑🏿‍❤️‍🧑🏼", 
+      "🧑🏿‍❤️‍🧑🏾", "👩‍❤️‍👨", "👩🏻‍❤️‍👨🏻", "👩🏻‍❤️‍👨🏼", "👩🏻‍❤️‍👨🏽", "👩🏻‍❤️‍👨🏾", "👩🏻‍❤️‍👨🏿", "👩🏼‍❤️‍👨🏻", 
+      "👩🏼‍❤️‍👨🏼", "👩🏼‍❤️‍👨🏽", "👩🏼‍❤️‍👨🏾", "👩🏼‍❤️‍👨🏿", "👩🏽‍❤️‍👨🏻", "👩🏽‍❤️‍👨🏼", "👩🏽‍❤️‍👨🏽", "👩🏽‍❤️‍👨🏾", 
+      "👩🏽‍❤️‍👨🏿", "👩🏾‍❤️‍👨🏻", "👩🏾‍❤️‍👨🏼", "👩🏾‍❤️‍👨🏽", "👩🏾‍❤️‍👨🏾", "👩🏾‍❤️‍👨🏿", "👩🏿‍❤️‍👨🏻", "👩🏿‍❤️‍👨🏼", 
+      "👩🏿‍❤️‍👨🏽", "👩🏿‍❤️‍👨🏾", "👩🏿‍❤️‍👨🏿", "👨‍❤️‍👨", "👨🏻‍❤️‍👨🏻", "👨🏻‍❤️‍👨🏼", "👨🏻‍❤️‍👨🏽", "👨🏻‍❤️‍👨🏾", 
+      "👨🏻‍❤️‍👨🏿", "👨🏼‍❤️‍👨🏻", "👨🏼‍❤️‍👨🏼", "👨🏼‍❤️‍👨🏽", "👨🏼‍❤️‍👨🏾", "👨🏼‍❤️‍👨🏿", "👨🏽‍❤️‍👨🏻", "👨🏽‍❤️‍👨🏼", 
+      "👨🏽‍❤️‍👨🏽", "👨🏽‍❤️‍👨🏾", "👨🏽‍❤️‍👨🏿", "👨🏾‍❤️‍👨🏻", "👨🏾‍❤️‍👨🏼", "👨🏾‍❤️‍👨🏽", "👨🏾‍❤️‍👨🏾", "👨🏾‍❤️‍👨🏿", 
+      "👨🏿‍❤️‍👨🏻", "👨🏿‍❤️‍👨🏼", "👨🏿‍❤️‍👨🏽", "👨🏿‍❤️‍👨🏾", "👨🏿‍❤️‍👨🏿", "👩‍❤️‍👩", "👩🏻‍❤️‍👩🏻", "👩🏻‍❤️‍👩🏼", 
+      "👩🏻‍❤️‍👩🏽", "👩🏻‍❤️‍👩🏾", "👩🏻‍❤️‍👩🏿", "👩🏼‍❤️‍👩🏻", "👩🏼‍❤️‍👩🏼", "👩🏼‍❤️‍👩🏽", "👩🏼‍❤️‍👩🏾", "👩🏼‍❤️‍👩🏿", 
+      "👩🏽‍❤️‍👩🏻", "👩🏽‍❤️‍👩🏼", "👩🏽‍❤️‍👩🏽", "👩🏽‍❤️‍👩🏾", "👩🏽‍❤️‍👩🏿", "👩🏾‍❤️‍👩🏻", "👩🏾‍❤️‍👩🏼", "👩🏾‍❤️‍👩🏽", 
+      "👩🏾‍❤️‍👩🏾", "👩🏾‍❤️‍👩🏿", "👩🏿‍❤️‍👩🏻", "👩🏿‍❤️‍👩🏼", "👩🏿‍❤️‍👩🏽", "👩🏿‍❤️‍👩🏾", "👩🏿‍❤️‍👩🏿", "👨‍👩‍👦", 
+      "👨‍👩‍👧", "👨‍👩‍👧‍👦", "👨‍👩‍👦‍👦", "👨‍👩‍👧‍👧", "👨‍👨‍👦", "👨‍👨‍👧", "👨‍👨‍👧‍👦", "👨‍👨‍👦‍👦", 
+      "👨‍👨‍👧‍👧", "👩‍👩‍👦", "👩‍👩‍👧", "👩‍👩‍👧‍👦", "👩‍👩‍👦‍👦", "👩‍👩‍👧‍👧", "👨‍👦", "👨‍👦‍👦", 
+      "👨‍👧", "👨‍👧‍👦", "👨‍👧‍👧", "👩‍👦", "👩‍👦‍👦", "👩‍👧", "👩‍👧‍👦", "👩‍👧‍👧", 
+      "🗣️", "👤", "👥", "🫂", "👪", "🧑‍🧑‍🧒", "🧑‍🧑‍🧒‍🧒", "🧑‍🧒", 
+      "🧑‍🧒‍🧒", "👣", "🫆"
     ],
   },  {
     name: "Animals & Nature",
@@ -529,19 +529,31 @@ for (const cat of rawCategories) {
 }
 const categories = [{ name: "All", emojis: allEmojis }, ...rawCategories];
 
+const flatEmojiList = [];
+const emojiCategoryMap = new Map();
+categories.forEach((cat, ci) => {
+  for (const e of cat.emojis) {
+    if (!emojiCategoryMap.has(e)) {
+      emojiCategoryMap.set(e, ci);
+      flatEmojiList.push(e);
+    }
+  }
+});
+
+const supportCanvas = document.createElement("canvas");
+supportCanvas.width = 20;
+supportCanvas.height = 20;
+const supportCtx = supportCanvas.getContext("2d");
+supportCtx.textBaseline = "top";
+supportCtx.font = "16px sans-serif";
 const supportedCache = new Map();
 
 function isEmojiSupported(char) {
   if (supportedCache.has(char)) return supportedCache.get(char);
   try {
-    const canvas = document.createElement("canvas");
-    canvas.width = 20;
-    canvas.height = 20;
-    const ctx = canvas.getContext("2d");
-    ctx.textBaseline = "top";
-    ctx.font = "16px sans-serif";
-    ctx.fillText(char, 0, 0);
-    const data = ctx.getImageData(0, 0, 20, 20).data;
+    supportCtx.clearRect(0, 0, 20, 20);
+    supportCtx.fillText(char, 0, 0);
+    const data = supportCtx.getImageData(0, 0, 20, 20).data;
     let nonZero = 0;
     for (let i = 3; i < data.length; i += 4) {
       if (data[i] !== 0) nonZero++;
@@ -562,6 +574,7 @@ const toast = document.getElementById("toast");
 
 let activeCategory = 0;
 let toastTimeout = null;
+let activeTabEl = null;
 
 function showToast(text) {
   toast.textContent = text;
@@ -570,109 +583,81 @@ function showToast(text) {
   toastTimeout = setTimeout(() => toast.classList.remove("show"), 1500);
 }
 
-function renderEmojis(index) {
-  const category = categories[index];
-  grid.innerHTML = "";
-  category.emojis.forEach((emoji) => {
-    const cell = document.createElement("div");
-    cell.className = "emoji-cell" + (isEmojiSupported(emoji) ? "" : " unsupported");
-    cell.textContent = emoji;
-    cell.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(emoji);
-        cell.classList.add("copied");
-        setTimeout(() => cell.classList.remove("copied"), 300);
-        showToast(`Copied ${emoji}!`);
-      } catch {
-        const range = document.createRange();
-        range.selectNodeContents(cell);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-        document.execCommand("copy");
-        sel.removeAllRanges();
-        cell.classList.add("copied");
-        setTimeout(() => cell.classList.remove("copied"), 300);
-        showToast(`Copied ${emoji}!`);
-      }
-    });
-    grid.appendChild(cell);
+function copyEmoji(emoji, cell) {
+  navigator.clipboard.writeText(emoji).then(() => {
+    cell.classList.add("copied");
+    setTimeout(() => cell.classList.remove("copied"), 300);
+    showToast("Copied " + emoji + "!");
+  }).catch(() => {
+    const range = document.createRange();
+    range.selectNodeContents(cell);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand("copy");
+    sel.removeAllRanges();
+    cell.classList.add("copied");
+    setTimeout(() => cell.classList.remove("copied"), 300);
+    showToast("Copied " + emoji + "!");
   });
 }
 
+function buildEmojiCell(emoji) {
+  const cell = document.createElement("div");
+  cell.className = "emoji-cell" + (isEmojiSupported(emoji) ? "" : " unsupported");
+  cell.textContent = emoji;
+  cell.addEventListener("click", () => copyEmoji(emoji, cell));
+  return cell;
+}
+
+function renderEmojis(index) {
+  const category = categories[index];
+  const fragment = document.createDocumentFragment();
+  const emojis = category.emojis;
+  for (let i = 0; i < emojis.length; i++) {
+    fragment.appendChild(buildEmojiCell(emojis[i]));
+  }
+  grid.innerHTML = "";
+  grid.appendChild(fragment);
+}
+
+let activeTabButtons = [];
+
 function renderTabs() {
-  tabsContainer.innerHTML = "";
+  const fragment = document.createDocumentFragment();
+  activeTabButtons = [];
   categories.forEach((cat, i) => {
     const btn = document.createElement("button");
     btn.className = "category-tab" + (i === activeCategory ? " active" : "");
     btn.textContent = cat.name;
     btn.addEventListener("click", () => {
-      activeCategory = i;
-      document.querySelectorAll(".category-tab").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
+      setActiveCategory(i);
       searchInput.value = "";
-      renderEmojis(i);
     });
-    tabsContainer.appendChild(btn);
+    activeTabButtons.push(btn);
+    fragment.appendChild(btn);
   });
+  tabsContainer.innerHTML = "";
+  tabsContainer.appendChild(fragment);
+  activeTabEl = activeTabButtons[activeCategory];
+  scrollActiveTabIntoView();
 }
 
-async function filterEmojis(query) {
-  const q = query.toLowerCase().trim();
-  if (!q) {
-    renderEmojis(activeCategory);
-    return;
+function setActiveCategory(i) {
+  if (activeTabButtons[activeCategory]) {
+    activeTabButtons[activeCategory].classList.remove("active");
   }
+  activeCategory = i;
+  activeTabButtons[i].classList.add("active");
+  activeTabEl = activeTabButtons[i];
+  renderEmojis(i);
+  scrollActiveTabIntoView();
+}
 
-  if (!emojiNameMap) {
-    grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #64748b;">Loading search data...</div>';
-    await loadEmojiNames();
+function scrollActiveTabIntoView() {
+  if (activeTabEl) {
+    activeTabEl.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
   }
-
-  let allEmojis = [];
-  categories.forEach((cat) => allEmojis.push(...cat.emojis));
-  allEmojis = [...new Set(allEmojis)];
-
-  const filtered = allEmojis.filter((emoji) => {
-    const codePoint = emoji.codePointAt(0);
-    const hex = codePoint.toString(16);
-    return (
-      emoji.includes(q) ||
-      hex.includes(q) ||
-      getEmojiName(emoji).includes(q)
-    );
-  });
-
-  grid.innerHTML = "";
-  if (filtered.length === 0) {
-    grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #64748b;">No emojis found</div>';
-    return;
-  }
-  filtered.forEach((emoji) => {
-    const cell = document.createElement("div");
-    cell.className = "emoji-cell" + (isEmojiSupported(emoji) ? "" : " unsupported");
-    cell.textContent = emoji;
-    cell.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(emoji);
-        cell.classList.add("copied");
-        setTimeout(() => cell.classList.remove("copied"), 300);
-        showToast(`Copied ${emoji}!`);
-      } catch {
-        const range = document.createRange();
-        range.selectNodeContents(cell);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-        document.execCommand("copy");
-        sel.removeAllRanges();
-        cell.classList.add("copied");
-        setTimeout(() => cell.classList.remove("copied"), 300);
-        showToast(`Copied ${emoji}!`);
-      }
-    });
-    grid.appendChild(cell);
-  });
 }
 
 let emojiNameMap = null;
@@ -702,18 +687,60 @@ function getEmojiName(emoji) {
   return (emojiNameMap && emojiNameMap.get(emoji)) || "";
 }
 
+function filterEmojis(query) {
+  const q = query.toLowerCase().trim();
+  if (!q) {
+    renderEmojis(activeCategory);
+    return;
+  }
+
+  if (!emojiNameMap) {
+    grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #64748b;">Loading search data...</div>';
+    loadEmojiNames().then(() => doFilter(q));
+    return;
+  }
+
+  doFilter(q);
+}
+
+function doFilter(q) {
+  const filtered = [];
+  for (let i = 0; i < flatEmojiList.length; i++) {
+    const emoji = flatEmojiList[i];
+    if (
+      emoji.includes(q) ||
+      emoji.codePointAt(0).toString(16).includes(q) ||
+      getEmojiName(emoji).includes(q)
+    ) {
+      filtered.push(emoji);
+    }
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #64748b;">No emojis found</div>';
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (let i = 0; i < filtered.length; i++) {
+    fragment.appendChild(buildEmojiCell(filtered[i]));
+  }
+  grid.innerHTML = "";
+  grid.appendChild(fragment);
+}
+
+let searchDebounce = null;
+searchInput.addEventListener("input", () => {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(() => filterEmojis(searchInput.value), 150);
+});
+
 document.getElementById("tab-arrow-left").addEventListener("click", () => {
-  const tabs = document.getElementById("category-tabs");
-  tabs.scrollBy({ left: -200, behavior: "smooth" });
+  tabsContainer.scrollBy({ left: -200, behavior: "smooth" });
 });
 
 document.getElementById("tab-arrow-right").addEventListener("click", () => {
-  const tabs = document.getElementById("category-tabs");
-  tabs.scrollBy({ left: 200, behavior: "smooth" });
-});
-
-searchInput.addEventListener("input", () => {
-  filterEmojis(searchInput.value);
+  tabsContainer.scrollBy({ left: 200, behavior: "smooth" });
 });
 
 renderTabs();
