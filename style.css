@@ -25,7 +25,6 @@ html {
 
 body {
   font-family:
-    "Inter",
     system-ui,
     -apple-system,
     sans-serif;
@@ -154,7 +153,6 @@ h1 {
   z-index: 9999;
   display: none;
   overflow: hidden;
-  animation: fadeIn 0.2s ease-out;
 }
 
 .search-dropdown.active {
@@ -214,7 +212,6 @@ h1 {
   align-items: center;
   margin: 6.5rem auto 1.5rem;
   padding: 0 2rem;
-  animation: fadeIn 0.8s ease-out;
 }
 
 .hero-card {
@@ -258,11 +255,9 @@ h1 {
   margin-top: 0;
   margin-bottom: 0.4rem;
   background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #60a5fa 100%);
-  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: shimmer 6s ease-in-out infinite;
 }
 
 @keyframes shimmer {
@@ -404,7 +399,6 @@ h1 {
   flex-direction: column;
   gap: 1.5rem;
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  animation: fadeIn 0.6s ease-out;
 }
 
 .btn {
