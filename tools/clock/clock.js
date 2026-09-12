@@ -80,7 +80,7 @@
   function getTime() {
     const now = new Date();
     if (timezone === "local") return now;
-    const str = now.toLocaleString("en-US", { timeZone: timezone });
+    const str = now.toLocaleString("en-US", { timeZone: timezone, fractionalSecondDigits: 3 });
     return new Date(str);
   }
 
