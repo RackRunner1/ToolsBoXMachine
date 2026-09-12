@@ -15,6 +15,7 @@ TBXM is an open-source toolbox running entirely client-side. All processing happ
 - [Pomodoro Timer](/tools/timer/timer.html) — Stay focused with timed work sessions
 - [Emoji Keyboard](/tools/emoji-keyboard/emoji-keyboard.html) — Browse and copy emojis with one click
 - [Notes](/tools/note/note.html) — Create, save, and manage notes
+- [Clock](/tools/clock/clock.html) — Display the current time
 
 ## Machine-Readable Endpoints
 
