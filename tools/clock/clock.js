@@ -77,19 +77,34 @@
     clockMain.style.setProperty("--accent", color);
   }
 
-  function getTime() {
-    const now = new Date();
-    if (timezone === "local") return now;
-    const str = now.toLocaleString("en-US", { timeZone: timezone, fractionalSecondDigits: 3 });
-    return new Date(str);
+  function getTimeParts(date) {
+    const now = date || new Date();
+    if (timezone === "local") {
+      return { h: now.getHours(), m: now.getMinutes(), s: now.getSeconds(), ms: now.getMilliseconds(), date: now };
+    }
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      fractionalSecondDigits: 3,
+      hour12: false,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(now);
+    const get = (type) => parseInt(parts.find((p) => p.type === type).value, 10);
+    return {
+      h: get("hour") % 24,
+      m: get("minute"),
+      s: get("second"),
+      ms: parseInt(parts.find((p) => p.type === "fractionalSecond").value, 10),
+      date: now,
+    };
   }
 
   function updateClock() {
-    const now = getTime();
-    const h = now.getHours();
-    const m = now.getMinutes();
-    const s = now.getSeconds();
-    const ms = now.getMilliseconds();
+    const { h, m, s, ms, date: now } = getTimeParts();
 
     // Analog
     if (mode === "analog") {
@@ -135,7 +150,8 @@
     // Date
     if (toggleDate.checked) {
       const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
-      dateDisplay.textContent = now.toLocaleDateString("en-US", options);
+      const tzOpts = timezone !== "local" ? { timeZone: timezone } : {};
+      dateDisplay.textContent = now.toLocaleDateString("en-US", { ...options, ...tzOpts });
       dateDisplay.style.display = "";
     } else {
       dateDisplay.style.display = "none";
