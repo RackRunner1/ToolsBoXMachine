@@ -89,6 +89,16 @@
         },
         "required": ["encoded"]
       }
+    },
+    {
+      "name": "clock",
+      "description": "Display the current time",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "timezone": { "type": "string", "description": "Timezone (e.g. Europe/Paris)", "default": "local" }
+        }
+      }
     }
   ]
 }
