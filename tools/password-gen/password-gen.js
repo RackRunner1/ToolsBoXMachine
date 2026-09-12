@@ -9,7 +9,6 @@ const lengthVal = document.getElementById("length-val");
 const lengthLabel = document.getElementById("length-label");
 const strengthBar = document.getElementById("strength-bar");
 const strengthText = document.getElementById("strength-text");
-const copyFeedback = document.getElementById("copy-feedback");
 
 // Mode elements
 const genModeRadios = document.querySelectorAll('input[name="genMode"]');
@@ -301,12 +300,35 @@ copyBtn.addEventListener("click", () => {
   )
     return;
 
-  navigator.clipboard.writeText(password).then(() => {
-    copyFeedback.classList.add("show");
-    setTimeout(() => {
-      copyFeedback.classList.remove("show");
-    }, 2000);
-  });
+  const originalContent = copyBtn.innerHTML;
+
+  copyBtn.innerHTML = `
+    <span class="copy-icon-wrapper">
+      <span class="copy-icon-original fade">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+        </svg>
+      </span>
+      <span class="copy-icon-check">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="checkmark">
+          <polyline points="20,6 9,17 4,12"></polyline>
+        </svg>
+      </span>
+    </span>
+    <span>Copied!</span>
+  `;
+
+  navigator.clipboard.writeText(password);
+
+  setTimeout(() => {
+    copyBtn.innerHTML = originalContent;
+  }, 2000);
 });
 
 // Initial generation
