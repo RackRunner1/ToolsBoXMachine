@@ -72,6 +72,14 @@
       "url": "/tools/note/note.html",
       "category": "productivity",
       "tags": ["note", "text", "write", "save"]
+    },
+    {
+      "id": "clock",
+      "name": "Clock",
+      "description": "Display the current time",
+      "url": "/tools/clock/clock.html",
+      "category": "utility",
+      "tags": ["clock", "time", "datetime"]
     }
   ]
 }

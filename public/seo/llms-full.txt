@@ -77,6 +77,13 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 - **Storage:** localStorage (no server)
 - **Features:** Create, edit, delete notes
 
+### Clock
+- **URL:** /tools/clock/clock.html
+- **Description:** Display the current time
+- **Category:** Utility
+- **Client-side:** Yes
+- **Features:** Real-time clock display
+
 ## Technical Details
 
 - **Rendering:** Static HTML + vanilla JavaScript

@@ -51,6 +51,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.tbxm.org/tools/clock/clock.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.tbxm.org/pages/philosophy.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
