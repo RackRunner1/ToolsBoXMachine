@@ -111,6 +111,23 @@ function renderList() {
     `;
 
     item.addEventListener("click", () => selectNote(note.id));
+
+    const tooltip = item.querySelector(".note-tooltip");
+    let tooltipTimer = null;
+    item.addEventListener("mouseenter", () => {
+      clearTimeout(tooltipTimer);
+      tooltipTimer = setTimeout(() => {
+        const rect = item.getBoundingClientRect();
+        tooltip.style.left = rect.right + 12 + "px";
+        tooltip.style.top = rect.top + "px";
+        tooltip.classList.add("visible");
+      }, 400);
+    });
+    item.addEventListener("mouseleave", () => {
+      clearTimeout(tooltipTimer);
+      tooltip.classList.remove("visible");
+    });
+
     elements.notesList.appendChild(item);
   });
 }
