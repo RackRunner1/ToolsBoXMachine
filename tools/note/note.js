@@ -88,8 +88,26 @@ function renderList() {
     item.className = `note-item${note.id === activeNoteId ? " active" : ""}`;
     item.dataset.id = note.id;
 
+    const preview = note.content
+      ? note.content.substring(0, 120).replace(/\n/g, " ")
+      : "Empty note";
+
+    const createdDate = new Date(note.createdAt).toLocaleDateString(undefined, {
+      month: "short", day: "numeric", year: "numeric",
+    });
+    const modifiedDate = new Date(note.modifiedAt).toLocaleDateString(undefined, {
+      month: "short", day: "numeric", year: "numeric",
+    });
+
     item.innerHTML = `
       <div class="note-item-title">${escapeHTML(note.title) || "Untitled Note"}</div>
+      <div class="note-tooltip">
+        <div class="note-tooltip-preview">${escapeHTML(preview)}</div>
+        <div class="note-tooltip-dates">
+          <span>Created: ${createdDate}</span>
+          <span>Modified: ${modifiedDate}</span>
+        </div>
+      </div>
     `;
 
     item.addEventListener("click", () => selectNote(note.id));
