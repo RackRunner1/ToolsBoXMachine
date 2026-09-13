@@ -107,6 +107,12 @@ const words = [
   "vivid", "wild", "wise", "young",
 ];
 
+let strengthTimer = null;
+function scheduleStrengthUpdate(password) {
+  clearTimeout(strengthTimer);
+  strengthTimer = setTimeout(() => updateStrength(password), 300);
+}
+
 function generatePassword() {
   const mode = document.querySelector('input[name="genMode"]:checked').value;
   let password = "";
@@ -169,7 +175,7 @@ function generatePassword() {
   }
 
   passwordOutput.textContent = password;
-  updateStrength(password);
+  scheduleStrengthUpdate(password);
 }
 
 function updateStrength(password) {
