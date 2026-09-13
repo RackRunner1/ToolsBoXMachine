@@ -116,12 +116,17 @@ function renderList() {
     let tooltipTimer = null;
     item.addEventListener("mouseenter", () => {
       clearTimeout(tooltipTimer);
-      tooltipTimer = setTimeout(() => {
+      const show = () => {
         const rect = item.getBoundingClientRect();
         tooltip.style.left = rect.right + 12 + "px";
         tooltip.style.top = rect.top + "px";
         tooltip.classList.add("visible");
-      }, 400);
+      };
+      if (document.querySelector(".note-tooltip.visible")) {
+        show();
+      } else {
+        tooltipTimer = setTimeout(show, 400);
+      }
     });
     item.addEventListener("mouseleave", () => {
       clearTimeout(tooltipTimer);
