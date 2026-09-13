@@ -1,3 +1,6 @@
+let tooltipRecentlyActive = false;
+let tooltipResetTimer = null;
+
 const STORAGE_KEY = "tbxm_notes";
 const MODAL_KEY = "tbxm_notes_modal_dismissed";
 
@@ -116,13 +119,15 @@ function renderList() {
     let tooltipTimer = null;
     item.addEventListener("mouseenter", () => {
       clearTimeout(tooltipTimer);
+      clearTimeout(tooltipResetTimer);
       const show = () => {
         const rect = item.getBoundingClientRect();
         tooltip.style.left = rect.right + 12 + "px";
         tooltip.style.top = rect.top + "px";
         tooltip.classList.add("visible");
+        tooltipRecentlyActive = true;
       };
-      if (document.querySelector(".note-tooltip.visible")) {
+      if (tooltipRecentlyActive) {
         show();
       } else {
         tooltipTimer = setTimeout(show, 400);
@@ -131,6 +136,9 @@ function renderList() {
     item.addEventListener("mouseleave", () => {
       clearTimeout(tooltipTimer);
       tooltip.classList.remove("visible");
+      tooltipResetTimer = setTimeout(() => {
+        tooltipRecentlyActive = false;
+      }, 100);
     });
 
     elements.notesList.appendChild(item);
