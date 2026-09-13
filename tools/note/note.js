@@ -84,24 +84,12 @@ function renderList() {
   }
 
   notes.forEach((note) => {
-    const date = new Date(note.modifiedAt).toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-
     const item = document.createElement("div");
     item.className = `note-item${note.id === activeNoteId ? " active" : ""}`;
     item.dataset.id = note.id;
 
-    const preview = note.content
-      ? note.content.substring(0, 80).replace(/\n/g, " ")
-      : "Empty note";
-
     item.innerHTML = `
       <div class="note-item-title">${escapeHTML(note.title) || "Untitled Note"}</div>
-      <div class="note-item-preview">${escapeHTML(preview)}</div>
-      <div class="note-item-date">${date}</div>
     `;
 
     item.addEventListener("click", () => selectNote(note.id));
