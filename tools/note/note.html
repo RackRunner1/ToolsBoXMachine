@@ -432,6 +432,12 @@
         transition: all 0.2s;
         font-family: inherit;
         border: none;
+        background: rgba(255, 255, 255, 0.08);
+        color: #cbd5e1;
+      }
+
+      .modal-btn:hover {
+        background: rgba(255, 255, 255, 0.14);
       }
 
       .modal-btn.primary {
@@ -441,6 +447,15 @@
 
       .modal-btn.primary:hover {
         background: var(--primary-hover);
+      }
+
+      .modal-btn.danger {
+        background: #ef4444;
+        color: white;
+      }
+
+      .modal-btn.danger:hover {
+        background: #dc2626;
       }
 
       .modal-check {
@@ -693,6 +708,18 @@
             <span class="modal-check-label">Don't show again</span>
           </label>
           <button class="modal-btn primary" id="modal-close-btn">Got it</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete confirmation modal -->
+    <div class="modal-overlay" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+      <div class="modal-box">
+        <h2 id="delete-modal-title">Delete note</h2>
+        <p>Are you sure you want to delete this note? This action cannot be undone.</p>
+        <div class="modal-actions">
+          <button class="modal-btn" id="delete-modal-cancel">Cancel</button>
+          <button class="modal-btn danger" id="delete-modal-confirm">Delete</button>
         </div>
       </div>
     </div>
