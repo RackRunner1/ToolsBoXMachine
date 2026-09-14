@@ -20,6 +20,9 @@ const elements = {
   contextMenu: document.getElementById("context-menu"),
   ctxDelete: document.getElementById("ctx-delete"),
   ctxCreate: document.getElementById("ctx-create"),
+  deleteModal: document.getElementById("delete-modal"),
+  deleteModalCancel: document.getElementById("delete-modal-cancel"),
+  deleteModalConfirm: document.getElementById("delete-modal-confirm"),
 };
 
 let notes = [];
@@ -250,18 +253,17 @@ function scheduleAutoSave() {
 
 function deleteActiveNote() {
   if (!activeNoteId) return;
-  if (!confirm("Are you sure you want to delete this note?")) return;
-
-  notes = notes.filter((n) => n.id !== activeNoteId);
-  saveNotesToStorage();
-
-  if (notes.length > 0) {
-    selectNote(notes[0].id);
-  } else {
-    showEditorEmpty();
-  }
-  renderList();
-  showNotification("Note deleted");
+  showDeleteModal(() => {
+    notes = notes.filter((n) => n.id !== activeNoteId);
+    saveNotesToStorage();
+    if (notes.length > 0) {
+      selectNote(notes[0].id);
+    } else {
+      showEditorEmpty();
+    }
+    renderList();
+    showNotification("Note deleted");
+  });
 }
 
 function showNotification(message) {
@@ -314,24 +316,46 @@ function setupEventListeners() {
     if (!contextTargetNoteId) return;
     const targetId = contextTargetNoteId;
     hideContextMenu();
-    if (!confirm("Are you sure you want to delete this note?")) return;
-    notes = notes.filter((n) => n.id !== targetId);
-    saveNotesToStorage();
-    if (activeNoteId === targetId) {
-      if (notes.length > 0) {
-        selectNote(notes[0].id);
-      } else {
-        showEditorEmpty();
+    showDeleteModal(() => {
+      notes = notes.filter((n) => n.id !== targetId);
+      saveNotesToStorage();
+      if (activeNoteId === targetId) {
+        if (notes.length > 0) {
+          selectNote(notes[0].id);
+        } else {
+          showEditorEmpty();
+        }
       }
-    }
-    renderList();
-    showNotification("Note deleted");
+      renderList();
+      showNotification("Note deleted");
+    });
   });
 
   elements.ctxCreate.addEventListener("click", () => {
     hideContextMenu();
     createNote();
   });
+
+  elements.deleteModalCancel.addEventListener("click", hideDeleteModal);
+  elements.deleteModalConfirm.addEventListener("click", () => {
+    if (deleteModalCallback) deleteModalCallback();
+    hideDeleteModal();
+  });
+  elements.deleteModal.addEventListener("click", (e) => {
+    if (e.target === elements.deleteModal) hideDeleteModal();
+  });
+}
+
+let deleteModalCallback = null;
+
+function showDeleteModal(callback) {
+  deleteModalCallback = callback;
+  elements.deleteModal.classList.add("show");
+}
+
+function hideDeleteModal() {
+  elements.deleteModal.classList.remove("show");
+  deleteModalCallback = null;
 }
 
 function showContextMenu(x, y, showDelete) {
