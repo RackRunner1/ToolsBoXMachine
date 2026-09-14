@@ -61,6 +61,8 @@ function setOperation(op) {
   previousInput = currentInput;
   operation = op;
   shouldResetDisplay = true;
+  const symbols = { "+": "+", "-": "-", "*": "×", "/": "÷" };
+  display.value = currentInput + " " + (symbols[op] || op);
 }
 
 function calculate() {
