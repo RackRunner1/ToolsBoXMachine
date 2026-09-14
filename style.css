@@ -460,6 +460,7 @@ h1 {
   padding: 0 2rem;
   border: none;
   margin: 1rem auto 4rem;
+  flex: 1;
 }
 
 @media (max-width: 768px) {
@@ -737,9 +738,6 @@ canvas {
 
 input[type="range"] {
   accent-color: var(--primary-color);
-}
-#footer-placeholder {
-  flex: 1;
 }
 /* Footer */
 .footer {
