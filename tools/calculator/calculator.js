@@ -8,7 +8,12 @@ function updateDisplay() {
   display.value = currentInput;
 }
 
-function clear() {
+function clearEntry() {
+  currentInput = "0";
+  updateDisplay();
+}
+
+function clearAll() {
   currentInput = "0";
   previousInput = "";
   operation = null;
@@ -89,7 +94,8 @@ function calculate() {
 }
 
 // Event listeners
-document.getElementById("clear").addEventListener("click", clear);
+document.getElementById("clear").addEventListener("click", clearAll);
+document.getElementById("clear-entry").addEventListener("click", clearEntry);
 document.getElementById("backspace").addEventListener("click", backspace);
 
 document
@@ -157,7 +163,7 @@ document.addEventListener("keydown", (e) => {
   } else if (e.key === "Enter" || e.key === "=") {
     calculate();
   } else if (e.key === "Escape") {
-    clear();
+    clearAll();
   } else if (e.key === "Backspace") {
     backspace();
   }
