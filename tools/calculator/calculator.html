@@ -47,7 +47,7 @@
 
       .buttons-grid {
         display: grid;
-        grid-template-columns: repeat(5, minmax(56px, 1fr));
+        grid-template-columns: repeat(4, minmax(64px, 1fr));
         grid-auto-rows: minmax(64px, auto);
         gap: 0.5rem;
         width: 100%;
@@ -118,7 +118,7 @@
           padding: 0.75rem;
         }
         .buttons-grid {
-          grid-template-columns: repeat(5, 1fr);
+          grid-template-columns: repeat(4, 1fr);
           grid-auto-rows: minmax(52px, auto);
           gap: 0.4rem;
         }
@@ -178,24 +178,25 @@
         <button class="calc-btn clear" id="clear-entry">C</button>
         <button class="calc-btn" id="backspace">⌫</button>
         <button class="calc-btn operator" id="divide">÷</button>
-        <button class="calc-btn operator" id="multiply">×</button>
 
+        <button class="calc-btn operator" id="multiply">×</button>
         <button class="calc-btn" id="seven">7</button>
         <button class="calc-btn" id="eight">8</button>
         <button class="calc-btn" id="nine">9</button>
-        <button class="calc-btn operator" id="subtract">-</button>
-        <button class="calc-btn operator" id="add">+</button>
 
+        <button class="calc-btn operator" id="subtract">-</button>
         <button class="calc-btn" id="four">4</button>
         <button class="calc-btn" id="five">5</button>
         <button class="calc-btn" id="six">6</button>
+
+        <button class="calc-btn operator" id="add">+</button>
         <button class="calc-btn" id="one">1</button>
         <button class="calc-btn" id="two">2</button>
-
         <button class="calc-btn" id="three">3</button>
-        <button class="calc-btn" id="decimal">.</button>
-        <button class="calc-btn" id="zero">0</button>
+
         <button class="calc-btn equals" id="equals">=</button>
+        <button class="calc-btn" id="zero" style="grid-column: span 2">0</button>
+        <button class="calc-btn" id="decimal">.</button>
       </div>
     </div>
 
