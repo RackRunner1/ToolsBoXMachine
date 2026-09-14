@@ -41,7 +41,12 @@ function appendNumber(number) {
       currentInput += number;
     }
   }
-  updateDisplay();
+  if (operation) {
+    const symbols = { "+": "+", "-": "-", "*": "×", "/": "÷" };
+    display.value = previousInput + " " + (symbols[operation] || operation) + " " + currentInput;
+  } else {
+    updateDisplay();
+  }
 }
 
 function appendDecimal() {
