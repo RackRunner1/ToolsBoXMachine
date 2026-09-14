@@ -738,6 +738,9 @@ canvas {
 input[type="range"] {
   accent-color: var(--primary-color);
 }
+#footer-placeholder {
+  flex: 1;
+}
 /* Footer */
 .footer {
   margin-top: auto; /* Push to bottom of flex container */
