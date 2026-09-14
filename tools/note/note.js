@@ -17,11 +17,15 @@ const elements = {
   storageModal: document.getElementById("storage-modal"),
   modalCloseBtn: document.getElementById("modal-close-btn"),
   dontShowCheckbox: document.getElementById("modal-dont-show"),
+  contextMenu: document.getElementById("context-menu"),
+  ctxDelete: document.getElementById("ctx-delete"),
+  ctxCreate: document.getElementById("ctx-create"),
 };
 
 let notes = [];
 let activeNoteId = null;
 let saveTimeout = null;
+let contextTargetNoteId = null;
 
 function init() {
   loadNotes();
@@ -114,6 +118,12 @@ function renderList() {
     `;
 
     item.addEventListener("click", () => selectNote(note.id));
+
+    item.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      contextTargetNoteId = note.id;
+      showContextMenu(e.clientX, e.clientY, true);
+    });
 
     const tooltip = item.querySelector(".note-tooltip");
     let tooltipTimer = null;
@@ -285,6 +295,62 @@ function setupEventListeners() {
       showNotification("Note saved!");
     }
   });
+
+  elements.notesList.addEventListener("contextmenu", (e) => {
+    if (e.target.closest(".note-item")) return;
+    e.preventDefault();
+    contextTargetNoteId = null;
+    showContextMenu(e.clientX, e.clientY, false);
+  });
+
+  document.addEventListener("click", hideContextMenu);
+  document.addEventListener("contextmenu", (e) => {
+    if (!e.target.closest(".notes-sidebar")) {
+      hideContextMenu();
+    }
+  });
+
+  elements.ctxDelete.addEventListener("click", () => {
+    if (!contextTargetNoteId) return;
+    const targetId = contextTargetNoteId;
+    hideContextMenu();
+    if (!confirm("Are you sure you want to delete this note?")) return;
+    notes = notes.filter((n) => n.id !== targetId);
+    saveNotesToStorage();
+    if (activeNoteId === targetId) {
+      if (notes.length > 0) {
+        selectNote(notes[0].id);
+      } else {
+        showEditorEmpty();
+      }
+    }
+    renderList();
+    showNotification("Note deleted");
+  });
+
+  elements.ctxCreate.addEventListener("click", () => {
+    hideContextMenu();
+    createNote();
+  });
+}
+
+function showContextMenu(x, y, showDelete) {
+  elements.ctxDelete.style.display = showDelete ? "flex" : "none";
+  elements.ctxCreate.style.display = showDelete ? "none" : "flex";
+
+  const menu = elements.contextMenu;
+  menu.classList.add("show");
+
+  const menuRect = menu.getBoundingClientRect();
+  const maxX = window.innerWidth - menuRect.width - 8;
+  const maxY = window.innerHeight - menuRect.height - 8;
+  menu.style.left = Math.min(x, maxX) + "px";
+  menu.style.top = Math.min(y, maxY) + "px";
+}
+
+function hideContextMenu() {
+  elements.contextMenu.classList.remove("show");
+  contextTargetNoteId = null;
 }
 
 document.addEventListener("DOMContentLoaded", init);

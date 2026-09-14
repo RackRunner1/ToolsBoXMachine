@@ -508,6 +508,49 @@
           stroke-dashoffset: 0;
         }
       }
+
+      /* Context menu */
+      .context-menu {
+        position: fixed;
+        background: #1e293b;
+        border: 1px solid var(--card-border);
+        border-radius: 0.75rem;
+        padding: 0.4rem;
+        min-width: 180px;
+        z-index: 200000;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        display: none;
+      }
+
+      .context-menu.show {
+        display: block;
+      }
+
+      .context-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.6rem 0.85rem;
+        border-radius: 0.5rem;
+        color: #e2e8f0;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.15s;
+        user-select: none;
+      }
+
+      .context-menu-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      #ctx-delete {
+        color: #ef4444;
+      }
+
+      #ctx-delete:hover {
+        background: rgba(239, 68, 68, 0.15);
+      }
     </style>
     <script type="application/ld+json">
 {
@@ -605,6 +648,25 @@
     </div>
 
     <div id="notification" class="notification"></div>
+
+    <!-- Context menu -->
+    <div id="context-menu" class="context-menu">
+      <div class="context-menu-item" id="ctx-delete">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18"></path>
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+        </svg>
+        Delete
+      </div>
+      <div class="context-menu-item" id="ctx-create">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
+        New note
+      </div>
+    </div>
 
     <!-- Storage notice modal -->
     <div class="modal-overlay" id="storage-modal" role="dialog" aria-modal="true" aria-labelledby="storage-modal-title">
