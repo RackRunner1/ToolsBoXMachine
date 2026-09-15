@@ -282,7 +282,7 @@ function setupEventListeners() {
   elements.contentInput.addEventListener("input", scheduleAutoSave);
 
   elements.titleInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault();
       elements.contentInput.focus();
     }
