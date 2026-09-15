@@ -25,5 +25,5 @@ Allow: /
 User-agent: YouBot
 Allow: /
 
-Sitemap: https://www.tbxm.org/public/seo/sitemap.xml
-LLMs: https://www.tbxm.org/public/llms.txt
+Sitemap: https://www.tbxm.org/sitemap.xml
+LLMs: https://www.tbxm.org/llms.txt
