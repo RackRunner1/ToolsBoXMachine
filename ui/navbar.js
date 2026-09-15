@@ -118,10 +118,7 @@ function updateSearch() {
           <div class="result-desc-small">${tool.desc}</div>
         </div>
       `;
-      item.addEventListener("click", () => {
-        localStorage.setItem("tbxm_last_tool", tool.id);
-        localStorage.setItem("tbxm_last_tool_name", tool.name);
-      });
+
       searchResults.appendChild(item);
     });
   }
@@ -169,17 +166,6 @@ window.addEventListener("resize", () => {
     searchDropdown.style.left = `${rect.left}px`;
     searchDropdown.style.width = `${rect.width}px`;
   }
-});
-
-// Track tool usage for cards (if they exist on the page)
-document.querySelectorAll(".card-btn").forEach((card) => {
-  card.addEventListener("click", () => {
-    const titleEl =
-      card.querySelector("div div") || card.querySelector(".card-title");
-    const title = titleEl ? titleEl.textContent : card.id;
-    localStorage.setItem("tbxm_last_tool", card.id);
-    localStorage.setItem("tbxm_last_tool_name", title);
-  });
 });
 
 // Handle Esc key
