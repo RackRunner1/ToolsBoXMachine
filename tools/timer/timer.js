@@ -49,16 +49,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateStatsUI();
 
-  // Audio for alarm
-  const alarmSound = new Audio(
-    "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3",
-  );
+  // Web Audio API context
+  let audioCtx = null;
+  let masterVolume = 0.5;
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+  }
 
-  // Audio for tick
-  const tickSound = new Audio(
-    "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3",
-  );
-  tickSound.volume = 0.15;
+  // Play a beep tone
+  function playTone(freq, duration, vol = 0.3, type = "square") {
+    const ctx = getAudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.value = vol * masterVolume;
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+  }
+
+  // Tick sound
+  function playTick() {
+    playTone(800, 0.05, 0.15, "sine");
+  }
+
+  // Alarm sound generators
+  const alarmSounds = {
+    digital() {
+      [0, 0.2, 0.4].forEach((delay) => {
+        setTimeout(() => playTone(880, 0.15, 0.4), delay * 1000);
+        setTimeout(() => playTone(660, 0.15, 0.4), (delay + 0.1) * 1000);
+      });
+    },
+    beep() {
+      [0, 0.3, 0.6].forEach((delay) => {
+        setTimeout(() => playTone(440, 0.25, 0.4, "sawtooth"), delay * 1000);
+      });
+    },
+    chime() {
+      [523, 659, 784, 1047].forEach((freq, i) => {
+        setTimeout(() => playTone(freq, 0.6, 0.3, "sine"), i * 200);
+      });
+    },
+  };
+
+  let currentAlarm = "digital";
 
   const tickingSoundToggle = document.getElementById("ticking-sound-toggle");
 
@@ -71,34 +110,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const circumference = 2 * Math.PI * 160;
   progressCircle.style.strokeDasharray = circumference;
 
-  // Sounds Map
-  const sounds = {
-    digital:
-      "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3",
-    beep: "https://assets.mixkit.co/active_storage/sfx/911/911-preview.mp3",
-    chime: "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3",
-  };
-
   const volumeSlider = document.getElementById("alarm-volume");
   const volumeVal = document.getElementById("volume-val");
   const soundSelect = document.getElementById("alarm-sound-select");
 
   if (soundSelect) {
     soundSelect.addEventListener("change", (e) => {
-      const selectedSound = e.target.value;
-      alarmSound.src = sounds[selectedSound] || sounds.digital;
-      alarmSound.play().catch((err) => console.log("Sound test failed:", err));
+      currentAlarm = e.target.value;
+      alarmSounds[currentAlarm]();
     });
   }
 
   if (volumeSlider) {
     volumeSlider.addEventListener("input", (e) => {
       const vol = e.target.value;
+      masterVolume = vol / 100;
       if (volumeVal) volumeVal.textContent = `${vol}%`;
-      alarmSound.volume = vol / 100;
     });
-    // Set initial volume
-    alarmSound.volume = volumeSlider.value / 100;
+    masterVolume = volumeSlider.value / 100;
   }
 
   // Custom Select Logic
@@ -246,14 +275,13 @@ document.addEventListener("DOMContentLoaded", () => {
         tickingSoundToggle.checked &&
         remainingSeconds > 0
       ) {
-        tickSound.currentTime = 0;
-        tickSound.play().catch((e) => console.log("Tick play failed:", e));
+        playTick();
       }
 
       if (remainingSeconds <= 0) {
         clearInterval(timerInterval);
         isRunning = false;
-        alarmSound.play().catch((e) => console.log("Audio play failed:", e));
+        alarmSounds[currentAlarm]();
 
         // Show notification
         if ("Notification" in window && Notification.permission === "granted") {
