@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let masterVolume = 0.5;
   function getAudioCtx() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
     return audioCtx;
   }
 
@@ -74,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Tick sound
   function playTick() {
-    playTone(800, 0.05, 0.15, "sine");
+    playTone(800, 0.05, 0.3, "sine");
   }
 
   // Alarm sound generators
