@@ -243,6 +243,8 @@ function drawBrushPreview() {
 function cleanupSelectorListeners() {
   document.removeEventListener("mousemove", onSelectorMouseMove);
   document.removeEventListener("mouseup", onSelectorMouseUp);
+  document.removeEventListener("touchmove", onSelectorTouchMove);
+  document.removeEventListener("touchend", onSelectorTouchEnd);
 }
 
 modeRadios.forEach((radio) =>
@@ -378,9 +380,26 @@ function getMousePos(evt) {
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
 
+  const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+  const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+
   return {
-    x: (evt.clientX - rect.left) * scaleX,
-    y: (evt.clientY - rect.top) * scaleY,
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY,
+  };
+}
+
+function getTouchPos(evt) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const touch = evt.touches[0] || evt.changedTouches[0];
+
+  return {
+    clientX: touch.clientX,
+    clientY: touch.clientY,
+    x: (touch.clientX - rect.left) * scaleX,
+    y: (touch.clientY - rect.top) * scaleY,
   };
 }
 
@@ -455,6 +474,83 @@ canvas.addEventListener("mouseleave", () => {
   isPanning = false;
   isDrawing = false;
 });
+
+// Touch event handlers for mobile
+canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  if (!imageObjects) return;
+
+  const touch = e.touches[0];
+
+  if (e.touches.length > 1) {
+    // Multi-touch: start panning
+    isPanning = true;
+    isDrawing = false;
+    startPan = {
+      x: touch.clientX - currentTransform.x,
+      y: touch.clientY - currentTransform.y,
+    };
+    return;
+  }
+
+  const mode = document.querySelector('input[name="blurMode"]:checked').value;
+  if (mode === "full") return;
+
+  if (mode === "selector") {
+    saveState();
+    selectionStart = getMousePos(e);
+    selectionEnd = getMousePos(e);
+    isSelecting = true;
+    updateCanvas();
+    document.addEventListener("touchmove", onSelectorTouchMove, { passive: false });
+    document.addEventListener("touchend", onSelectorTouchEnd);
+    return;
+  }
+
+  saveState();
+  isDrawing = true;
+  drawBlur(e);
+}, { passive: false });
+
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  if (!imageObjects) return;
+
+  const touch = e.touches[0];
+
+  if (isPanning) {
+    currentTransform.x = touch.clientX - startPan.x;
+    currentTransform.y = touch.clientY - startPan.y;
+    applyTransform();
+    return;
+  }
+  if (isDrawing) {
+    drawBlur(e);
+  }
+}, { passive: false });
+
+canvas.addEventListener("touchend", (e) => {
+  isPanning = false;
+  isDrawing = false;
+});
+
+function onSelectorTouchMove(e) {
+  e.preventDefault();
+  if (!isSelecting) return;
+  selectionEnd = getMousePos(e);
+  updateCanvas();
+}
+
+function onSelectorTouchEnd() {
+  if (!isSelecting) return;
+  isSelecting = false;
+  applySelectorBlur();
+  selectionStart = null;
+  selectionEnd = null;
+  updateCanvas();
+  document.removeEventListener("touchmove", onSelectorTouchMove);
+  document.removeEventListener("touchend", onSelectorTouchEnd);
+}
 
 function drawBlur(e) {
   const pos = getMousePos(e);
