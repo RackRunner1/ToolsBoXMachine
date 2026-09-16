@@ -1,0 +1,190 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Generate release tag and notes
+        id: release
+        run: |
+          # Get today's date
+          TODAY=$(date +%Y%m%d)
+          echo "Today: $TODAY"
+
+          # Find existing tags with today's date prefix and get the next number
+          EXISTING_TAGS=$(git tag --list "${TODAY}*" --sort=-version:refname 2>/dev/null || true)
+
+          if [ -z "$EXISTING_TAGS" ]; then
+            NEXT_NUM="01"
+            LAST_TAG=""
+          else
+            # Get the highest existing number
+            LAST_TAG=$(echo "$EXISTING_TAGS" | head -n1)
+            LAST_NUM=$(echo "$LAST_TAG" | sed "s/^${TODAY}//")
+            # Increment the number
+            NEXT_NUM=$(printf "%02d" $((10#$LAST_NUM + 1)))
+          fi
+
+          TAG="${TODAY}${NEXT_NUM}"
+          echo "Tag: $TAG"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+          # Get commits since last release
+          if [ -n "$LAST_TAG" ]; then
+            COMMITS=$(git log "${LAST_TAG}..HEAD" --pretty=format:"%H|%s" --no-merges)
+          else
+            COMMITS=$(git log --pretty=format:"%H|%s" --no-merges)
+          fi
+
+          # Initialize associative arrays for commit categories
+          declare -A FEAT FIX CHORE DOCS STYLE REFACTOR PERF CI TEST OTHER
+
+          # Parse commits
+          while IFS='|' read -r HASH MSG; do
+            [ -z "$HASH" ] && continue
+
+            # Extract type and optional scope
+            if [[ "$MSG" =~ ^([a-zA-Z]+)(\(([^)]+)\))?!?:\ (.+)$ ]]; then
+              TYPE="${BASH_REMATCH[1]}"
+              SCOPE="${BASH_REMATCH[3]}"
+              DESC="${BASH_REMATCH[4]}"
+              SHORT="${HASH:0:7}"
+
+              # Build formatted line
+              if [ -n "$SCOPE" ]; then
+                LINE="${TYPE}(${SCOPE}): ${DESC} (${SHORT})"
+              else
+                LINE="${TYPE}: ${DESC} (${SHORT})"
+              fi
+
+              case "${TYPE,,}" in
+                feat) FEAT+=("$LINE") ;;
+                fix) FIX+=("$LINE") ;;
+                chore) CHORE+=("$LINE") ;;
+                docs) DOCS+=("$LINE") ;;
+                style) STYLE+=("$LINE") ;;
+                refactor) REFACTOR+=("$LINE") ;;
+                perf) PERF+=("$LINE") ;;
+                ci) CI+=("$LINE") ;;
+                test) TEST+=("$LINE") ;;
+                *) OTHER+=("$LINE") ;;
+              esac
+            else
+              # Non-conventional commit
+              SHORT="${HASH:0:7}"
+              OTHER+=("${MSG} (${SHORT})")
+            fi
+          done <<< "$COMMITS"
+
+          # Build markdown description
+          DESC="# 🪟 Build Name: ${TAG}\n\n"
+          DESC+="## 🌟 What's Changed\n\n"
+
+          if [ ${#FIX[@]} -gt 0 ]; then
+            DESC+="### 🐛 Fixed\n\n"
+            for line in "${FIX[@]}"; do
+              DESC+="- ${line}\n"
+            done
+            DESC+="\n"
+          fi
+
+          if [ ${#FEAT[@]} -gt 0 ]; then
+            DESC+="### ➕ Added\n\n"
+            for line in "${FEAT[@]}"; do
+              DESC+="- ${line}\n"
+            done
+            DESC+="\n"
+          fi
+
+          if [ ${#REFACTOR[@]} -gt 0 ]; then
+            DESC+="### ♻️ Refactored\n\n"
+            for line in "${REFACTOR[@]}"; do
+              DESC+="- ${line}\n"
+            done
+            DESC+="\n"
+          fi
+
+          if [ ${#PERF[@]} -gt 0 ]; then
+            DESC+="### ⚡ Performance\n\n"
+            for line in "${PERF[@]}"; do
+              DESC+="- ${line}\n"
+            done
+            DESC+="\n"
+          fi
+
+          if [ ${#STYLE[@]} -gt 0 ]; then
+            DESC+="### 💄 Style\n\n"
+            for line in "${STYLE[@]}"; do
+              DESC+="- ${line}\n"
+            done
+            DESC+="\n"
+          fi
+
+          if [ ${#CHORE[@]} -gt 0 ]; then
+            DESC+="### 🔧 Chores\n\n"
+            for line in "${CHORE[@]}"; do
+              DESC+="- ${line}\n"
+            done
+            DESC+="\n"
+          fi
+
+          if [ ${#DOCS[@]} -gt 0 ]; then
+            DESC+="### 📚 Documentation\n\n"
+            for line in "${DOCS[@]}"; do
+              DESC+="- ${line}\n"
+            done
+            DESC+="\n"
+          fi
+
+          if [ ${#CI[@]} -gt 0 ]; then
+            DESC+="### 🔄 CI\n\n"
+            for line in "${CI[@]}"; do
+              DESC+="- ${line}\n"
+            done
+            DESC+="\n"
+          fi
+
+          if [ ${#TEST[@]} -gt 0 ]; then
+            DESC+="### ✅ Tests\n\n"
+            for line in "${TEST[@]}"; do
+              DESC+="- ${line}\n"
+            done
+            DESC+="\n"
+          fi
+
+          if [ ${#OTHER[@]} -gt 0 ]; then
+            DESC+="### 📦 Other\n\n"
+            for line in "${OTHER[@]}"; do
+              DESC+="- ${line}\n"
+            done
+            DESC+="\n"
+          fi
+
+          # Write multiline output
+          {
+            echo "description<<EOF"
+            printf "%b" "$DESC"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          name: ${{ steps.release.outputs.tag }}
+          body: ${{ steps.release.outputs.description }}
+          make_latest: true
+          generate_release_notes: false
