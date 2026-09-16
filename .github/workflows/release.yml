@@ -53,11 +53,13 @@ jobs:
           declare -A FEAT FIX CHORE DOCS STYLE REFACTOR PERF CI TEST OTHER
 
           # Parse commits
+          COMMIT_REGEX='^([a-zA-Z]+)(\(([^)]+)\))?!?:\ (.+)$'
+
           while IFS='|' read -r HASH MSG; do
             [ -z "$HASH" ] && continue
 
             # Extract type and optional scope
-            if [[ "$MSG" =~ ^([a-zA-Z]+)(\(([^)]+)\))?!?:\ (.+)$ ]]; then
+            if [[ "$MSG" =~ $COMMIT_REGEX ]]; then
               TYPE="${BASH_REMATCH[1]}"
               SCOPE="${BASH_REMATCH[3]}"
               DESC="${BASH_REMATCH[4]}"
