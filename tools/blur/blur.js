@@ -31,6 +31,16 @@ let paintCtx = paintCanvas.getContext("2d");
 let blurHistory = [];
 const maxHistory = 20;
 
+const supportsCtxFilter = (() => {
+  try {
+    const testCanvas = document.createElement("canvas");
+    const testCtx = testCanvas.getContext("2d");
+    return typeof testCtx.filter !== "undefined";
+  } catch (e) {
+    return false;
+  }
+})();
+
 // Preview Brush state
 let showBrushPreview = false;
 let previewTimeout = null;
@@ -165,8 +175,15 @@ function updateCanvas() {
   }
 
   if (mode === "full") {
-    ctx.drawImage(offscreenCanvas, 0, 0);
+    if (supportsCtxFilter) {
+      ctx.drawImage(offscreenCanvas, 0, 0);
+      canvas.style.filter = "none";
+    } else {
+      ctx.drawImage(imageObjects, 0, 0);
+      canvas.style.filter = `blur(${blurIntensityInput.value}px)`;
+    }
   } else {
+    canvas.style.filter = "none";
     ctx.drawImage(imageObjects, 0, 0);
     ctx.drawImage(paintCanvas, 0, 0);
   }
