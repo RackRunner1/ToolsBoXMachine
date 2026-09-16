@@ -17,176 +17,131 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Generate release tag and notes
-        id: release
+      - name: Generate release tag
+        id: tag
         run: |
-          # Get today's date
           TODAY=$(date +%Y%m%d)
           echo "Today: $TODAY"
 
-          # Find existing tags with today's date prefix and get the next number
           EXISTING_TAGS=$(git tag --list "${TODAY}*" --sort=-version:refname 2>/dev/null || true)
 
           if [ -z "$EXISTING_TAGS" ]; then
             NEXT_NUM="01"
             LAST_TAG=""
           else
-            # Get the highest existing number
             LAST_TAG=$(echo "$EXISTING_TAGS" | head -n1)
             LAST_NUM=$(echo "$LAST_TAG" | sed "s/^${TODAY}//")
-            # Increment the number
             NEXT_NUM=$(printf "%02d" $((10#$LAST_NUM + 1)))
           fi
 
           TAG="${TODAY}${NEXT_NUM}"
           echo "Tag: $TAG"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "last_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
 
-          # Get commits since last release
-          if [ -n "$LAST_TAG" ]; then
-            COMMITS=$(git log "${LAST_TAG}..HEAD" --pretty=format:"%H|%s" --no-merges)
-          else
-            COMMITS=$(git log --pretty=format:"%H|%s" --no-merges)
-          fi
+      - name: Generate release notes
+        id: notes
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+          LAST_TAG: ${{ steps.tag.outputs.last_tag }}
+        run: |
+          OUTPUT_FILE=$(mktemp)
+          FIX_FILE=$(mktemp)
+          FEAT_FILE=$(mktemp)
+          REFACTOR_FILE=$(mktemp)
+          PERF_FILE=$(mktemp)
+          STYLE_FILE=$(mktemp)
+          CHORE_FILE=$(mktemp)
+          DOCS_FILE=$(mktemp)
+          CI_FILE=$(mktemp)
+          TEST_FILE=$(mktemp)
+          OTHER_FILE=$(mktemp)
 
-          # Initialize associative arrays for commit categories
-          declare -A FEAT FIX CHORE DOCS STYLE REFACTOR PERF CI TEST OTHER
+          # Write header
+          {
+            echo "# 🪟 Build Name: ${TAG}"
+            echo ""
+            echo "## 🌟 What's Changed"
+            echo ""
+          } > "$OUTPUT_FILE"
 
-          # Parse commits
-          COMMIT_REGEX='^([a-zA-Z]+)(\(([^)]+)\))?!?:\ (.+)$'
-
+          # Get commits and parse (use process substitution to avoid subshell)
           while IFS='|' read -r HASH MSG; do
             [ -z "$HASH" ] && continue
+            SHORT="${HASH:0:7}"
 
-            # Extract type and optional scope
-            if [[ "$MSG" =~ $COMMIT_REGEX ]]; then
+            if [[ "$MSG" =~ ^([a-zA-Z]+)(\(([^)]+)\))?!?:\ (.+)$ ]]; then
               TYPE="${BASH_REMATCH[1]}"
               SCOPE="${BASH_REMATCH[3]}"
-              DESC="${BASH_REMATCH[4]}"
-              SHORT="${HASH:0:7}"
+              COMMIT_MSG="${BASH_REMATCH[4]}"
 
-              # Build formatted line
               if [ -n "$SCOPE" ]; then
-                LINE="${TYPE}(${SCOPE}): ${DESC} (${SHORT})"
+                LINE="- ${TYPE}(${SCOPE}): ${COMMIT_MSG} (\`${SHORT}\`)"
               else
-                LINE="${TYPE}: ${DESC} (${SHORT})"
+                LINE="- ${TYPE}: ${COMMIT_MSG} (\`${SHORT}\`)"
               fi
 
               case "${TYPE,,}" in
-                feat) FEAT+=("$LINE") ;;
-                fix) FIX+=("$LINE") ;;
-                chore) CHORE+=("$LINE") ;;
-                docs) DOCS+=("$LINE") ;;
-                style) STYLE+=("$LINE") ;;
-                refactor) REFACTOR+=("$LINE") ;;
-                perf) PERF+=("$LINE") ;;
-                ci) CI+=("$LINE") ;;
-                test) TEST+=("$LINE") ;;
-                *) OTHER+=("$LINE") ;;
+                feat)     echo "$LINE" >> "$FEAT_FILE" ;;
+                fix)      echo "$LINE" >> "$FIX_FILE" ;;
+                chore)    echo "$LINE" >> "$CHORE_FILE" ;;
+                docs)     echo "$LINE" >> "$DOCS_FILE" ;;
+                style)    echo "$LINE" >> "$STYLE_FILE" ;;
+                refactor) echo "$LINE" >> "$REFACTOR_FILE" ;;
+                perf)     echo "$LINE" >> "$PERF_FILE" ;;
+                ci)       echo "$LINE" >> "$CI_FILE" ;;
+                test)     echo "$LINE" >> "$TEST_FILE" ;;
+                *)        echo "$LINE" >> "$OTHER_FILE" ;;
               esac
             else
-              # Non-conventional commit
-              SHORT="${HASH:0:7}"
-              OTHER+=("${MSG} (${SHORT})")
+              echo "- ${MSG} (\`${SHORT}\`)" >> "$OTHER_FILE"
             fi
-          done <<< "$COMMITS"
+          done < <(if [ -n "$LAST_TAG" ]; then
+            git log "${LAST_TAG}..HEAD" --pretty=format:"%H|%s" --no-merges
+          else
+            git log --pretty=format:"%H|%s" --no-merges
+          fi)
 
-          # Build markdown description
-          DESC="# 🪟 Build Name: ${TAG}\n\n"
-          DESC+="## 🌟 What's Changed\n\n"
+          # Append sections in order
+          append_section() {
+            local file="$1"
+            local title="$2"
+            if [ -s "$file" ]; then
+              echo "### $title" >> "$OUTPUT_FILE"
+              echo "" >> "$OUTPUT_FILE"
+              cat "$file" >> "$OUTPUT_FILE"
+              echo "" >> "$OUTPUT_FILE"
+            fi
+          }
 
-          if [ ${#FIX[@]} -gt 0 ]; then
-            DESC+="### 🐛 Fixed\n\n"
-            for line in "${FIX[@]}"; do
-              DESC+="- ${line}\n"
-            done
-            DESC+="\n"
-          fi
+          append_section "$FIX_FILE" "🐛 Fixed"
+          append_section "$FEAT_FILE" "➕ Added"
+          append_section "$REFACTOR_FILE" "♻️ Refactored"
+          append_section "$PERF_FILE" "⚡ Performance"
+          append_section "$STYLE_FILE" "💄 Style"
+          append_section "$CHORE_FILE" "🔧 Chores"
+          append_section "$DOCS_FILE" "📚 Documentation"
+          append_section "$CI_FILE" "🔄 CI"
+          append_section "$TEST_FILE" "✅ Tests"
+          append_section "$OTHER_FILE" "📦 Other"
 
-          if [ ${#FEAT[@]} -gt 0 ]; then
-            DESC+="### ➕ Added\n\n"
-            for line in "${FEAT[@]}"; do
-              DESC+="- ${line}\n"
-            done
-            DESC+="\n"
-          fi
+          # Cleanup temp files
+          rm -f "$FIX_FILE" "$FEAT_FILE" "$REFACTOR_FILE" "$PERF_FILE" "$STYLE_FILE" "$CHORE_FILE" "$DOCS_FILE" "$CI_FILE" "$TEST_FILE" "$OTHER_FILE"
 
-          if [ ${#REFACTOR[@]} -gt 0 ]; then
-            DESC+="### ♻️ Refactored\n\n"
-            for line in "${REFACTOR[@]}"; do
-              DESC+="- ${line}\n"
-            done
-            DESC+="\n"
-          fi
-
-          if [ ${#PERF[@]} -gt 0 ]; then
-            DESC+="### ⚡ Performance\n\n"
-            for line in "${PERF[@]}"; do
-              DESC+="- ${line}\n"
-            done
-            DESC+="\n"
-          fi
-
-          if [ ${#STYLE[@]} -gt 0 ]; then
-            DESC+="### 💄 Style\n\n"
-            for line in "${STYLE[@]}"; do
-              DESC+="- ${line}\n"
-            done
-            DESC+="\n"
-          fi
-
-          if [ ${#CHORE[@]} -gt 0 ]; then
-            DESC+="### 🔧 Chores\n\n"
-            for line in "${CHORE[@]}"; do
-              DESC+="- ${line}\n"
-            done
-            DESC+="\n"
-          fi
-
-          if [ ${#DOCS[@]} -gt 0 ]; then
-            DESC+="### 📚 Documentation\n\n"
-            for line in "${DOCS[@]}"; do
-              DESC+="- ${line}\n"
-            done
-            DESC+="\n"
-          fi
-
-          if [ ${#CI[@]} -gt 0 ]; then
-            DESC+="### 🔄 CI\n\n"
-            for line in "${CI[@]}"; do
-              DESC+="- ${line}\n"
-            done
-            DESC+="\n"
-          fi
-
-          if [ ${#TEST[@]} -gt 0 ]; then
-            DESC+="### ✅ Tests\n\n"
-            for line in "${TEST[@]}"; do
-              DESC+="- ${line}\n"
-            done
-            DESC+="\n"
-          fi
-
-          if [ ${#OTHER[@]} -gt 0 ]; then
-            DESC+="### 📦 Other\n\n"
-            for line in "${OTHER[@]}"; do
-              DESC+="- ${line}\n"
-            done
-            DESC+="\n"
-          fi
-
-          # Write multiline output
+          # Output using delimiter
           {
-            echo "description<<EOF"
-            printf "%b" "$DESC"
-            echo "EOF"
+            echo "body<<RELEASEEOF"
+            cat "$OUTPUT_FILE"
+            echo "RELEASEEOF"
           } >> "$GITHUB_OUTPUT"
+
+          rm -f "$OUTPUT_FILE"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.release.outputs.tag }}
-          name: ${{ steps.release.outputs.tag }}
-          body: ${{ steps.release.outputs.description }}
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.tag }}
+          body: ${{ steps.notes.outputs.body }}
           make_latest: true
           generate_release_notes: false
