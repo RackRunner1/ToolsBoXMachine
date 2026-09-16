@@ -21,10 +21,14 @@ jobs:
         id: tag
         run: |
           TODAY=$(date +%Y%m%d)
+          echo "=== Debug Info ==="
           echo "Today: $TODAY"
+          echo "All tags:"
+          git tag -l
 
           # Tags from today for sequential numbering
-          TODAY_TAGS=$(git tag --list "${TODAY}*" --sort=-version:refname 2>/dev/null || true)
+          TODAY_TAGS=$(git tag -l "${TODAY}*" | sort -r)
+          echo "Today tags: $TODAY_TAGS"
 
           if [ -z "$TODAY_TAGS" ]; then
             NEXT_NUM="01"
@@ -33,11 +37,14 @@ jobs:
             NEXT_NUM=$(printf "%02d" $((10#$LAST_NUM + 1)))
           fi
 
-          # Most recent tag overall (any date) for commit range
-          LAST_TAG=$(git tag --sort=-version:refname | head -n1 || true)
+          # Most recent tag overall for commit range
+          LAST_TAG=$(git tag -l | sort -r | head -n1)
+          echo "Last tag: $LAST_TAG"
 
           TAG="${TODAY}${NEXT_NUM}"
-          echo "Tag: $TAG"
+          echo "New tag: $TAG"
+
+          # Set outputs
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "last_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
 
@@ -47,6 +54,10 @@ jobs:
           TAG: ${{ steps.tag.outputs.tag }}
           LAST_TAG: ${{ steps.tag.outputs.last_tag }}
         run: |
+          echo "=== Generating notes ==="
+          echo "TAG: $TAG"
+          echo "LAST_TAG: $LAST_TAG"
+
           OUTPUT_FILE=$(mktemp)
           FIX_FILE=$(mktemp)
           FEAT_FILE=$(mktemp)
@@ -67,8 +78,15 @@ jobs:
             echo ""
           } > "$OUTPUT_FILE"
 
-          # Get commits and parse (use process substitution to avoid subshell)
+          # Get commits since last tag
           COMMIT_REGEX='^([a-zA-Z]+)(\(([^)]+)\))?!?:\ (.+)$'
+
+          if [ -n "$LAST_TAG" ]; then
+            echo "Commits since $LAST_TAG:"
+            git log "${LAST_TAG}..HEAD" --pretty=format:"%H|%s" --no-merges | head -5
+          else
+            echo "No last tag, showing all commits"
+          fi
 
           while IFS='|' read -r HASH MSG; do
             [ -z "$HASH" ] && continue
