@@ -23,16 +23,18 @@ jobs:
           TODAY=$(date +%Y%m%d)
           echo "Today: $TODAY"
 
-          EXISTING_TAGS=$(git tag --list "${TODAY}*" --sort=-version:refname 2>/dev/null || true)
+          # Tags from today for sequential numbering
+          TODAY_TAGS=$(git tag --list "${TODAY}*" --sort=-version:refname 2>/dev/null || true)
 
-          if [ -z "$EXISTING_TAGS" ]; then
+          if [ -z "$TODAY_TAGS" ]; then
             NEXT_NUM="01"
-            LAST_TAG=""
           else
-            LAST_TAG=$(echo "$EXISTING_TAGS" | head -n1)
-            LAST_NUM=$(echo "$LAST_TAG" | sed "s/^${TODAY}//")
+            LAST_NUM=$(echo "$TODAY_TAGS" | head -n1 | sed "s/^${TODAY}//")
             NEXT_NUM=$(printf "%02d" $((10#$LAST_NUM + 1)))
           fi
+
+          # Most recent tag overall (any date) for commit range
+          LAST_TAG=$(git tag --sort=-version:refname | head -n1 || true)
 
           TAG="${TODAY}${NEXT_NUM}"
           echo "Tag: $TAG"
