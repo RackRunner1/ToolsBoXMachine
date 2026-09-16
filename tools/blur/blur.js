@@ -13,6 +13,7 @@ const brushSizeContainer = document.getElementById("brush-size-container");
 
 let imageObjects = null;
 let isDrawing = false;
+let isTouchEvent = false;
 let offscreenCanvas = document.createElement("canvas");
 let offscreenCtx = offscreenCanvas.getContext("2d");
 const modeRadios = document.querySelectorAll('input[name="blurMode"]');
@@ -393,17 +394,18 @@ function renderBlurredOffscreen() {
 }
 
 function getMousePos(evt) {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
+   const rect = canvas.getBoundingClientRect();
+   const scaleX = canvas.width / rect.width;
+   const scaleY = canvas.height / rect.height;
 
-  const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
-  const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+   const touch = evt.touches ? (evt.touches[0] || evt.changedTouches[0]) : null;
+   const clientX = touch ? touch.clientX : (evt.clientX || 0);
+   const clientY = touch ? touch.clientY : (evt.clientY || 0);
 
-  return {
-    x: (clientX - rect.left) * scaleX,
-    y: (clientY - rect.top) * scaleY,
-  };
+   return {
+     x: (clientX - rect.left) * scaleX,
+     y: (clientY - rect.top) * scaleY,
+   };
 }
 
 function getTouchPos(evt) {
@@ -438,9 +440,10 @@ function onSelectorMouseUp() {
 }
 
 canvas.addEventListener("mousedown", (e) => {
-  if (!imageObjects) return;
+   if (!imageObjects) return;
+   if (isTouchEvent) { isTouchEvent = false; return; }
 
-  if (e.button === 2) {
+   if (e.button === 2) {
     // Right click for panning
     if (currentTransform.scale <= 1) return;
     isPanning = true;
@@ -494,8 +497,9 @@ canvas.addEventListener("mouseleave", () => {
 
 // Touch event handlers for mobile
 canvas.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  if (!imageObjects) return;
+   e.preventDefault();
+   isTouchEvent = true;
+   if (!imageObjects) return;
 
   const touch = e.touches[0];
 
@@ -547,8 +551,9 @@ canvas.addEventListener("touchmove", (e) => {
 }, { passive: false });
 
 canvas.addEventListener("touchend", (e) => {
-  isPanning = false;
-  isDrawing = false;
+   isPanning = false;
+   isDrawing = false;
+   isTouchEvent = false;
 });
 
 function onSelectorTouchMove(e) {
@@ -570,47 +575,52 @@ function onSelectorTouchEnd() {
 }
 
 function drawBlur(e) {
-  const pos = getMousePos(e);
-  const size = parseInt(brushSizeInput.value, 10);
-  const mode = document.querySelector('input[name="blurMode"]:checked').value;
+   const pos = getMousePos(e);
+   const size = parseInt(brushSizeInput.value, 10);
+   const mode = document.querySelector('input[name="blurMode"]:checked').value;
+   const blurValue = blurIntensityInput.value;
 
-  paintCtx.save();
-  if (mode === "eraser") {
-    paintCtx.globalCompositeOperation = "destination-out";
-  } else {
-    paintCtx.globalCompositeOperation = "source-over";
-  }
+   paintCtx.save();
+   if (mode === "eraser") {
+     paintCtx.globalCompositeOperation = "destination-out";
+   } else {
+     paintCtx.globalCompositeOperation = "source-over";
+   }
 
-  paintCtx.beginPath();
-  paintCtx.arc(pos.x, pos.y, size, 0, Math.PI * 2, false);
-  paintCtx.clip();
+   paintCtx.beginPath();
+   paintCtx.arc(pos.x, pos.y, size, 0, Math.PI * 2, false);
+   paintCtx.clip();
 
-  if (mode === "brush") {
-    paintCtx.drawImage(offscreenCanvas, 0, 0);
-  } else if (mode === "eraser") {
-    paintCtx.fill(); // This will erase because of destination-out
-  }
+   if (mode === "brush") {
+     paintCtx.filter = `blur(${blurValue}px)`;
+     paintCtx.drawImage(imageObjects, 0, 0);
+     paintCtx.filter = "none";
+   } else if (mode === "eraser") {
+     paintCtx.fill();
+   }
 
-  paintCtx.restore();
-  updateCanvas();
+   paintCtx.restore();
+   updateCanvas();
 }
 
 function applySelectorBlur() {
-  if (!selectionStart || !selectionEnd) return;
+   if (!selectionStart || !selectionEnd) return;
 
-  const x = Math.min(selectionStart.x, selectionEnd.x);
-  const y = Math.min(selectionStart.y, selectionEnd.y);
-  const w = Math.abs(selectionEnd.x - selectionStart.x);
-  const h = Math.abs(selectionEnd.y - selectionStart.y);
+   const x = Math.min(selectionStart.x, selectionEnd.x);
+   const y = Math.min(selectionStart.y, selectionEnd.y);
+   const w = Math.abs(selectionEnd.x - selectionStart.x);
+   const h = Math.abs(selectionEnd.y - selectionStart.y);
 
-  if (w < 2 || h < 2) return;
+   if (w < 2 || h < 2) return;
 
-  paintCtx.save();
-  paintCtx.beginPath();
-  paintCtx.rect(x, y, w, h);
-  paintCtx.clip();
-  paintCtx.drawImage(offscreenCanvas, 0, 0);
-  paintCtx.restore();
+   paintCtx.save();
+   paintCtx.beginPath();
+   paintCtx.rect(x, y, w, h);
+   paintCtx.clip();
+   paintCtx.filter = `blur(${blurIntensityInput.value}px)`;
+   paintCtx.drawImage(imageObjects, 0, 0);
+   paintCtx.filter = "none";
+   paintCtx.restore();
 }
 
 downloadBtn.addEventListener("click", () => {
