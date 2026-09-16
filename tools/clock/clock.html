@@ -99,6 +99,7 @@
         height: 480px;
         margin-bottom: 80px;
         transform: none !important;
+        z-index: 0;
       }
 
       #clock-main.fullscreen .digital-clock {
@@ -107,6 +108,9 @@
 
       #clock-main.fullscreen .date-display {
         font-size: 1.4rem;
+        position: relative;
+        z-index: 100;
+        margin-top: auto;
       }
 
       /* Analog Clock */
