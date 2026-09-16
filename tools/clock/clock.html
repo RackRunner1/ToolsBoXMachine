@@ -96,6 +96,7 @@
 
       #clock-main:fullscreen .analog-clock {
         transform: scale(1.6);
+        z-index: 1;
       }
 
       #clock-main:fullscreen .digital-clock {
@@ -104,6 +105,8 @@
 
       #clock-main:fullscreen .date-display {
         font-size: 1.4rem;
+        z-index: 10;
+        position: relative;
       }
 
       #clock-main:-webkit-full-screen {
@@ -115,6 +118,7 @@
 
       #clock-main:-webkit-full-screen .analog-clock {
         transform: scale(1.6);
+        z-index: 1;
       }
 
       #clock-main:-webkit-full-screen .digital-clock {
@@ -123,6 +127,8 @@
 
       #clock-main:-webkit-full-screen .date-display {
         font-size: 1.4rem;
+        z-index: 10;
+        position: relative;
       }
 
       /* Analog Clock */
