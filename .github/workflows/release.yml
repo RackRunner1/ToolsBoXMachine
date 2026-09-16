@@ -66,11 +66,13 @@ jobs:
           } > "$OUTPUT_FILE"
 
           # Get commits and parse (use process substitution to avoid subshell)
+          COMMIT_REGEX='^([a-zA-Z]+)(\(([^)]+)\))?!?:\ (.+)$'
+
           while IFS='|' read -r HASH MSG; do
             [ -z "$HASH" ] && continue
             SHORT="${HASH:0:7}"
 
-            if [[ "$MSG" =~ ^([a-zA-Z]+)(\(([^)]+)\))?!?:\ (.+)$ ]]; then
+            if [[ "$MSG" =~ $COMMIT_REGEX ]]; then
               TYPE="${BASH_REMATCH[1]}"
               SCOPE="${BASH_REMATCH[3]}"
               COMMIT_MSG="${BASH_REMATCH[4]}"
