@@ -83,7 +83,7 @@ jobs:
 
           if [ -n "$LAST_TAG" ]; then
             echo "Commits since $LAST_TAG:"
-            git log "${LAST_TAG}..HEAD" --pretty=format:"%H|%s" --no-merges | head -5
+            git log "${LAST_TAG}..HEAD" --pretty=tformat:"%H|%s" --no-merges | head -5
           else
             echo "No last tag, showing all commits"
           fi
@@ -119,9 +119,9 @@ jobs:
               echo "- ${MSG} (\`${SHORT}\`)" >> "$OTHER_FILE"
             fi
           done < <(if [ -n "$LAST_TAG" ]; then
-            git log "${LAST_TAG}..HEAD" --pretty=format:"%H|%s" --no-merges
+            git log "${LAST_TAG}..HEAD" --pretty=tformat:"%H|%s" --no-merges
           else
-            git log --pretty=format:"%H|%s" --no-merges
+            git log --pretty=tformat:"%H|%s" --no-merges
           fi)
 
           # Append sections in order
