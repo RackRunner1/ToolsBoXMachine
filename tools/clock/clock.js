@@ -234,12 +234,14 @@
   if (fullscreenBtn) {
     fullscreenBtn.addEventListener("click", () => {
       if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        clockMain.classList.add("fullscreen");
         if (clockMain.requestFullscreen) {
           clockMain.requestFullscreen().catch((err) => console.error(err));
         } else if (clockMain.webkitRequestFullscreen) {
           clockMain.webkitRequestFullscreen();
         }
       } else {
+        clockMain.classList.remove("fullscreen");
         if (document.exitFullscreen) {
           document.exitFullscreen();
         } else if (document.webkitExitFullscreen) {
