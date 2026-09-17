@@ -176,13 +176,10 @@ function updateCanvas() {
   }
 
   if (mode === "full") {
-    if (supportsCtxFilter) {
-      ctx.drawImage(offscreenCanvas, 0, 0);
-      canvas.style.filter = "none";
-    } else {
-      ctx.drawImage(imageObjects, 0, 0);
-      canvas.style.filter = `blur(${blurIntensityInput.value}px)`;
-    }
+    // Always use ctx.filter instead of CSS filter so toDataURL() captures the blur
+    ctx.filter = `blur(${blurIntensityInput.value}px)`;
+    ctx.drawImage(imageObjects, 0, 0);
+    ctx.filter = "none";
   } else {
     canvas.style.filter = "none";
     ctx.drawImage(imageObjects, 0, 0);
@@ -229,7 +226,6 @@ function drawBrushPreview() {
   const containerRect = canvasContainer.getBoundingClientRect();
   const canvasRect = canvas.getBoundingClientRect();
 
-  // Find the image coordinates corresponding to the center of the visible container
   const centerX =
     (containerRect.width / 2 + containerRect.left - canvasRect.left) *
     (canvas.width / canvasRect.width);
@@ -238,14 +234,12 @@ function drawBrushPreview() {
     (canvas.height / canvasRect.height);
 
   ctx.save();
-  // Outer shadow/border for visibility
   ctx.beginPath();
   ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
   ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
-  ctx.lineWidth = 3 * (canvas.width / canvasRect.width); // Adjust line width based on zoom
+  ctx.lineWidth = 3 * (canvas.width / canvasRect.width);
   ctx.stroke();
 
-  // Main dashed circle
   ctx.beginPath();
   ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
   ctx.setLineDash([
@@ -277,7 +271,6 @@ modeRadios.forEach((radio) =>
 
 brushSizeInput.addEventListener("input", (e) => {
   sizeVal.textContent = e.target.value;
-
   if (imageObjects) {
     showBrushPreview = true;
     updateCanvas();
@@ -307,16 +300,14 @@ function loadImage(src) {
     paintCanvas.width = img.width;
     paintCanvas.height = img.height;
 
-    blurHistory = []; // Reset history for new image
+    blurHistory = [];
 
     imageObjects = img;
 
-    // Hide placeholder and show canvas
     const placeholder = document.getElementById("canvas-placeholder");
     if (placeholder) placeholder.style.display = "none";
     canvas.style.display = "block";
 
-    // Let CSS handle initial fit via max-width: 100%; height: auto
     currentTransform = { x: 0, y: 0, scale: 1 };
     canvas.style.transform = "none";
 
@@ -365,7 +356,6 @@ window.addEventListener("paste", handlePaste);
 
 pasteArea.addEventListener("click", async () => {
   try {
-    // Try using the modern Clipboard API first
     const clipboardItems = await navigator.clipboard.read();
     for (const clipboardItem of clipboardItems) {
       for (const type of clipboardItem.types) {
@@ -379,52 +369,42 @@ pasteArea.addEventListener("click", async () => {
       }
     }
   } catch (err) {
-    // Fallback if Clipboard API fails (e.g. permission or not supported)
     console.error("Clipboard API failed, please use Ctrl+V", err);
-    // We can't programmatically trigger a paste event for security reasons,
-    // but the window listener is already active for Ctrl+V.
   }
 });
 
+// Pad offscreen canvas to avoid edge transparency with blur
 function renderBlurredOffscreen() {
   if (!imageObjects) return;
-  // Apply a blur to the entire offscreen canvas
-  offscreenCtx.filter = `blur(${blurIntensityInput.value}px)`;
-  offscreenCtx.drawImage(imageObjects, 0, 0);
+  const blurValue = parseInt(blurIntensityInput.value, 10);
+  const pad = blurValue;
+
+  offscreenCanvas.width = imageObjects.width + pad * 2;
+  offscreenCanvas.height = imageObjects.height + pad * 2;
+  offscreenCtx.filter = `blur(${blurValue}px)`;
+  offscreenCtx.drawImage(imageObjects, pad, pad);
 }
 
-function getMousePos(evt) {
-   const rect = canvas.getBoundingClientRect();
-   const scaleX = canvas.width / rect.width;
-   const scaleY = canvas.height / rect.height;
-
-   const touch = evt.touches ? (evt.touches[0] || evt.changedTouches[0]) : null;
-   const clientX = touch ? touch.clientX : (evt.clientX || 0);
-   const clientY = touch ? touch.clientY : (evt.clientY || 0);
-
-   return {
-     x: (clientX - rect.left) * scaleX,
-     y: (clientY - rect.top) * scaleY,
-   };
-}
-
-function getTouchPos(evt) {
+// Map canvas coordinates from pointer/touch events, accounting for CSS transforms
+function getPosFromEvent(evt) {
   const rect = canvas.getBoundingClientRect();
   const scaleX = canvas.width / rect.width;
   const scaleY = canvas.height / rect.height;
-  const touch = evt.touches[0] || evt.changedTouches[0];
+
+  const touch = evt.touches ? (evt.touches[0] || evt.changedTouches[0]) : null;
+  const clientX = touch ? touch.clientX : (evt.clientX || 0);
+  const clientY = touch ? touch.clientY : (evt.clientY || 0);
 
   return {
-    clientX: touch.clientX,
-    clientY: touch.clientY,
-    x: (touch.clientX - rect.left) * scaleX,
-    y: (touch.clientY - rect.top) * scaleY,
+    x: (clientX - rect.left) * scaleX,
+    y: (clientY - rect.top) * scaleY,
   };
 }
 
+// --- Selector handlers ---
 function onSelectorMouseMove(e) {
   if (!isSelecting) return;
-  selectionEnd = getMousePos(e);
+  selectionEnd = getPosFromEvent(e);
   updateCanvas();
 }
 
@@ -439,12 +419,30 @@ function onSelectorMouseUp() {
   document.removeEventListener("mouseup", onSelectorMouseUp);
 }
 
-canvas.addEventListener("mousedown", (e) => {
-   if (!imageObjects) return;
-   if (isTouchEvent) { isTouchEvent = false; return; }
+function onSelectorTouchMove(e) {
+  e.preventDefault();
+  if (!isSelecting) return;
+  selectionEnd = getPosFromEvent(e);
+  updateCanvas();
+}
 
-   if (e.button === 2) {
-    // Right click for panning
+function onSelectorTouchEnd() {
+  if (!isSelecting) return;
+  isSelecting = false;
+  applySelectorBlur();
+  selectionStart = null;
+  selectionEnd = null;
+  updateCanvas();
+  document.removeEventListener("touchmove", onSelectorTouchMove);
+  document.removeEventListener("touchend", onSelectorTouchEnd);
+}
+
+// --- mousedown ---
+canvas.addEventListener("mousedown", (e) => {
+  if (!imageObjects) return;
+  if (isTouchEvent) { isTouchEvent = false; return; }
+
+  if (e.button === 2) {
     if (currentTransform.scale <= 1) return;
     isPanning = true;
     startPan = {
@@ -459,8 +457,8 @@ canvas.addEventListener("mousedown", (e) => {
 
   if (mode === "selector") {
     saveState();
-    selectionStart = getMousePos(e);
-    selectionEnd = getMousePos(e);
+    selectionStart = getPosFromEvent(e);
+    selectionEnd = getPosFromEvent(e);
     isSelecting = true;
     updateCanvas();
     document.addEventListener("mousemove", onSelectorMouseMove);
@@ -469,7 +467,6 @@ canvas.addEventListener("mousedown", (e) => {
   }
 
   saveState();
-
   isDrawing = true;
   drawBlur(e);
 });
@@ -495,21 +492,18 @@ canvas.addEventListener("mouseleave", () => {
   isDrawing = false;
 });
 
-// Touch event handlers for mobile
+// --- Touch handlers ---
 canvas.addEventListener("touchstart", (e) => {
-   e.preventDefault();
-   isTouchEvent = true;
-   if (!imageObjects) return;
-
-  const touch = e.touches[0];
+  e.preventDefault();
+  isTouchEvent = true;
+  if (!imageObjects) return;
 
   if (e.touches.length > 1) {
-    // Multi-touch: start panning
     isPanning = true;
     isDrawing = false;
     startPan = {
-      x: touch.clientX - currentTransform.x,
-      y: touch.clientY - currentTransform.y,
+      x: e.touches[0].clientX - currentTransform.x,
+      y: e.touches[0].clientY - currentTransform.y,
     };
     return;
   }
@@ -519,8 +513,8 @@ canvas.addEventListener("touchstart", (e) => {
 
   if (mode === "selector") {
     saveState();
-    selectionStart = getMousePos(e);
-    selectionEnd = getMousePos(e);
+    selectionStart = getPosFromEvent(e);
+    selectionEnd = getPosFromEvent(e);
     isSelecting = true;
     updateCanvas();
     document.addEventListener("touchmove", onSelectorTouchMove, { passive: false });
@@ -537,11 +531,9 @@ canvas.addEventListener("touchmove", (e) => {
   e.preventDefault();
   if (!imageObjects) return;
 
-  const touch = e.touches[0];
-
   if (isPanning) {
-    currentTransform.x = touch.clientX - startPan.x;
-    currentTransform.y = touch.clientY - startPan.y;
+    currentTransform.x = e.touches[0].clientX - startPan.x;
+    currentTransform.y = e.touches[0].clientY - startPan.y;
     applyTransform();
     return;
   }
@@ -551,83 +543,78 @@ canvas.addEventListener("touchmove", (e) => {
 }, { passive: false });
 
 canvas.addEventListener("touchend", (e) => {
-   isPanning = false;
-   isDrawing = false;
-   isTouchEvent = false;
+  isPanning = false;
+  isDrawing = false;
+  isTouchEvent = false;
 });
 
-function onSelectorTouchMove(e) {
-  e.preventDefault();
-  if (!isSelecting) return;
-  selectionEnd = getMousePos(e);
-  updateCanvas();
-}
-
-function onSelectorTouchEnd() {
-  if (!isSelecting) return;
-  isSelecting = false;
-  applySelectorBlur();
-  selectionStart = null;
-  selectionEnd = null;
-  updateCanvas();
-  document.removeEventListener("touchmove", onSelectorTouchMove);
-  document.removeEventListener("touchend", onSelectorTouchEnd);
-}
-
 function drawBlur(e) {
-   const pos = getMousePos(e);
-   const size = parseInt(brushSizeInput.value, 10);
-   const mode = document.querySelector('input[name="blurMode"]:checked').value;
-   const blurValue = blurIntensityInput.value;
+  const pos = getPosFromEvent(e);
+  const size = parseInt(brushSizeInput.value, 10);
+  const mode = document.querySelector('input[name="blurMode"]:checked').value;
+  const blurValue = blurIntensityInput.value;
 
-   paintCtx.save();
-   if (mode === "eraser") {
-     paintCtx.globalCompositeOperation = "destination-out";
-   } else {
-     paintCtx.globalCompositeOperation = "source-over";
-   }
+  paintCtx.save();
+  if (mode === "eraser") {
+    paintCtx.globalCompositeOperation = "destination-out";
+  } else {
+    paintCtx.globalCompositeOperation = "source-over";
+  }
 
-   paintCtx.beginPath();
-   paintCtx.arc(pos.x, pos.y, size, 0, Math.PI * 2, false);
-   paintCtx.clip();
+  paintCtx.beginPath();
+  paintCtx.arc(pos.x, pos.y, size, 0, Math.PI * 2, false);
+  paintCtx.clip();
 
-   if (mode === "brush") {
-     paintCtx.filter = `blur(${blurValue}px)`;
-     paintCtx.drawImage(imageObjects, 0, 0);
-     paintCtx.filter = "none";
-   } else if (mode === "eraser") {
-     paintCtx.fill();
-   }
+  if (mode === "brush") {
+    paintCtx.filter = `blur(${blurValue}px)`;
+    paintCtx.drawImage(imageObjects, 0, 0);
+    paintCtx.filter = "none";
+  } else if (mode === "eraser") {
+    paintCtx.fill();
+  }
 
-   paintCtx.restore();
-   updateCanvas();
+  paintCtx.restore();
+  updateCanvas();
 }
 
 function applySelectorBlur() {
-   if (!selectionStart || !selectionEnd) return;
+  if (!selectionStart || !selectionEnd) return;
 
-   const x = Math.min(selectionStart.x, selectionEnd.x);
-   const y = Math.min(selectionStart.y, selectionEnd.y);
-   const w = Math.abs(selectionEnd.x - selectionStart.x);
-   const h = Math.abs(selectionEnd.y - selectionStart.y);
+  const x = Math.min(selectionStart.x, selectionEnd.x);
+  const y = Math.min(selectionStart.y, selectionEnd.y);
+  const w = Math.abs(selectionEnd.x - selectionStart.x);
+  const h = Math.abs(selectionEnd.y - selectionStart.y);
 
-   if (w < 2 || h < 2) return;
+  if (w < 2 || h < 2) return;
 
-   paintCtx.save();
-   paintCtx.beginPath();
-   paintCtx.rect(x, y, w, h);
-   paintCtx.clip();
-   paintCtx.filter = `blur(${blurIntensityInput.value}px)`;
-   paintCtx.drawImage(imageObjects, 0, 0);
-   paintCtx.filter = "none";
-   paintCtx.restore();
+  paintCtx.save();
+  paintCtx.beginPath();
+  paintCtx.rect(x, y, w, h);
+  paintCtx.clip();
+  paintCtx.filter = `blur(${blurIntensityInput.value}px)`;
+  paintCtx.drawImage(imageObjects, 0, 0);
+  paintCtx.filter = "none";
+  paintCtx.restore();
 }
 
 downloadBtn.addEventListener("click", () => {
   if (!imageObjects) return;
   const link = document.createElement("a");
   link.download = "blurred_image.png";
-  link.href = canvas.toDataURL("image/png");
+  // Always render with blur applied on a fresh canvas so toDataURL captures it
+  const mode = document.querySelector('input[name="blurMode"]:checked').value;
+  if (mode === "full") {
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext("2d");
+    const blurValue = parseInt(blurIntensityInput.value, 10);
+    tempCtx.filter = `blur(${blurValue}px)`;
+    tempCtx.drawImage(imageObjects, 0, 0);
+    link.href = tempCanvas.toDataURL("image/png");
+  } else {
+    link.href = canvas.toDataURL("image/png");
+  }
   link.click();
 });
 
@@ -660,11 +647,27 @@ copyBtn.addEventListener("click", () => {
     <span>Copied!</span>
   `;
 
-  canvas.toBlob((blob) => {
-    if (!blob) return;
-    const item = new ClipboardItem({ "image/png": blob });
-    navigator.clipboard.write([item]);
-  });
+  const mode = document.querySelector('input[name="blurMode"]:checked').value;
+  if (mode === "full") {
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext("2d");
+    const blurValue = parseInt(blurIntensityInput.value, 10);
+    tempCtx.filter = `blur(${blurValue}px)`;
+    tempCtx.drawImage(imageObjects, 0, 0);
+    tempCanvas.toBlob((blob) => {
+      if (!blob) return;
+      const item = new ClipboardItem({ "image/png": blob });
+      navigator.clipboard.write([item]);
+    });
+  } else {
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const item = new ClipboardItem({ "image/png": blob });
+      navigator.clipboard.write([item]);
+    });
+  }
 
   setTimeout(() => {
     copyBtn.innerHTML = originalContent;
