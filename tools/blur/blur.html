@@ -30,6 +30,13 @@
         margin-bottom: 0.75rem !important;
       }
 
+      .mobile-notice-container {
+        display: none;
+      }
+      .mobile-notice-container.visible {
+        display: flex;
+      }
+
       #copy-btn {
         position: relative;
         display: inline-flex;
@@ -99,6 +106,51 @@
 
       #copy-btn:hover {
         background: #334155;
+      }
+
+      @media (max-width: 768px) {
+        .blur-tool-layout {
+          display: none !important;
+        }
+        .mobile-notice-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 80vh;
+          text-align: center;
+          padding: 2rem;
+        }
+        .mobile-notice-icon {
+          font-size: 4rem;
+          margin-bottom: 1.5rem;
+        }
+        .mobile-notice-title {
+          font-size: 2rem;
+          font-weight: 800;
+          background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          margin-bottom: 1rem;
+        }
+        .mobile-notice-message {
+          font-size: 1.25rem;
+          color: #94a3b8;
+          max-width: 600px;
+          line-height: 1.8;
+          margin-bottom: 1.5rem;
+        }
+        .mobile-notice-badge {
+          display: inline-block;
+          background: rgba(59, 130, 246, 0.15);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          color: #60a5fa;
+          padding: 0.5rem 1.5rem;
+          border-radius: 9999px;
+          font-size: 0.9rem;
+          font-weight: 600;
+        }
       }
 
       @media (max-width: 480px) {
@@ -477,6 +529,15 @@
           <canvas id="blurry-canvas" style="display: none; touch-action: none"></canvas>
         </div>
       </div>
+    </div>
+
+    <div class="mobile-notice-container" id="mobile-notice">
+      <div class="mobile-notice-icon">📱</div>
+      <h1 class="mobile-notice-title">Not Available on Mobile</h1>
+      <p class="mobile-notice-message">
+        This tool is not yet available on mobile because it works very badly, but we are working on a new version that is 100% mobile compatible.
+      </p>
+      <span class="mobile-notice-badge">Coming Soon</span>
     </div>
 
     <script type="module" src="./blur.js"></script>
