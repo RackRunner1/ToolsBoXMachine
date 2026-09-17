@@ -71,9 +71,9 @@
     }
   }
 
-  function applyColor(color) {
+   function applyColor(color) {
     handSecond.style.background = color;
-    centerDot.style.background = color;
+    centerDot.style.background = toggleSeconds.checked ? color : "#ffffff";
     clockMain.style.setProperty("--accent", color);
   }
 
@@ -228,7 +228,10 @@
     document.documentElement.style.setProperty("--clock-font", fontMap[val] || fontMap.mono);
   });
 
-  toggleSeconds.addEventListener("change", updateColorSectionVisibility);
+  toggleSeconds.addEventListener("change", () => {
+    updateColorSectionVisibility();
+    applyColor(accentColor);
+  });
 
   // Color swatches
   document.querySelectorAll(".color-swatch").forEach((swatch) => {
