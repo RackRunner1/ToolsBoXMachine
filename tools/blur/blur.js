@@ -11,6 +11,11 @@ const downloadBtn = document.getElementById("download-btn");
 const copyBtn = document.getElementById("copy-btn");
 const brushSizeContainer = document.getElementById("brush-size-container");
 
+const mobileNotice = document.getElementById('mobile-notice');
+if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+  mobileNotice.classList.add('visible');
+}
+
 let imageObjects = null;
 let isDrawing = false;
 let isTouchEvent = false;
