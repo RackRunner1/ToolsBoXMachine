@@ -137,7 +137,7 @@ jobs:
           }
 
           append_section "$FIX_FILE" "🐛 Fixed"
-          append_section "$FEAT_FILE" "➕ Added"
+          append_section "$FEAT_FILE" "➕ Added or Removed"
           append_section "$REFACTOR_FILE" "♻️ Refactored"
           append_section "$PERF_FILE" "⚡ Performance"
           append_section "$STYLE_FILE" "💄 Style"
