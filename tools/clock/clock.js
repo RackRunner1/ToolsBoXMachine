@@ -160,11 +160,19 @@
     requestAnimationFrame(updateClock);
   }
 
-  function setMode(newMode) {
+   function setMode(newMode) {
     mode = newMode;
     formatSection.style.display = mode === "digital" ? "" : "none";
-    colorSection.style.display = mode === "digital" ? "none" : "";
     fontSection.style.display = mode === "digital" ? "" : "none";
+    updateColorSectionVisibility();
+  }
+
+  function updateColorSectionVisibility() {
+    if (mode === "analog") {
+      colorSection.style.display = toggleSeconds.checked ? "" : "none";
+    } else {
+      colorSection.style.display = "none";
+    }
   }
 
   // Custom select
@@ -219,6 +227,8 @@
   setupSelect("font-select", (val) => {
     document.documentElement.style.setProperty("--clock-font", fontMap[val] || fontMap.mono);
   });
+
+  toggleSeconds.addEventListener("change", updateColorSectionVisibility);
 
   // Color swatches
   document.querySelectorAll(".color-swatch").forEach((swatch) => {
