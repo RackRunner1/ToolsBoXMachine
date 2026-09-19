@@ -355,6 +355,8 @@ function setupEventListeners() {
     notes.unshift(dup);
     saveNotesToStorage();
     selectNote(dup.id);
+    elements.titleInput.focus();
+    elements.titleInput.select();
     renderList();
     showNotification("Note duplicated");
   });
