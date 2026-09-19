@@ -18,6 +18,7 @@ const elements = {
   modalCloseBtn: document.getElementById("modal-close-btn"),
   dontShowCheckbox: document.getElementById("modal-dont-show"),
   contextMenu: document.getElementById("context-menu"),
+  ctxDuplicate: document.getElementById("ctx-duplicate"),
   ctxDelete: document.getElementById("ctx-delete"),
   ctxCreate: document.getElementById("ctx-create"),
   deleteModal: document.getElementById("delete-modal"),
@@ -338,6 +339,26 @@ function setupEventListeners() {
     createNote();
   });
 
+  elements.ctxDuplicate.addEventListener("click", () => {
+    if (!contextTargetNoteId) return;
+    const source = notes.find((n) => n.id === contextTargetNoteId);
+    hideContextMenu();
+    if (!source) return;
+    const now = Date.now();
+    const dup = {
+      id: crypto.randomUUID ? crypto.randomUUID() : `note_${now}`,
+      title: source.title + " (copy)",
+      content: source.content,
+      createdAt: now,
+      modifiedAt: now,
+    };
+    notes.unshift(dup);
+    saveNotesToStorage();
+    selectNote(dup.id);
+    renderList();
+    showNotification("Note duplicated");
+  });
+
   elements.deleteModalCancel.addEventListener("click", hideDeleteModal);
   elements.deleteModalConfirm.addEventListener("click", () => {
     if (deleteModalCallback) deleteModalCallback();
@@ -361,6 +382,7 @@ function hideDeleteModal() {
 }
 
 function showContextMenu(x, y, showDelete) {
+  elements.ctxDuplicate.style.display = showDelete ? "flex" : "none";
   elements.ctxDelete.style.display = showDelete ? "flex" : "none";
   elements.ctxCreate.style.display = showDelete ? "none" : "flex";
 
