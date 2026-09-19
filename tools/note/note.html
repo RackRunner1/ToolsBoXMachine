@@ -524,6 +524,157 @@
         }
       }
 
+      /* Sidebar footer */
+      .sidebar-footer {
+        padding: 0.75rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(15, 23, 42, 0.8);
+      }
+
+      .settings-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.6rem 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        color: #94a3b8;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0.75rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+      }
+
+      .settings-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      /* Settings modal */
+      .settings-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 100000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+
+      .settings-modal.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .settings-box {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1.25rem;
+        max-width: 700px;
+        width: 100%;
+        height: 450px;
+        display: flex;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        transform: translateY(20px) scale(0.97);
+        transition: transform 0.3s ease;
+      }
+
+      .settings-modal.show .settings-box {
+        transform: translateY(0) scale(1);
+      }
+
+      .settings-nav {
+        width: 200px;
+        min-width: 200px;
+        background: rgba(15, 23, 42, 0.8);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 1.25rem 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .settings-nav-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: white;
+        padding: 0 0.5rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 0.5rem;
+      }
+
+      .settings-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 0.75rem;
+        border-radius: 0.5rem;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .settings-nav-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+      }
+
+      .settings-nav-item.active {
+        background: rgba(59, 130, 246, 0.1);
+        color: white;
+      }
+
+      .settings-content {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        color: #94a3b8;
+        font-size: 0.95rem;
+      }
+
+      .settings-content-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        gap: 0.5rem;
+        color: #475569;
+      }
+
+      .settings-close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #94a3b8;
+        width: 32px;
+        height: 32px;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .settings-close-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
       /* Context menu */
       .context-menu {
         position: fixed;
@@ -619,6 +770,15 @@
           </button>
         </div>
         <div class="notes-list" id="notes-list"></div>
+        <div class="sidebar-footer">
+          <button class="settings-btn" id="settings-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            Settings
+          </button>
+        </div>
       </div>
 
       <!-- Main editor -->
@@ -663,6 +823,31 @@
     </div>
 
     <div id="notification" class="notification"></div>
+
+    <!-- Settings modal -->
+    <div class="settings-modal" id="settings-modal">
+      <div class="settings-box" style="position:relative;">
+        <button class="settings-close-btn" id="settings-close-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"/>
+            <path d="m6 6 12 12"/>
+          </svg>
+        </button>
+        <div class="settings-nav">
+          <div class="settings-nav-title">Settings</div>
+          <div class="settings-nav-item active">General</div>
+        </div>
+        <div class="settings-content">
+          <div class="settings-content-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <p>No settings yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Context menu -->
     <div id="context-menu" class="context-menu">

@@ -21,6 +21,9 @@ const elements = {
   ctxDuplicate: document.getElementById("ctx-duplicate"),
   ctxDelete: document.getElementById("ctx-delete"),
   ctxCreate: document.getElementById("ctx-create"),
+  settingsBtn: document.getElementById("settings-btn"),
+  settingsModal: document.getElementById("settings-modal"),
+  settingsCloseBtn: document.getElementById("settings-close-btn"),
   deleteModal: document.getElementById("delete-modal"),
   deleteModalCancel: document.getElementById("delete-modal-cancel"),
   deleteModalConfirm: document.getElementById("delete-modal-confirm"),
@@ -368,6 +371,20 @@ function setupEventListeners() {
   });
   elements.deleteModal.addEventListener("click", (e) => {
     if (e.target === elements.deleteModal) hideDeleteModal();
+  });
+
+  elements.settingsBtn.addEventListener("click", () => {
+    elements.settingsModal.classList.add("show");
+  });
+
+  elements.settingsCloseBtn.addEventListener("click", () => {
+    elements.settingsModal.classList.remove("show");
+  });
+
+  elements.settingsModal.addEventListener("click", (e) => {
+    if (e.target === elements.settingsModal) {
+      elements.settingsModal.classList.remove("show");
+    }
   });
 }
 
