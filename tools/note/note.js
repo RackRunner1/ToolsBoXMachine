@@ -3,6 +3,7 @@ let tooltipResetTimer = null;
 
 const STORAGE_KEY = "tbxm_notes";
 const MODAL_KEY = "tbxm_notes_modal_dismissed";
+const SKIP_DELETE_KEY = "tbxm_notes_skip_delete_confirm";
 
 const elements = {
   editorEmpty: document.getElementById("editor-empty"),
@@ -24,6 +25,7 @@ const elements = {
   settingsBtn: document.getElementById("settings-btn"),
   settingsModal: document.getElementById("settings-modal"),
   settingsCloseBtn: document.getElementById("settings-close-btn"),
+  skipDeleteConfirm: document.getElementById("setting-skip-delete-confirm"),
   deleteModal: document.getElementById("delete-modal"),
   deleteModalCancel: document.getElementById("delete-modal-cancel"),
   deleteModalConfirm: document.getElementById("delete-modal-confirm"),
@@ -33,12 +35,14 @@ let notes = [];
 let activeNoteId = null;
 let saveTimeout = null;
 let contextTargetNoteId = null;
+let skipDeleteConfirm = localStorage.getItem(SKIP_DELETE_KEY) === "true";
 
 function init() {
   loadNotes();
   renderList();
   setupEventListeners();
   selectFirstNote();
+  elements.skipDeleteConfirm.checked = skipDeleteConfirm;
   setupStorageModal();
 }
 
@@ -259,7 +263,7 @@ function scheduleAutoSave() {
 
 function deleteActiveNote() {
   if (!activeNoteId) return;
-  showDeleteModal(() => {
+  const doDelete = () => {
     notes = notes.filter((n) => n.id !== activeNoteId);
     saveNotesToStorage();
     if (notes.length > 0) {
@@ -269,7 +273,12 @@ function deleteActiveNote() {
     }
     renderList();
     showNotification("Note deleted");
-  });
+  };
+  if (skipDeleteConfirm) {
+    doDelete();
+  } else {
+    showDeleteModal(doDelete);
+  }
 }
 
 function showNotification(message) {
@@ -322,7 +331,7 @@ function setupEventListeners() {
     if (!contextTargetNoteId) return;
     const targetId = contextTargetNoteId;
     hideContextMenu();
-    showDeleteModal(() => {
+    const doDelete = () => {
       notes = notes.filter((n) => n.id !== targetId);
       saveNotesToStorage();
       if (activeNoteId === targetId) {
@@ -334,7 +343,12 @@ function setupEventListeners() {
       }
       renderList();
       showNotification("Note deleted");
-    });
+    };
+    if (skipDeleteConfirm) {
+      doDelete();
+    } else {
+      showDeleteModal(doDelete);
+    }
   });
 
   elements.ctxCreate.addEventListener("click", () => {
@@ -385,6 +399,11 @@ function setupEventListeners() {
     if (e.target === elements.settingsModal) {
       elements.settingsModal.classList.remove("show");
     }
+  });
+
+  elements.skipDeleteConfirm.addEventListener("change", () => {
+    skipDeleteConfirm = elements.skipDeleteConfirm.checked;
+    localStorage.setItem(SKIP_DELETE_KEY, skipDeleteConfirm);
   });
 }
 
