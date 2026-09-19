@@ -124,6 +124,8 @@ function renderList() {
 
     item.addEventListener("contextmenu", (e) => {
       e.preventDefault();
+      clearTimeout(tooltipTimer);
+      tooltip.classList.remove("visible");
       contextTargetNoteId = note.id;
       showContextMenu(e.clientX, e.clientY, true);
     });
