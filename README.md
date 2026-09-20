@@ -6,17 +6,17 @@
 
 ## About
 
-**ToolsBoXMachine (TBXM)** is a free, open-source collection of browser-based utility tools. Every tool runs entirely client-side — no data is ever sent to any server. Built for privacy, speed, and simplicity.
+**ToolsBoXMachine (TBXM)** is a free, open-source collection of browser-based utility tools. Every tool runs entirely client-side - no data is ever sent to any server. Built for privacy, speed, and simplicity.
 
 **Live:** [tbxm.org](https://www.tbxm.org)
 
 ## Technologies
 
-- **HTML5 / CSS3** — vanilla, no frameworks, with CSS custom properties and glassmorphism UI
-- **Vanilla JavaScript** — ES6+ with ES Modules, no bundler, no transpiler
-- **Canvas API** — used by the blur tool for image manipulation
-- **Python** (dev only) — Pillow script for generating Open Graph banner images
-- **GitHub Actions** — CI for OG image generation and releases
+- **HTML5 / CSS3** - vanilla, no frameworks, with CSS custom properties and glassmorphism UI
+- **Vanilla JavaScript** - ES6+ with ES Modules, no bundler, no transpiler
+- **Canvas API** - used by the blur tool for image manipulation
+- **Python** (dev only) - Pillow script for generating Open Graph banner images
+- **GitHub Actions** - CI for OG image generation and releases
 
 No `package.json`, no build step, no dependencies. Open `index.html` in a browser and it works.
 
@@ -60,7 +60,7 @@ tbxm/
 
 ## Local Development
 
-No build tools required — just a static file server.
+No build tools required - just a static file server.
 
 ```bash
 git clone https://github.com/RackRunner1/ToolsBoXMachine.git
@@ -80,4 +80,4 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before
 
 ## License
 
-[Unlicense](LICENSE) — public domain.
+[Unlicense](LICENSE) - public domain.
