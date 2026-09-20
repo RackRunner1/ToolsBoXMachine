@@ -4,46 +4,80 @@
 
 ---
 
-## 🛠 Technologies used
+## About
 
-- **HTML5 / CSS3 Vanilla** with a "Glassmorphism" UI and smooth animations.
-- **Vanilla JavaScript** (ESModules)
-- Blurring interface powered by the HTML5 **`<canvas>`** API.
-- Ultra-fast development environment and bundling managed with **[Vite](https://vitejs.dev/)**.
+**ToolsBoXMachine (TBXM)** is a free, open-source collection of browser-based utility tools. Every tool runs entirely client-side — no data is ever sent to any server. Built for privacy, speed, and simplicity.
 
-## 📦 Installation and Local Launch
+**Live:** [tbxm.org](https://www.tbxm.org)
 
-1. Ensure you have [Node.js](https://nodejs.org/) and [Git](https://git-scm.com/) installed on your machine.
-2. Clone the repo with Git :
+## Technologies
+
+- **HTML5 / CSS3** — vanilla, no frameworks, with CSS custom properties and glassmorphism UI
+- **Vanilla JavaScript** — ES6+ with ES Modules, no bundler, no transpiler
+- **Canvas API** — used by the blur tool for image manipulation
+- **Python** (dev only) — Pillow script for generating Open Graph banner images
+- **GitHub Actions** — CI for OG image generation and releases
+
+No `package.json`, no build step, no dependencies. Open `index.html` in a browser and it works.
+
+## Tools
+
+| Tool | Description |
+|------|-------------|
+| Blur Image | Protect privacy by blurring sensitive parts of images |
+| Calculator | Perform basic arithmetic calculations |
+| Password Generator | Generate secure passwords or passphrases |
+| QR Code Generator | Create custom QR codes for any link or text |
+| JSON Formatter | Format, minify, and validate JSON data |
+| Pomodoro Timer | Stay focused with timed work sessions |
+| Emoji Keyboard | Browse and copy emojis with one click |
+| Notes | Create, save, and manage notes locally |
+| Clock | A customizable clock with analog and digital display |
+
+## Project Structure
+
+```
+tbxm/
+├── index.html              # Homepage
+├── style.css               # Global styles (CSS custom properties)
+├── ui/                     # Shared components (navbar, footer, loader)
+├── tools/                  # One folder per tool (HTML + JS)
+│   ├── blur/
+│   ├── calculator/
+│   ├── clock/
+│   ├── emoji-keyboard/
+│   ├── json-formatter/
+│   ├── note/
+│   ├── password-gen/
+│   ├── qr-gen/
+│   └── timer/
+├── pages/                  # Static pages (about, privacy, terms, philosophy)
+├── public/                 # Machine-readable endpoints (JSON, MCP, agent-skills)
+├── og/                     # Generated Open Graph images
+├── scripts/                # Dev scripts (OG image generation)
+└── .github/workflows/      # CI/CD (OG generation, releases)
+```
+
+## Local Development
+
+No build tools required — just a static file server.
 
 ```bash
 git clone https://github.com/RackRunner1/ToolsBoXMachine.git
+cd ToolsBoXMachine
+python3 -m http.server 8000
 ```
 
-4. Open a terminal in the project's current folder.
-5. Install the necessary dependencies:
+Then open `http://localhost:8000`.
 
-```bash
-npm install
-```
+## Contributing
 
-4. Launch the local development server:
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a PR.
 
-```bash
-npm run dev
-```
+- Never push directly to `main`
+- Use Conventional Commits (`feat:`, `fix:`, `chore:`, etc.)
+- One tool = one folder in `tools/`
 
-5. Open the address indicated in your terminal (usually `http://localhost:5173`).
+## License
 
-## 🖥️ You are not a developper ?
-
-No problem ! ToolsBoxMachine is a free to use tool, just use the [online version](https://www.tbxm.org).
-
-## 🤝 Contributing
-
-Got an idea for a new tool? Contributions are highly encouraged!
-Feel free to open an **Issue** to suggest your idea, or directly submit a **Pull Request** if you want to build it yourself.
-
----
-
-![Alt](https://repobeats.axiom.co/api/embed/1efc8a4c9c23efa858417733b306cb922f98c2fa.svg "Repobeats analytics image")
+[Unlicense](LICENSE) — public domain.
