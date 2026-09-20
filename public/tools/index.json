@@ -58,16 +58,6 @@
       "keywords": ["json", "format", "minify", "validate", "beautify"]
     },
     {
-      "id": "base64",
-      "name": "Base64 Converter",
-      "emoji": "🔄",
-      "description": "Encode and decode Base64 strings",
-      "url": "/tools/base64/base64.html",
-      "category": "developer",
-      "clientSide": true,
-      "keywords": ["base64", "encode", "decode", "convert"]
-    },
-    {
       "id": "timer",
       "name": "Pomodoro Timer",
       "emoji": "⏱️",

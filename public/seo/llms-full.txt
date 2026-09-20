@@ -48,13 +48,6 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 - **Client-side:** Yes
 - **Features:** Pretty-print, minify, validate, error detection
 
-### Base64 Converter
-- **URL:** /tools/base64/base64.html
-- **Description:** Encode and decode Base64 strings
-- **Category:** Developer Tools
-- **Client-side:** Yes
-- **Operations:** Encode text to Base64, decode Base64 to text
-
 ### Pomodoro Timer
 - **URL:** /tools/timer/timer.html
 - **Description:** Stay focused with timed work sessions

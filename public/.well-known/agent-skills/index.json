@@ -42,14 +42,6 @@
       "tags": ["json", "format", "validate", "minify"]
     },
     {
-      "id": "base64",
-      "name": "Base64 Converter",
-      "description": "Encode and decode Base64 strings",
-      "url": "/tools/base64/base64.html",
-      "category": "developer",
-      "tags": ["base64", "encode", "decode"]
-    },
-    {
       "id": "pomodoro-timer",
       "name": "Pomodoro Timer",
       "description": "Stay focused with timed work sessions",

@@ -69,28 +69,6 @@
       }
     },
     {
-      "name": "base64_encode",
-      "description": "Encode text to Base64",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "text": { "type": "string", "description": "Text to encode" }
-        },
-        "required": ["text"]
-      }
-    },
-    {
-      "name": "base64_decode",
-      "description": "Decode Base64 to text",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "encoded": { "type": "string", "description": "Base64 string to decode" }
-        },
-        "required": ["encoded"]
-      }
-    },
-    {
       "name": "clock",
       "description": "Display the current time",
       "inputSchema": {
