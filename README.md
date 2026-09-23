@@ -4,11 +4,6 @@
 
 ---
 
-# ⚠️ Info:
-🤒 I’ve been sick for the past 4 days, and honestly don’t have the energy to work on updates right now. That’s why there haven’t been any commits for the last few days. I’ll get back to it when I’m feeling better.
-
-——
-
 ## About
 
 **ToolsBoXMachine (TBXM)** is a free, open-source collection of browser-based utility tools. Every tool runs entirely client-side: no data is ever sent to any server. Built for privacy, speed, and simplicity.
