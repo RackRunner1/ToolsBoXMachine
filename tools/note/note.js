@@ -74,6 +74,8 @@ function loadNotes() {
     if (saved) {
       notes = JSON.parse(saved);
       notes.sort((a, b) => b.modifiedAt - a.modifiedAt);
+    } else {
+      notes = [];
     }
   } catch (e) {
     console.error("Failed to load notes", e);
@@ -179,6 +181,8 @@ function selectNote(id) {
   const note = notes.find((n) => n.id === id);
   if (!note) return;
 
+  clearTimeout(saveTimeout);
+  saveTimeout = null;
   saveCurrentNote();
   activeNoteId = id;
 
@@ -255,10 +259,43 @@ function saveCurrentNote(autoSave = false) {
 function scheduleAutoSave() {
   clearTimeout(saveTimeout);
   saveTimeout = setTimeout(() => {
+    saveTimeout = null;
     saveCurrentNote(true);
     renderList();
     elements.dateDisplay.textContent = new Date().toLocaleString();
   }, 400);
+}
+
+function handleExternalSync() {
+  const hadPendingSave = saveTimeout !== null;
+
+  loadNotes();
+
+  if (activeNoteId) {
+    const activeNote = notes.find((n) => n.id === activeNoteId);
+    if (!activeNote) {
+      clearTimeout(saveTimeout);
+      saveTimeout = null;
+      if (notes.length > 0) {
+        selectNote(notes[0].id);
+      } else {
+        showEditorEmpty();
+      }
+    } else if (!hadPendingSave) {
+      if (
+        elements.titleInput.value !== activeNote.title ||
+        elements.contentInput.value !== activeNote.content
+      ) {
+        elements.titleInput.value = activeNote.title;
+        elements.contentInput.value = activeNote.content;
+        elements.dateDisplay.textContent = new Date(activeNote.modifiedAt).toLocaleString();
+      }
+    }
+  } else if (notes.length > 0) {
+    selectNote(notes[0].id);
+  }
+
+  renderList();
 }
 
 function deleteActiveNote() {
@@ -307,6 +344,7 @@ function setupEventListeners() {
     if ((e.ctrlKey || e.metaKey) && e.key === "s") {
       e.preventDefault();
       clearTimeout(saveTimeout);
+      saveTimeout = null;
       saveCurrentNote();
       renderList();
       showNotification("Note saved!");
@@ -404,6 +442,30 @@ function setupEventListeners() {
   elements.skipDeleteConfirm.addEventListener("change", () => {
     skipDeleteConfirm = elements.skipDeleteConfirm.checked;
     localStorage.setItem(SKIP_DELETE_KEY, skipDeleteConfirm);
+  });
+
+  window.addEventListener("storage", (e) => {
+    if (e.key !== null && e.key !== STORAGE_KEY) return;
+    handleExternalSync();
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    if (saveTimeout !== null) {
+      clearTimeout(saveTimeout);
+      saveTimeout = null;
+      saveCurrentNote(true);
+      renderList();
+    }
+    handleExternalSync();
+  });
+
+  window.addEventListener("pagehide", () => {
+    if (saveTimeout !== null) {
+      clearTimeout(saveTimeout);
+      saveTimeout = null;
+      saveCurrentNote(true);
+    }
   });
 }
 
