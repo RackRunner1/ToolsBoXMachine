@@ -78,6 +78,33 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before
 - Use Conventional Commits (`feat:`, `fix:`, `chore:`, etc.)
 - One tool = one folder in `tools/`
 
+## A Note on Repository Activity
+
+<details>
+<summary><b>Who is RackRunner, and why is activity so irregular here?</b></summary>
+
+Hi! I'm **RackRunner**, the person behind ToolsBoXMachine.
+
+First of all, let's be fully transparent about something: **I'm only 13 years old**. I'm currently a student in *4ème* in France, which is roughly the equivalent of 8th grade in the US or Year 9 in the UK. In other words, I'm a middle-schooler with classes every day, homework most evenings, and regular tests to study for.
+
+**TBXM is, above all, a hobby project.** It was born out of a genuine passion for building small, useful, privacy-friendly tools, and not out of a professional obligation or a company roadmap. I work on it whenever inspiration strikes and, more importantly, whenever my school schedule allows it. This year in particular, my workload from school is *heavy*, which directly translates into how this repository behaves.
+
+That's why **activity here can be extremely uneven**, and I'd rather explain it clearly up front than let anyone misinterpret the contribution graph:
+
+- **During the school week**, activity is usually *very low*. Between classes, homework, and studying, there is often little time left for coding. You might see days (sometimes even entire weeks) with barely any commits, unanswered issues, or untouched pull requests. Please don't read silence as abandonment: more often than not, it just means I'm buried under homework.
+
+- **On weekends**, things often *pick up dramatically*. With several free days ahead, I tend to collect my ideas during the week and then push a large batch of work in a short burst. As a result, the activity graph can suddenly spike after a long, quiet stretch.
+
+- **During school holidays** (summer break, Christmas, half-term, and everything in between), the effect is even stronger. With far more free time on my hands, this is typically when the project experiences its biggest waves of activity: new tools, refactors, bug fixes, documentation updates, and general maintenance, often all at once.
+
+In short: if you notice long quiet periods followed by intense bursts of work, that's completely normal for this repository. It simply follows the rhythm of a student's life: dead quiet during exam weeks, alive and buzzing on weekends and holidays. The project is never dead; it just runs on a teenager's timetable.
+
+Thanks a lot for your understanding, your interest, and any contribution you might make along the way!
+
+*RackRunner*
+
+</details>
+
 ## License
 
 [Unlicense](LICENSE): public domain.
