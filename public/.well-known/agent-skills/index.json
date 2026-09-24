@@ -34,14 +34,6 @@
       "tags": ["qr", "code", "barcode", "link"]
     },
     {
-      "id": "json-formatter",
-      "name": "JSON Formatter",
-      "description": "Format, minify, and validate JSON data",
-      "url": "/tools/json-formatter/json-formatter.html",
-      "category": "developer",
-      "tags": ["json", "format", "validate", "minify"]
-    },
-    {
       "id": "pomodoro-timer",
       "name": "Pomodoro Timer",
       "description": "Stay focused with timed work sessions",

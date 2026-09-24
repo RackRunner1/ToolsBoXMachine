@@ -95,7 +95,7 @@ We use [Conventional Commits](https://www.conventionalcommits.org/). Every commi
 | `docs` | Documentation | `docs: update installation guide` |
 | `style` | Style (no behavior change) | `style: fix button hover color` |
 | `refactor` | Refactoring | `refactor(password-gen): extract validation logic` |
-| `perf` | Performance improvement | `perf(json-formatter): optimize parsing` |
+| `perf` | Performance improvement | `perf(blur): optimize canvas rendering` |
 | `test` | Tests | `test(calculator): add edge case tests` |
 | `chore` | Maintenance task | `chore: update .gitignore` |
 | `ci` | CI/CD | `ci: add GitHub Actions workflow` |
@@ -121,7 +121,7 @@ The scope is optional but recommended. It indicates the affected part of the pro
 ```bash
 # Good
 feat(password-gen): add clipboard copy button
-fix(json-formatter): handle empty input gracefully
+fix(timer): handle empty input gracefully
 docs: add contribution guidelines
 
 # Bad

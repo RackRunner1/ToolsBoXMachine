@@ -48,16 +48,6 @@
       "keywords": ["qr", "code", "barcode", "scan", "link"]
     },
     {
-      "id": "json",
-      "name": "JSON Formatter",
-      "emoji": "📦",
-      "description": "Format, minify, and validate JSON data",
-      "url": "/tools/json-formatter/json-formatter.html",
-      "category": "developer",
-      "clientSide": true,
-      "keywords": ["json", "format", "minify", "validate", "beautify"]
-    },
-    {
       "id": "timer",
       "name": "Pomodoro Timer",
       "emoji": "⏱️",
