@@ -41,13 +41,6 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 - **Input:** URL or text
 - **Output:** QR code image (downloadable)
 
-### JSON Formatter
-- **URL:** /tools/json-formatter/json-formatter.html
-- **Description:** Format, minify, and validate JSON data
-- **Category:** Developer Tools
-- **Client-side:** Yes
-- **Features:** Pretty-print, minify, validate, error detection
-
 ### Pomodoro Timer
 - **URL:** /tools/timer/timer.html
 - **Description:** Stay focused with timed work sessions

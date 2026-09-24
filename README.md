@@ -28,7 +28,6 @@ No `package.json`, no build step, no dependencies. Open `index.html` in a browse
 | Calculator | Perform basic arithmetic calculations |
 | Password Generator | Generate secure passwords or passphrases |
 | QR Code Generator | Create custom QR codes for any link or text |
-| JSON Formatter | Format, minify, and validate JSON data |
 | Pomodoro Timer | Stay focused with timed work sessions |
 | Emoji Keyboard | Browse and copy emojis with one click |
 | Notes | Create, save, and manage notes locally |
@@ -46,7 +45,6 @@ tbxm/
 │   ├── calculator/
 │   ├── clock/
 │   ├── emoji-keyboard/
-│   ├── json-formatter/
 │   ├── note/
 │   ├── password-gen/
 │   ├── qr-gen/

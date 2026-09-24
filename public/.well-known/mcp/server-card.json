@@ -57,18 +57,6 @@
       }
     },
     {
-      "name": "format_json",
-      "description": "Format, minify, or validate JSON data",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "input": { "type": "string", "description": "JSON string to process" },
-          "mode": { "type": "string", "enum": ["format", "minify", "validate"], "default": "format" }
-        },
-        "required": ["input"]
-      }
-    },
-    {
       "name": "clock",
       "description": "Display the current time",
       "inputSchema": {
