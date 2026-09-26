@@ -318,15 +318,38 @@ upload.addEventListener("change", (e) => {
 });
 
 // Clipboard Logic
-async function handlePaste(e) {
-  const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+function loadFile(file) {
+  if (!file || !file.type || !file.type.startsWith("image/")) return false;
+  const reader = new FileReader();
+  reader.onload = (event) => loadImage(event.target.result);
+  reader.readAsDataURL(file);
+  return true;
+}
+
+function handlePaste(e) {
+  const clipboardData = e.clipboardData;
+  if (!clipboardData) return;
+
+  // Files pasted directly (screenshot tool, file from explorer, ...)
+  if (clipboardData.files && clipboardData.files.length > 0) {
+    for (const file of clipboardData.files) {
+      if (loadFile(file)) {
+        e.preventDefault();
+        return;
+      }
+    }
+  }
+
+  // Image items ("Copy image" from another page, screenshot, ...)
+  const items = clipboardData.items;
+  if (!items) return;
   for (const item of items) {
-    if (item.type.indexOf("image") !== -1) {
+    if (item.kind === "file" && item.type && item.type.startsWith("image/")) {
       const blob = item.getAsFile();
-      const reader = new FileReader();
-      reader.onload = (event) => loadImage(event.target.result);
-      reader.readAsDataURL(blob);
-      break;
+      if (blob && loadFile(blob)) {
+        e.preventDefault();
+        return;
+      }
     }
   }
 }
