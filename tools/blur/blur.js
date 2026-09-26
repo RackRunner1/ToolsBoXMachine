@@ -153,15 +153,18 @@ canvasContainer.addEventListener(
   { passive: false },
 );
 
+// Brush size only applies to the brush and eraser modes
+function updateBrushSizeVisibility() {
+  const mode = document.querySelector('input[name="blurMode"]:checked').value;
+  brushSizeContainer.style.display =
+    mode === "full" || mode === "selector" ? "none" : "block";
+}
+
 function updateCanvas() {
+  updateBrushSizeVisibility();
+
   if (!imageObjects) return;
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
-
-  if (mode === "full" || mode === "selector") {
-    brushSizeContainer.style.display = "none";
-  } else {
-    brushSizeContainer.style.display = "block";
-  }
 
   if (mode === "full") {
     // Always use ctx.filter instead of CSS filter so toDataURL() captures the blur
