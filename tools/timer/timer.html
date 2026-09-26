@@ -366,68 +366,6 @@
         }
       }
 
-      .tick-check {
-        display: flex;
-        align-items: center;
-        gap: 0.6rem;
-        cursor: pointer;
-        user-select: none;
-        color: #cbd5e1;
-        font-size: 0.85rem;
-        font-weight: 500;
-      }
-
-      .tick-check input {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      .tick-check .checkmark-box {
-        width: 20px;
-        height: 20px;
-        border: 2px solid #334155;
-        border-radius: 0.4rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        background: transparent;
-        transition: all 0.2s;
-      }
-
-      .tick-check:hover .checkmark-box {
-        border-color: #475569;
-      }
-
-      .tick-check input:checked + .checkmark-box {
-        border-color: var(--primary-color);
-        background: var(--primary-color);
-      }
-
-      .tick-check .checkmark {
-        opacity: 0;
-        transition: opacity 0.15s ease;
-      }
-
-      .tick-check input:checked + .checkmark-box .checkmark {
-        opacity: 1;
-      }
-
-      .tick-check .checkmark polyline {
-        stroke-dasharray: 24;
-        stroke-dashoffset: -24;
-      }
-
-      .tick-check input:checked + .checkmark-box .checkmark polyline {
-        animation: drawCheck 0.4s ease-in-out forwards;
-      }
-
-      @keyframes drawCheck {
-        to {
-          stroke-dashoffset: 0;
-        }
-      }
     </style>
     <script type="application/ld+json">
 {
@@ -638,15 +576,6 @@
                 style="margin-top: 0.25rem; width: 100%"
               />
             </div>
-            <label class="tick-check">
-              <input type="checkbox" id="ticking-sound-toggle" checked />
-              <span class="checkmark-box">
-                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20,6 9,17 4,12"></polyline>
-                </svg>
-              </span>
-              <span>Play Ticking Sound</span>
-            </label>
           </div>
         </div>
 
