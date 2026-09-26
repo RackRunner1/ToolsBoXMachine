@@ -5,8 +5,6 @@ const brushSizeInput = document.getElementById("brush-size");
 const blurIntensityInput = document.getElementById("blur-intensity");
 const sizeVal = document.getElementById("size-val");
 const blurVal = document.getElementById("blur-val");
-const undoBtn = document.getElementById("undo-btn");
-const resetBtn = document.getElementById("reset-btn");
 const downloadBtn = document.getElementById("download-btn");
 const copyBtn = document.getElementById("copy-btn");
 const brushSizeContainer = document.getElementById("brush-size-container");
@@ -22,14 +20,6 @@ let isTouchEvent = false;
 let offscreenCanvas = document.createElement("canvas");
 let offscreenCtx = offscreenCanvas.getContext("2d");
 const modeRadios = document.querySelectorAll('input[name="blurMode"]');
-
-// Import Mode Elements
-const importModeRadios = document.querySelectorAll('input[name="importMode"]');
-const fileContainer = document.getElementById("file-import-container");
-const clipboardContainer = document.getElementById(
-  "clipboard-import-container",
-);
-const pasteArea = document.getElementById("paste-area");
 
 // A secondary canvas to keep track of painted strokes
 let paintCanvas = document.createElement("canvas");
@@ -76,14 +66,7 @@ function undo() {
   }
 }
 
-undoBtn.addEventListener("click", undo);
-resetBtn.addEventListener("click", () => {
-  if (!imageObjects) return;
-  saveState();
-  paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-  updateCanvas();
-});
-
+// Undo is bound to the Ctrl/Cmd + Z shortcut
 document.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "z") {
     e.preventDefault();
@@ -322,18 +305,6 @@ function loadImage(src) {
   img.src = src;
 }
 
-importModeRadios.forEach((radio) => {
-  radio.addEventListener("change", (e) => {
-    if (e.target.value === "file") {
-      fileContainer.style.display = "block";
-      clipboardContainer.style.display = "none";
-    } else {
-      fileContainer.style.display = "none";
-      clipboardContainer.style.display = "block";
-    }
-  });
-});
-
 upload.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
@@ -357,26 +328,8 @@ async function handlePaste(e) {
   }
 }
 
+// Ctrl/Cmd + V paste support
 window.addEventListener("paste", handlePaste);
-
-pasteArea.addEventListener("click", async () => {
-  try {
-    const clipboardItems = await navigator.clipboard.read();
-    for (const clipboardItem of clipboardItems) {
-      for (const type of clipboardItem.types) {
-        if (type.startsWith("image/")) {
-          const blob = await clipboardItem.getType(type);
-          const reader = new FileReader();
-          reader.onload = (event) => loadImage(event.target.result);
-          reader.readAsDataURL(blob);
-          return;
-        }
-      }
-    }
-  } catch (err) {
-    console.error("Clipboard API failed, please use Ctrl+V", err);
-  }
-});
 
 // Pad offscreen canvas to avoid edge transparency with blur
 function renderBlurredOffscreen() {
