@@ -8,6 +8,9 @@ const blurVal = document.getElementById("blur-val");
 const downloadBtn = document.getElementById("download-btn");
 const copyBtn = document.getElementById("copy-btn");
 const brushSizeContainer = document.getElementById("brush-size-container");
+const blurIntensityContainer = document.getElementById(
+  "blur-intensity-container",
+);
 
 const mobileNotice = document.getElementById('mobile-notice');
 if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
@@ -153,15 +156,16 @@ canvasContainer.addEventListener(
   { passive: false },
 );
 
-// Brush size only applies to the brush and eraser modes
-function updateBrushSizeVisibility() {
+// Brush size applies to brush/eraser; intensity to everything but eraser
+function updateSettingsVisibility() {
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
   brushSizeContainer.style.display =
     mode === "full" || mode === "selector" ? "none" : "block";
+  blurIntensityContainer.style.display = mode === "eraser" ? "none" : "block";
 }
 
 function updateCanvas() {
-  updateBrushSizeVisibility();
+  updateSettingsVisibility();
 
   if (!imageObjects) return;
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
