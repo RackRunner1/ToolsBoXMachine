@@ -73,11 +73,6 @@ document.addEventListener("DOMContentLoaded", () => {
     osc.stop(ctx.currentTime + duration);
   }
 
-  // Tick sound
-  function playTick() {
-    playTone(800, 0.05, 0.3, "sine");
-  }
-
   // Alarm sound generators
   const alarmSounds = {
     digital() {
@@ -99,8 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let currentAlarm = "digital";
-
-  const tickingSoundToggle = document.getElementById("ticking-sound-toggle");
 
   let timerInterval;
   let totalSeconds = 25 * 60;
@@ -269,15 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
     timerInterval = setInterval(() => {
       remainingSeconds--;
       updateDisplay();
-
-      // Play tick sound if checkbox is checked
-      if (
-        tickingSoundToggle &&
-        tickingSoundToggle.checked &&
-        remainingSeconds > 0
-      ) {
-        playTick();
-      }
 
       if (remainingSeconds <= 0) {
         clearInterval(timerInterval);
