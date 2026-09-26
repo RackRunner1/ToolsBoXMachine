@@ -159,9 +159,14 @@ canvasContainer.addEventListener(
 // Brush size applies to brush/eraser; intensity to everything but eraser
 function updateSettingsVisibility() {
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
-  brushSizeContainer.style.display =
-    mode === "full" || mode === "selector" ? "none" : "block";
-  blurIntensityContainer.style.display = mode === "eraser" ? "none" : "block";
+  const showBrush = mode !== "full" && mode !== "selector";
+  const showIntensity = mode !== "eraser";
+  brushSizeContainer.style.display = showBrush ? "block" : "none";
+  blurIntensityContainer.style.display = showIntensity ? "block" : "none";
+  // The inter-slider gap lives on the brush container, but only when the
+  // intensity slider below it is visible (:last-child ignores display:none,
+  // so CSS alone would keep a 1.5rem gap under a lone brush slider).
+  brushSizeContainer.style.marginBottom = showIntensity ? "" : "0";
 }
 
 function updateCanvas() {
