@@ -15,7 +15,7 @@ import re
 import subprocess
 import sys
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 BASE_URL = "https://www.tbxm.org"
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -48,6 +48,11 @@ EMOJI_SIZE = 118
 # Brand logo, shown at the bottom of each banner.
 LOGO_PATH = os.path.join(PROJECT_ROOT, ".assets", "logo", "logo.png")
 LOGO_HEIGHT = 48
+
+# The homepage banner is hand-made, so it is copied as-is instead of being
+# generated. It must be committed: CI runs this script on a fresh checkout.
+HOMEPAGE_OG_NAME = "homepage"
+HOMEPAGE_OG_SOURCE = os.path.join(PROJECT_ROOT, ".assets", "homepage.png")
 
 # Dedicated data for pages that are not in the tools manifest.
 # Format: (name, emoji, description)
@@ -131,6 +136,41 @@ def load_logo():
     except Exception as exc:  # noqa: BLE001
         print(f"  Warning: cannot load logo ({exc})")
         return None
+
+
+def export_og_source(source_path, output_path):
+    """Copy a hand-made banner to og/, normalized to 1200x630.
+
+    Returns False when the source is missing or unreadable, so the caller
+    can fall back to generating a banner.
+    """
+    if not os.path.exists(source_path):
+        print(f"  Warning: {os.path.relpath(source_path, PROJECT_ROOT)} not found")
+        return False
+
+    try:
+        img = Image.open(source_path)
+        if img.mode in ("RGBA", "LA", "P"):
+            # Composite on the brand background so social previews never
+            # render the transparent pixels as black.
+            flat = Image.new("RGB", img.size, COLOR_BG_BOTTOM)
+            flat.paste(img.convert("RGBA"), mask=img.convert("RGBA").getchannel("A"))
+            img = flat
+        else:
+            img = img.convert("RGB")
+
+        if img.size != (W, H):
+            print(f"  Note: resizing {img.size[0]}x{img.size[1]} to {W}x{H}")
+            img = ImageOps.fit(img, (W, H), method=Image.LANCZOS)
+
+        img.save(output_path, "PNG")
+    except Exception as exc:  # noqa: BLE001
+        print(f"  Warning: cannot use source image ({exc})")
+        return False
+
+    print(f"  Copied: {os.path.relpath(source_path, PROJECT_ROOT)} -> "
+          f"{os.path.relpath(output_path, PROJECT_ROOT)}")
+    return True
 
 
 def load_font(size, weight=600):
@@ -436,7 +476,12 @@ def main():
         print(f"Processing: {rel_path}")
         print(f"  Name: {name} | URL: {page_url}")
 
-        generate_og_banner(output_path, name, emoji, description)
+        used_source = og_name == HOMEPAGE_OG_NAME and export_og_source(
+            HOMEPAGE_OG_SOURCE, output_path
+        )
+        if not used_source:
+            generate_og_banner(output_path, name, emoji, description)
+
         inject_og_meta(html_path, og_name, page_url)
         print()
 
