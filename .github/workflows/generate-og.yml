@@ -8,6 +8,7 @@ on:
       - "**/*.html"
       - "public/**"
       - "scripts/**"
+      - ".assets/homepage.png"
   workflow_dispatch:
     inputs:
       force:
