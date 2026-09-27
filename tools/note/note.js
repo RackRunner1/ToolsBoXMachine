@@ -10,6 +10,9 @@ const elements = {
   editorView: document.getElementById("editor-view"),
   titleInput: document.getElementById("note-title"),
   contentInput: document.getElementById("note-content"),
+  mdPreview: document.getElementById("md-preview"),
+  tabWrite: document.getElementById("tab-write"),
+  tabPreview: document.getElementById("tab-preview"),
   dateDisplay: document.getElementById("note-date"),
   deleteBtn: document.getElementById("delete-btn"),
   createBtn: document.getElementById("create-btn"),
@@ -195,6 +198,7 @@ function selectNote(id) {
   elements.dateDisplay.textContent = dateStr;
 
   renderList();
+  updatePreview();
 }
 
 function selectFirstNote() {
@@ -224,6 +228,7 @@ function createNote() {
 
   notes.unshift(newNote);
   saveNotesToStorage();
+  setMdMode("write");
   selectNote(newNote.id);
   elements.titleInput.focus();
 }
@@ -296,6 +301,7 @@ function handleExternalSync() {
   }
 
   renderList();
+  updatePreview();
 }
 
 function deleteActiveNote() {
@@ -326,6 +332,286 @@ function showNotification(message) {
   }, 3000);
 }
 
+// ---------- Markdown support ----------
+
+let mdMode = "write";
+
+function sanitizeMdUrl(url) {
+  const t = url.trim();
+  if (/^(javascript|data|vbscript|file|blob):/i.test(t)) return "#";
+  return url;
+}
+
+function renderMdInline(text) {
+  const chunks = [];
+  const stash = (html) => `\u0000${chunks.push(html) - 1}\u0000`;
+
+  let out = escapeHTML(text);
+
+  // Protected first: escaped punctuation (\*, \_, ...) and `code spans`
+  out = out.replace(/\\([\\`*_{}[\]()#+\-.!|>~])/g, (m, ch) => stash(ch));
+  out = out.replace(/`([^`\n]+?)`/g, (m, code) => stash(`<code>${code}</code>`));
+
+  // Images: ![alt](src "title")
+  out = out.replace(/!\[([^\]]*?)\]\((\S+?)(?:\s+"([^"]*?)")?\)/g, (m, alt, src, title) => {
+    const t = title ? ` title="${title}"` : "";
+    return `<img src="${sanitizeMdUrl(src)}" alt="${alt}"${t}>`;
+  });
+
+  // Links: [label](href "title")
+  out = out.replace(/\[([^\]]*?)\]\((\S+?)(?:\s+"([^"]*?)")?\)/g, (m, label, href, title) => {
+    const t = title ? ` title="${title}"` : "";
+    return `<a href="${sanitizeMdUrl(href)}" target="_blank" rel="noopener noreferrer"${t}>${label}</a>`;
+  });
+
+  // Autolinks (bare URLs)
+  out = out.replace(/(^|[\s(])(https?:\/\/[^\s<>()]+)/g, (m, pre, url) => {
+    const trail = url.match(/[.,;:!?)]+$/);
+    let clean = url;
+    let suffix = "";
+    if (trail) {
+      clean = url.slice(0, -trail[0].length);
+      suffix = trail[0];
+    }
+    return `${pre}<a href="${sanitizeMdUrl(clean)}" target="_blank" rel="noopener noreferrer">${clean}</a>${suffix}`;
+  });
+
+  // Bold + italic, bold, strikethrough, italic
+  out = out.replace(/(\*\*\*|___)(.+?)\1/g, "<strong><em>$2</em></strong>");
+  out = out.replace(/(\*\*|__)(.+?)\1/g, "<strong>$2</strong>");
+  out = out.replace(/~~(.+?)~~/g, "<del>$1</del>");
+  out = out.replace(/\*([^*\n]+?)\*/g, "<em>$1</em>");
+  out = out.replace(/(^|\W)_([^_\n]+?)_(?=\W|$)/g, "$1<em>$2</em>");
+
+  return out.replace(/\u0000(\d+)\u0000/g, (m, idx) => chunks[+idx]);
+}
+
+function splitMdTableRow(line) {
+  let t = line.trim();
+  if (t.startsWith("|")) t = t.slice(1);
+  if (t.endsWith("|")) t = t.slice(0, -1);
+  return t.split("|").map((c) => c.trim());
+}
+
+function isMdDelimRow(line) {
+  const cells = splitMdTableRow(line);
+  return cells.length > 0 && cells.every((c) => /^:?-+:?$/.test(c));
+}
+
+function isMdBlockStart(line, nextLine) {
+  if (/^\s{0,3}`{3,}/.test(line)) return true;
+  if (/^\s{0,3}#{1,6}\s+/.test(line)) return true;
+  if (/^\s{0,3}(?:(?:- *){3,}|(?:\* *){3,}|(?:_ *){3,})\s*$/.test(line)) return true;
+  if (/^\s{0,3}>/.test(line)) return true;
+  if (/^\s{0,3}(?:[*+-]|\d+[.)])\s+/.test(line)) return true;
+  if (line.includes("|") && nextLine && isMdDelimRow(nextLine)) return true;
+  return false;
+}
+
+function buildMdList(lines, start, baseIndent) {
+  const first = lines[start].match(/^(\s*)([*+-]|\d+[.)])\s+(.*)$/);
+  const ordered = /^\d/.test(first[2]);
+  const items = [];
+  let k = start;
+
+  while (k < lines.length) {
+    const raw = lines[k];
+    if (/^\s*$/.test(raw)) {
+      // Blank lines are allowed inside a list only if another item follows
+      let j = k + 1;
+      while (j < lines.length && /^\s*$/.test(lines[j])) j++;
+      if (j < lines.length) {
+        const nm = lines[j].match(/^(\s*)([*+-]|\d+[.)])\s+(.*)$/);
+        if (nm && nm[1].length >= baseIndent && /^\d/.test(nm[2]) === ordered) {
+          k = j;
+          continue;
+        }
+      }
+      break;
+    }
+    const m = raw.match(/^(\s*)([*+-]|\d+[.)])\s+(.*)$/);
+    if (!m) {
+      // Continuation text belonging to the current item
+      const indent = raw.match(/^\s*/)[0].length;
+      if (items.length > 0 && indent > baseIndent) {
+        items[items.length - 1].content.push(raw.trim());
+        k++;
+        continue;
+      }
+      break;
+    }
+    const indent = m[1].length;
+    if (indent < baseIndent) break;
+    if (indent > baseIndent) {
+      if (items.length === 0) break;
+      const sub = buildMdList(lines, k, indent);
+      items[items.length - 1].children += sub.html;
+      k = sub.next;
+      continue;
+    }
+    if (/^\d/.test(m[2]) !== ordered) break;
+    items.push({ content: [m[3]], children: "" });
+    k++;
+  }
+
+  const tag = ordered ? "ol" : "ul";
+  const startNum = ordered ? parseInt(first[2], 10) : 1;
+  let html = ordered && startNum !== 1 ? `<${tag} start="${startNum}">` : `<${tag}>`;
+  for (const item of items) {
+    const task = !ordered && item.content[0].match(/^\[([ xX])\]\s+(.*)$/);
+    if (task) {
+      const checked = task[1].toLowerCase() === "x" ? " checked" : "";
+      const rest = item.content.slice(1);
+      const inner =
+        `<input type="checkbox" disabled${checked}> ${renderMdInline(task[2])}` +
+        (rest.length > 0 ? "<br>" + rest.map(renderMdInline).join("<br>") : "");
+      html += `<li class="md-task">${inner}${item.children}</li>`;
+    } else {
+      html += `<li>${item.content.map(renderMdInline).join("<br>")}${item.children}</li>`;
+    }
+  }
+  html += `</${tag}>`;
+  return { html, next: k };
+}
+
+function renderMarkdown(src) {
+  if (!src || !src.trim()) return '<p class="md-empty">Nothing to preview.</p>';
+  const lines = src.replace(/\r\n?/g, "\n").replace(/\t/g, "  ").split("\n");
+  let html = "";
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^\s*$/.test(line)) {
+      i++;
+      continue;
+    }
+
+    // Fenced code block
+    const fence = line.match(/^\s{0,3}`{3,}(\w*)\s*$/);
+    if (fence) {
+      const lang = fence[1];
+      i++;
+      const buf = [];
+      while (i < lines.length && !/^\s{0,3}`{3,}\s*$/.test(lines[i])) {
+        buf.push(lines[i]);
+        i++;
+      }
+      i++; // skip closing fence (or end of text)
+      html += `<pre><code${lang ? ` class="language-${escapeHTML(lang)}"` : ""}>${escapeHTML(buf.join("\n"))}</code></pre>`;
+      continue;
+    }
+
+    // ATX heading
+    const heading = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
+    if (heading) {
+      const level = heading[1].length;
+      html += `<h${level}>${renderMdInline(heading[2])}</h${level}>`;
+      i++;
+      continue;
+    }
+
+    // Horizontal rule
+    if (/^\s{0,3}(?:(?:- *){3,}|(?:\* *){3,}|(?:_ *){3,})\s*$/.test(line)) {
+      html += "<hr>";
+      i++;
+      continue;
+    }
+
+    // Blockquote (supports nesting via recursion)
+    if (/^\s{0,3}>/.test(line)) {
+      const buf = [];
+      while (i < lines.length && /^\s{0,3}>/.test(lines[i])) {
+        buf.push(lines[i].replace(/^\s{0,3}>\s?/, ""));
+        i++;
+      }
+      html += `<blockquote>${renderMarkdown(buf.join("\n"))}</blockquote>`;
+      continue;
+    }
+
+    // Table
+    if (line.includes("|") && i + 1 < lines.length && isMdDelimRow(lines[i + 1])) {
+      const header = splitMdTableRow(line);
+      const aligns = splitMdTableRow(lines[i + 1]).map((c) => {
+        const left = c.startsWith(":");
+        const right = c.endsWith(":");
+        return left && right ? "center" : right ? "right" : left ? "left" : "";
+      });
+      i += 2;
+      const rows = [];
+      while (i < lines.length && !/^\s*$/.test(lines[i]) && lines[i].includes("|")) {
+        rows.push(splitMdTableRow(lines[i]));
+        i++;
+      }
+      const width = Math.max(header.length, ...rows.map((r) => r.length));
+      const cell = (content, tag, align) =>
+        `<${tag}${align ? ` style="text-align:${align}"` : ""}>${renderMdInline(content)}</${tag}>`;
+      const pad = (arr) => {
+        const copy = arr.slice();
+        while (copy.length < width) copy.push("");
+        return copy;
+      };
+      html += "<table><thead><tr>";
+      pad(header).forEach((c, idx) => {
+        html += cell(c, "th", aligns[idx] || "");
+      });
+      html += "</tr></thead>";
+      if (rows.length > 0) {
+        html += "<tbody>";
+        for (const row of rows) {
+          html += "<tr>";
+          pad(row).forEach((c, idx) => {
+            html += cell(c, "td", aligns[idx] || "");
+          });
+          html += "</tr>";
+        }
+        html += "</tbody>";
+      }
+      html += "</table>";
+      continue;
+    }
+
+    // List
+    if (/^\s{0,3}(?:[*+-]|\d+[.)])\s+/.test(line)) {
+      const baseIndent = line.match(/^\s*/)[0].length;
+      const res = buildMdList(lines, i, baseIndent);
+      html += res.html;
+      i = res.next;
+      continue;
+    }
+
+    // Paragraph (single newlines become <br>)
+    const buf = [line];
+    i++;
+    while (i < lines.length && !/^\s*$/.test(lines[i]) && !isMdBlockStart(lines[i], lines[i + 1])) {
+      buf.push(lines[i]);
+      i++;
+    }
+    html += `<p>${buf.map(renderMdInline).join("<br>")}</p>`;
+  }
+
+  return html;
+}
+
+function updatePreview() {
+  if (!elements.mdPreview) return;
+  elements.mdPreview.innerHTML = renderMarkdown(elements.contentInput.value);
+}
+
+function setMdMode(mode) {
+  mdMode = mode;
+  const isPreview = mode === "preview";
+  elements.contentInput.style.display = isPreview ? "none" : "";
+  elements.mdPreview.style.display = isPreview ? "" : "none";
+  elements.tabWrite.classList.toggle("active", !isPreview);
+  elements.tabPreview.classList.toggle("active", isPreview);
+  if (isPreview) {
+    updatePreview();
+  } else {
+    elements.contentInput.focus();
+  }
+}
+
 function setupEventListeners() {
   elements.createBtn.addEventListener("click", createNote);
   elements.deleteBtn.addEventListener("click", deleteActiveNote);
@@ -340,6 +626,12 @@ function setupEventListeners() {
 
   elements.titleInput.addEventListener("input", scheduleAutoSave);
   elements.contentInput.addEventListener("input", scheduleAutoSave);
+  elements.contentInput.addEventListener("input", () => {
+    if (mdMode === "preview") updatePreview();
+  });
+
+  elements.tabWrite.addEventListener("click", () => setMdMode("write"));
+  elements.tabPreview.addEventListener("click", () => setMdMode("preview"));
 
   elements.titleInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === "Tab") {
