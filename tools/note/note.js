@@ -966,7 +966,7 @@ function renderEditor() {
   }
   let html = "";
   editorBlocks.forEach((blk, bi) => {
-    const res = renderBlock(blk, parsed, bi === activeBlockIdx);
+    const res = renderBlock(blk, parsed, true);
     blockPmaps.push(res.out.vis);
     html += `<div class="${res.cls}" data-bi="${bi}">${res.out.html || "<br>"}</div>`;
   });
@@ -986,7 +986,6 @@ function domOffsetIn(root, node, nodeOff, skipHidden) {
   const countSub = (n) => {
     if (n.nodeType === 3) return n.nodeValue.length;
     if (n.nodeName === "BR") return 1;
-    if (skipHidden && n.dataset && n.dataset.mhide) return 0;
     let s = 0;
     n.childNodes.forEach((c) => {
       s += countSub(c);
@@ -1014,7 +1013,6 @@ function domOffsetIn(root, node, nodeOff, skipHidden) {
       off += 1;
       return;
     }
-    if (skipHidden && n.dataset && n.dataset.mhide) return;
     n.childNodes.forEach(walk);
   };
   walk(root);
@@ -1047,8 +1045,6 @@ function setCaretIn(root, local) {
           return;
         }
         rem -= 1;
-      } else if (c.dataset && c.dataset.mhide) {
-        continue;
       } else {
         walk(c);
       }
@@ -1070,7 +1066,6 @@ function readBlockText(div) {
     n.childNodes.forEach((c) => {
       if (c.nodeType === 3) s += c.nodeValue;
       else if (c.nodeName === "BR") s += "\n";
-      else if (c.dataset && c.dataset.mhide) return;
       else walk(c);
     });
   };
