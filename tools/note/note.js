@@ -1108,6 +1108,80 @@ function locateBlock(blocks, g) {
   return { bi: blocks.length - 1, local: l.end - l.start };
 }
 
+// Shared tail: re-parse, re-render, restore caret at global offset, save.
+function rerenderAt(g) {
+  const parsed = parseBlocks(editorSrc);
+  editorBlocks = parsed.blocks;
+  const loc = locateBlock(editorBlocks, g);
+  activeBlockIdx = loc.bi;
+  renderEditor();
+  restoreCaret(loc.bi, loc.local);
+  scheduleAutoSave();
+}
+
+// Last-resort recovery: never leave the editor bricked.
+function safeRenderRecover(msg) {
+  try {
+    const parsed = parseBlocks(editorSrc);
+    editorBlocks = parsed.blocks.length
+      ? parsed.blocks
+      : [{ type: "empty", start: 0, end: 0 }];
+    if (activeBlockIdx < 0 || activeBlockIdx >= editorBlocks.length) activeBlockIdx = 0;
+    renderEditor();
+  } catch (e2) {
+    console.error("[notes] render failed:", e2);
+  }
+  if (msg) {
+    try {
+      showNotification(msg);
+    } catch (e3) {
+      /* ignore */
+    }
+  }
+}
+
+// Rebuild src from the DOM after structural browser edits the model
+// didn't perform itself (e.g. select-all + type). Returns null when a
+// block contains constructs that can't be read back exactly.
+function recoverFromDom(info) {
+  const kids = elements.editor.children;
+  const divs = [];
+  for (let k = 0; k < kids.length; k++) {
+    if (kids[k].classList && kids[k].classList.contains("md-block")) divs.push(kids[k]);
+  }
+  if (!divs.length) return null;
+  for (const d of divs) {
+    if (d.querySelector("img,table,pre,hr,input")) return null;
+  }
+  let out = "";
+  let caretG = 0;
+  let prevOldIdx = -2;
+  let first = true;
+  for (const div of divs) {
+    const rawBi = parseInt(div.dataset.bi, 10);
+    const bi = Number.isNaN(rawBi) ? -1 : rawBi;
+    const text = readBlockText(div);
+    if (!first) {
+      const expected = prevOldIdx + 1;
+      if (
+        bi === expected &&
+        expected > 0 &&
+        editorBlocks[expected] &&
+        editorBlocks[expected - 1]
+      ) {
+        out += editorSrc.slice(editorBlocks[expected - 1].end, editorBlocks[expected].start);
+      } else {
+        out += "\n";
+      }
+    }
+    if (info && div === info.div) caretG = out.length + info.local;
+    out += text;
+    prevOldIdx = bi;
+    first = false;
+  }
+  return { src: out, caretG };
+}
+
 function restoreCaret(bi, local) {
   const div = blockDiv(bi);
   if (!div) {
@@ -1199,23 +1273,45 @@ function getLineAt(src, g) {
 
 function handleEditorInput() {
   if (isComposing) return;
-  const info = getCaretInfo();
-  if (!info || info.bi !== activeBlockIdx) {
-    renderEditor();
-    return;
+  try {
+    const info = getCaretInfo();
+    if (!info) {
+      renderEditor();
+      return;
+    }
+    const kids = elements.editor.children;
+    let divCount = 0;
+    for (let k = 0; k < kids.length; k++) {
+      if (kids[k].classList && kids[k].classList.contains("md-block")) divCount++;
+    }
+    if (divCount !== editorBlocks.length) {
+      // Structural edit by the browser (select-all + type, ...): rebuild.
+      const rec = recoverFromDom(info);
+      if (!rec) {
+        renderEditor();
+        return;
+      }
+      editorSrc = rec.src;
+      commitHist(rec.caretG, false);
+      rerenderAt(rec.caretG);
+      return;
+    }
+    const blk = editorBlocks[info.bi];
+    if (info.bi !== activeBlockIdx && info.div.querySelector("img,table,pre,hr,input")) {
+      // Caret block carries constructs that can't be read back: drop keystroke.
+      renderEditor();
+      return;
+    }
+    activeBlockIdx = info.bi;
+    const text = readBlockText(info.div);
+    editorSrc = editorSrc.slice(0, blk.start) + text + editorSrc.slice(blk.end);
+    const g = blk.start + info.local;
+    commitHist(g, false);
+    rerenderAt(g);
+  } catch (err) {
+    console.error("[notes] input recovery:", err);
+    safeRenderRecover("Editor recovered — nothing lost");
   }
-  const blk = editorBlocks[info.bi];
-  const text = readBlockText(info.div);
-  editorSrc = editorSrc.slice(0, blk.start) + text + editorSrc.slice(blk.end);
-  const g = blk.start + info.local;
-  commitHist(g, false);
-  const parsed = parseBlocks(editorSrc);
-  editorBlocks = parsed.blocks;
-  const loc = locateBlock(editorBlocks, g);
-  activeBlockIdx = loc.bi;
-  renderEditor();
-  restoreCaret(loc.bi, loc.local);
-  scheduleAutoSave();
 }
 
 function handleEditorKeydown(e) {
@@ -1300,6 +1396,10 @@ function handleEditorKeydown(e) {
         const parsed = parseBlocks(editorSrc);
         editorBlocks = parsed.blocks;
         const nb = editorBlocks.find((x) => x.start === blk.start) || editorBlocks[info.bi];
+        if (!nb) {
+          renderEditor();
+          return;
+        }
         const nbi = editorBlocks.indexOf(nb);
         activeBlockIdx = nbi;
         renderEditor();
@@ -1357,6 +1457,14 @@ function handleEnter(e) {
     if (type === "quote") {
       const m = line.match(/^\s{0,3}>\s?/);
       prefix = m ? m[0] : "> ";
+      if (m && col <= m[0].length) {
+        // Caret inside the quote prefix: plain line break before the line.
+        editorSrc = editorSrc.slice(0, lineStart) + "\n" + editorSrc.slice(lineStart);
+        newG = lineStart + 1;
+        commitHist(newG, true);
+        rerenderAt(newG);
+        return;
+      }
       emptyRest = line.slice(prefix.length) === "";
     } else {
       const p = parseItemLine(line);
@@ -1378,6 +1486,14 @@ function handleEnter(e) {
       if (on) bullet = `${parseInt(on[1], 10) + 1}${on[2]}`;
       prefix = `${indentStr}${bullet} `;
       if (p.task !== null) prefix += "[ ] ";
+      if (col <= p.contentS) {
+        // Caret inside indent/bullet/task prefix: plain line break before it.
+        editorSrc = editorSrc.slice(0, lineStart) + "\n" + editorSrc.slice(lineStart);
+        newG = lineStart + 1;
+        commitHist(newG, true);
+        rerenderAt(newG);
+        return;
+      }
       emptyRest = p.content === "";
       if (emptyRest && col >= line.length) {
         // Empty item + Enter at end: end the list, plain line
@@ -1473,6 +1589,7 @@ function handleBackspaceAtStart(info) {
     const parsed = parseBlocks(editorSrc);
     editorBlocks = parsed.blocks;
     const nb = editorBlocks.find((x) => x.start === prev.start) || editorBlocks[0];
+    if (!nb) return;
     const nbi = editorBlocks.indexOf(nb);
     activeBlockIdx = nbi;
     renderEditor();
@@ -1650,11 +1767,46 @@ function setupEventListeners() {
 
   elements.titleInput.addEventListener("input", scheduleAutoSave);
 
-  elements.editor.addEventListener("input", handleEditorInput);
-  elements.editor.addEventListener("keydown", handleEditorKeydown);
-  elements.editor.addEventListener("paste", handlePaste);
-  elements.editor.addEventListener("cut", handleCut);
-  elements.editor.addEventListener("drop", handleDrop);
+  elements.editor.addEventListener("input", (...a) => {
+    try {
+      handleEditorInput(...a);
+    } catch (err) {
+      console.error("[notes] input recovery:", err);
+      safeRenderRecover("Editor recovered — nothing lost");
+    }
+  });
+  elements.editor.addEventListener("keydown", (...a) => {
+    try {
+      handleEditorKeydown(...a);
+    } catch (err) {
+      console.error("[notes] keydown recovery:", err);
+      safeRenderRecover("Editor recovered — nothing lost");
+    }
+  });
+  elements.editor.addEventListener("paste", (...a) => {
+    try {
+      handlePaste(...a);
+    } catch (err) {
+      console.error("[notes] paste recovery:", err);
+      safeRenderRecover("Editor recovered — nothing lost");
+    }
+  });
+  elements.editor.addEventListener("cut", (...a) => {
+    try {
+      handleCut(...a);
+    } catch (err) {
+      console.error("[notes] cut recovery:", err);
+      safeRenderRecover("Editor recovered — nothing lost");
+    }
+  });
+  elements.editor.addEventListener("drop", (...a) => {
+    try {
+      handleDrop(...a);
+    } catch (err) {
+      console.error("[notes] drop recovery:", err);
+      safeRenderRecover("Editor recovered — nothing lost");
+    }
+  });
   elements.editor.addEventListener("dragstart", handleDragStart);
   elements.editor.addEventListener("click", handleEditorClick);
   elements.editor.addEventListener("compositionstart", () => {
@@ -1664,7 +1816,13 @@ function setupEventListeners() {
     isComposing = false;
     handleEditorInput();
   });
-  document.addEventListener("selectionchange", handleSelectionChange);
+  document.addEventListener("selectionchange", (...a) => {
+    try {
+      handleSelectionChange(...a);
+    } catch (err) {
+      console.error("[notes] selection recovery:", err);
+    }
+  });
 
   elements.titleInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === "Tab") {
