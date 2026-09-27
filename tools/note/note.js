@@ -549,10 +549,10 @@ function newOut(src) {
       const ch = escapeHTML(this.src.slice(s, e));
       if (show) {
         this.html += `<span class="md-marker">${ch}</span>`;
-        for (let k = s; k < e; k++) this.vis.push(k);
       } else {
-        this.html += `<span class="md-marker-hide" data-mhide="1">${ch}</span>`;
+        this.html += `<span class="md-marker-zero" data-mhide="1">${ch}</span>`;
       }
+      for (let k = s; k < e; k++) this.vis.push(k);
     },
     br(nlIdx) {
       this.html += "<br>";
@@ -748,6 +748,11 @@ function parseBlocks(src) {
     while (i < lines.length && !blank(lines[i]) && !blockStart(i)) i++;
     const l1 = i - 1;
     blocks.push({ type: "para", l0, l1, start: starts[l0], end: endOf(l1) });
+  }
+  if (blocks.length === 0 || src.endsWith("\n")) {
+    // Trailing/home block so the caret always has somewhere to go
+    // (e.g. Enter at end of document).
+    blocks.push({ type: "empty", start: src.length, end: src.length });
   }
   return { blocks, lines, starts };
 }
@@ -966,7 +971,7 @@ function renderEditor() {
   }
   let html = "";
   editorBlocks.forEach((blk, bi) => {
-    const res = renderBlock(blk, parsed, true);
+    const res = renderBlock(blk, parsed, bi === activeBlockIdx);
     blockPmaps.push(res.out.vis);
     html += `<div class="${res.cls}" data-bi="${bi}">${res.out.html || "<br>"}</div>`;
   });
@@ -1091,6 +1096,7 @@ function getCaretInfo() {
 }
 
 function locateBlock(blocks, g) {
+  if (!blocks.length) return { bi: 0, local: 0 };
   for (let i = 0; i < blocks.length; i++) {
     const b = blocks[i];
     if (g >= b.start && g <= b.end) return { bi: i, local: g - b.start };
@@ -1315,6 +1321,20 @@ function handleEnter(e) {
   const type = blk.type;
   let newG = g;
 
+  // Shift+Enter: soft break (single newline, stays in the same block)
+  if (e.shiftKey) {
+    editorSrc = editorSrc.slice(0, g) + "\n" + editorSrc.slice(g);
+    commitHist(g + 1, true);
+    const parsedShift = parseBlocks(editorSrc);
+    editorBlocks = parsedShift.blocks;
+    const locShift = locateBlock(editorBlocks, g + 1);
+    activeBlockIdx = locShift.bi;
+    renderEditor();
+    restoreCaret(locShift.bi, locShift.local);
+    scheduleAutoSave();
+    return;
+  }
+
   const splitWithBlank = () => {
     editorSrc = editorSrc.slice(0, g) + "\n\n" + editorSrc.slice(g);
     newG = g + 2;
@@ -1324,7 +1344,8 @@ function handleEnter(e) {
     editorSrc = editorSrc.slice(0, g) + "\n" + editorSrc.slice(g);
     newG = g + 1;
   } else if (type === "hr") {
-    return;
+    editorSrc = editorSrc.slice(0, blk.end) + "\n\n" + editorSrc.slice(blk.end);
+    newG = blk.end + 2;
   } else if (type === "heading") {
     splitWithBlank();
   } else if (type === "para") {
