@@ -330,6 +330,14 @@ function setupEventListeners() {
   elements.createBtn.addEventListener("click", createNote);
   elements.deleteBtn.addEventListener("click", deleteActiveNote);
 
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.altKey && e.code === "KeyN") {
+      e.preventDefault();
+      hideContextMenu();
+      createNote();
+    }
+  });
+
   elements.titleInput.addEventListener("input", scheduleAutoSave);
   elements.contentInput.addEventListener("input", scheduleAutoSave);
 
