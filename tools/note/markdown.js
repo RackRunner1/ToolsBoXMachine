@@ -2,20 +2,23 @@
  * Markdown live-preview renderer for the Notes tool (BETA).
  *
  * No dependencies. The rendered DOM is deliberately flat and made only of
- * <span> / <br> elements so the markdown source can always be recovered from
- * the DOM. Two invariants make the whole thing work:
+ * <span> / <br> elements, so the markdown source can always be recovered from
+ * the DOM. Three invariants make the whole thing work:
  *
  *   1. getRawText(el) === the original markdown source
- *      (every source character lives in exactly one text node, and every
- *      source newline is represented by a <br class="md-nl">)
+ *      Every source character lives in exactly one text node, and every
+ *      source newline is represented by a <br class="md-nl">.
  *
- *   2. every literal run carries data-o = its byte offset in the source,
- *      which lets us map a caret offset back to a DOM position.
+ *   2. Literal text is emitted in runs, never one span per character.
+ *      data-o on each run is its offset in the source, which maps a caret
+ *      offset back to a DOM position.
+ *
+ *   3. Nothing but escaped text and our own spans is ever emitted, so note
+ *      content cannot inject markup.
  *
  * Markup characters are emitted as `.md-mark` spans, hidden by CSS unless the
- * caret currently sits inside that construct. That is what produces the
- * "Obsidian live preview" behaviour: formatted while reading, raw while
- * writing.
+ * caret currently sits inside that construct: formatted while reading, raw
+ * while writing (Obsidian-style live preview).
  */
 
 const ESCAPABLE = "\\`*_{}[]()#+-.!>~|<&\"";
@@ -32,10 +35,30 @@ export function escapeHTML(str) {
 
 const inRange = (caret, start, len) => caret >= start && caret <= start + len;
 
-/** A run of literal source text. */
-function run(text, offset) {
-  if (!text) return "";
-  return `<span data-o="${offset}">${escapeHTML(text)}</span>`;
+/** Source newline. Hidden after a block line, which already breaks. */
+const NL = '<br class="md-nl">';
+
+/**
+ * Collects consecutive literal characters into a single run, so a paragraph
+ * of N characters costs one span instead of N.
+ */
+class RunBuffer {
+  constructor() {
+    this.text = "";
+    this.start = 0;
+  }
+
+  push(ch, offset) {
+    if (!this.text) this.start = offset;
+    this.text += ch;
+  }
+
+  flush() {
+    if (!this.text) return "";
+    const out = `<span data-o="${this.start}">${escapeHTML(this.text)}</span>`;
+    this.text = "";
+    return out;
+  }
 }
 
 /** A markup character: hidden unless the caret is inside it. */
@@ -45,9 +68,12 @@ function mark(text, offset, caret) {
 }
 
 /**
- * A marker that is replaced by a nicer glyph when hidden (list bullets,
- * task boxes). The pretty glyph is injected through a CSS pseudo-element so
- * it never lands in textContent and never corrupts the saved source.
+ * A marker replaced by a nicer glyph when hidden (list bullets, task boxes).
+ *
+ * The span itself stays laid out at zero width (font-size:0) so the source
+ * characters keep their place in textContent without taking any room, and the
+ * pretty glyph is injected by a pseudo-element. The span must NOT be
+ * display:none, or the pseudo-element would never render.
  */
 function markGlyph(text, offset, caret, glyph) {
   if (inRange(caret, offset, text.length)) {
@@ -55,9 +81,6 @@ function markGlyph(text, offset, caret, glyph) {
   }
   return `<span class="md-mark-swap" data-o="${offset}" data-glyph="${escapeHTML(glyph)}">${escapeHTML(text)}</span>`;
 }
-
-/** Source newline. Hidden after a block-level line (the block already breaks). */
-const NL = '<br class="md-nl">';
 
 /* ----------------------------------------------------------------- blocks */
 
@@ -73,17 +96,16 @@ function splitLines(src) {
   return lines;
 }
 
-const RE_FENCE = /^\s*(```|~~~)(.*)$/;
-const RE_HR = /^\s*(?:(?:-[ \t]*){3,}|(?:\*[ \t]*){3,}|(?:_[ \t]*){3,})$/;
-const RE_QUOTE = /^(\s*)(\s*>\s?)(.*)$/;
-const RE_HEADING = /^(#{1,6})(\s+)(.*)$/;
+const RE_FENCE = /^[ \t]*(```|~~~)(.*)$/;
+const RE_HR = /^[ \t]*(?:-[ \t]*){3,}$|^[ \t]*(?:\*[ \t]*){3,}$|^[ \t]*(?:_[ \t]*){3,}$/;
+const RE_QUOTE = /^([ \t]*)(\s*>\s?)(.*)$/;
+const RE_HEADING = /^(#{1,6})([ \t]+)(.*)$/;
 const RE_LIST = /^([ \t]*)([-*+]|\d+[.)])([ \t]+)(\[[ xX]\])?[ \t]*(.*)$/;
-const RE_SETEXT_EQ = /^\s*=+\s*$/;
-const RE_SETEXT_DASH = /^\s*-{2,}\s*$/;
+const RE_SETEXT = /^[ \t]*(=+|-+)[ \t]*$/;
 
 /**
- * Turns the source into a list of top-level parts. Each part becomes a single
- * `.md-line` span; parts are joined by `NL` so the source newlines survive.
+ * Turns the source into top-level parts. Each part becomes one `.md-line`
+ * span; parts are joined by NL so the source newlines survive the round-trip.
  */
 function parseBlocks(src, caret) {
   const lines = splitLines(src);
@@ -96,8 +118,9 @@ function parseBlocks(src, caret) {
 
   while (i < lines.length) {
     const line = lines[i];
+    const nextText = lines[i + 1]?.text ?? "";
 
-    // ---------------------------------------------------------- fenced code
+    // ------------------------------------------------------ fenced code ---
     const fence = line.text.match(RE_FENCE);
     if (fence) {
       const marker = fence[1];
@@ -112,9 +135,12 @@ function parseBlocks(src, caret) {
       const body = [];
       for (let j = i + 1; j <= last; j++) body.push(lines[j]);
 
+      const buf = new RunBuffer();
       let html = mark(line.text, line.start, caret);
       body.forEach((l, idx) => {
-        html += run(l.text, l.start);
+        for (const ch of l.text) buf.push(ch, l.start + buf.text.length);
+        const flushed = buf.flush();
+        html += flushed || `<span data-o="${l.start}"></span>`;
         if (idx < body.length - 1) html += NL;
       });
 
@@ -129,14 +155,42 @@ function parseBlocks(src, caret) {
       continue;
     }
 
-    // ------------------------------------------------------------ blank line
+    // --------------------------------------------------------- blank -----
     if (!line.text.trim()) {
       push({ html: "", s: line.start, e: line.start });
       i++;
       continue;
     }
 
-    // ---------------------------------------------------------- block quote
+    // ------------------------------------------------- thematic break -----
+    // Checked before lists: "* * *" is a break, not a list item.
+    if (RE_HR.test(line.text)) {
+      const body = line.text.trim();
+      push({
+        html: mark(body, line.start + line.text.indexOf(body), caret),
+        block: true,
+        cls: "md-hr",
+        s: line.start,
+        e: line.start + line.text.length,
+      });
+      i++;
+      continue;
+    }
+
+    // ---------------------------------------------------- setext title ---
+    if (parts.length && !parts[parts.length - 1].block && nextText && RE_SETEXT.test(nextText)) {
+      push({
+        html: inline(line.text, line.start, caret),
+        block: true,
+        cls: nextText.includes("=") ? "md-h1" : "md-h2",
+        s: line.start,
+        e: lines[i + 1].start + nextText.length,
+      });
+      i += 2;
+      continue;
+    }
+
+    // ---------------------------------------------------- block quote ----
     if (RE_QUOTE.test(line.text)) {
       const group = [];
       while (i < lines.length && RE_QUOTE.test(lines[i].text)) {
@@ -146,8 +200,9 @@ function parseBlocks(src, caret) {
       let html = "";
       group.forEach((l, idx) => {
         const m = l.text.match(RE_QUOTE);
-        html += mark(m[1] + m[2], l.start, caret);
-        html += inline(m[3], l.start + m[1].length + m[2].length, caret);
+        const prefix = m[1] + m[2];
+        html += mark(prefix, l.start, caret);
+        html += inline(m[3], l.start + prefix.length, caret);
         if (idx < group.length - 1) html += NL;
       });
       const tail = group[group.length - 1];
@@ -160,7 +215,22 @@ function parseBlocks(src, caret) {
       continue;
     }
 
-    // ----------------------------------------------------------- list item
+    // ------------------------------------------------------- heading -----
+    const h = line.text.match(RE_HEADING);
+    if (h) {
+      const prefix = h[1] + h[2];
+      push({
+        html: mark(prefix, line.start, caret) + inline(h[3], line.start + prefix.length, caret),
+        block: true,
+        cls: `md-h${h[1].length}`,
+        s: line.start,
+        e: line.start + line.text.length,
+      });
+      i++;
+      continue;
+    }
+
+    // ------------------------------------------------------ list item ----
     const li = line.text.match(RE_LIST);
     if (li) {
       const [full, indent, bullet, gap, box, rest] = li;
@@ -179,15 +249,13 @@ function parseBlocks(src, caret) {
         html += markGlyph(bullet + gap, off, caret, "\u2610");
         off += bullet.length + gap.length;
         html += mark(box, off, caret);
-        off += box.length;
       } else {
         html += markGlyph(bullet + gap, off, caret, ordered ? bullet : "\u2022");
-        off += bullet.length + gap.length;
       }
 
-      // the regex is greedy on [ \t]* after the box; recompute the body offset
-      const bodyOffset = line.start + full.length - rest.length;
-      html += inline(rest, bodyOffset, caret);
+      // Rest is greedy-matched from the right, so derive its offset instead
+      // of trusting the captured group positions.
+      html += inline(rest, line.start + full.length - rest.length, caret);
 
       push({
         html: `<span class="md-li${ordered ? " is-ordered" : ""}" style="--md-level:${level}">${html}</span>`,
@@ -199,56 +267,7 @@ function parseBlocks(src, caret) {
       continue;
     }
 
-    // -------------------------------------------------------------- heading
-    const h = line.text.match(RE_HEADING);
-    if (h) {
-      push({
-        html:
-          mark(h[1] + h[2], line.start, caret) +
-          inline(h[3], line.start + h[1].length + h[2].length, caret),
-        block: true,
-        cls: `md-h${h[1].length}`,
-        s: line.start,
-        e: line.start + line.text.length,
-      });
-      i++;
-      continue;
-    }
-
-    // ------------------------------------------------ setext heading (next)
-    if (
-      line.text.trim() &&
-      parts.length &&
-      !parts[parts.length - 1].block &&
-      (RE_SETEXT_EQ.test(lines[i + 1]?.text ?? "") || RE_SETEXT_DASH.test(lines[i + 1]?.text ?? ""))
-    ) {
-      const under = lines[i + 1].text;
-      push({
-        html: inline(line.text, line.start, caret),
-        block: true,
-        cls: RE_SETEXT_EQ.test(under) ? "md-h1" : "md-h2",
-        s: line.start,
-        e: lines[i + 1].start + under.length,
-      });
-      i += 2;
-      continue;
-    }
-
-    // ------------------------------------------------------ thematic break
-    if (RE_HR.test(line.text)) {
-      const body = line.text.trim();
-      push({
-        html: mark(body, line.start + line.text.indexOf(body), caret),
-        block: true,
-        cls: "md-hr",
-        s: line.start,
-        e: line.start + line.text.length,
-      });
-      i++;
-      continue;
-    }
-
-    // ------------------------------------------------------------- paragraph
+    // ------------------------------------------------------ paragraph ----
     push({ html: inline(line.text, line.start, caret), s: line.start, e: line.start + line.text.length });
     i++;
   }
@@ -269,11 +288,16 @@ function findCloser(s, from, token) {
 
 const RE_AUTOLINK = /^https?:\/\/[^\s<>()[\]]+[^\s<>()[\].,;:!?]/;
 
-/** Renders one line of inline markdown, tracking source offsets. */
+/** Renders inline markdown for one line, batching literal text into runs. */
 function inline(s, off, caret) {
+  const buf = new RunBuffer();
   let out = "";
   let i = 0;
   const n = s.length;
+
+  const flush = () => {
+    out += buf.flush();
+  };
 
   while (i < n) {
     const c = s[i];
@@ -281,6 +305,7 @@ function inline(s, off, caret) {
 
     // backslash escape ---------------------------------------------------
     if (c === "\\" && i + 1 < n && ESCAPABLE.includes(s[i + 1])) {
+      flush();
       out += mark(s.slice(i, i + 2), off + i, caret);
       i += 2;
       continue;
@@ -290,8 +315,9 @@ function inline(s, off, caret) {
     if (c === "`") {
       const j = s.indexOf("`", i + 1);
       if (j > i) {
+        flush();
         out += mark("`", off + i, caret);
-        out += `<code class="md-code">${run(s.slice(i + 1, j), off + i + 1)}</code>`;
+        out += `<code class="md-code">${runOf(s.slice(i + 1, j), off + i + 1)}</code>`;
         out += mark("`", off + j, caret);
         i = j + 1;
         continue;
@@ -302,6 +328,7 @@ function inline(s, off, caret) {
     if (s.startsWith("***", i)) {
       const e = findCloser(s, i + 3, "***");
       if (e !== -1) {
+        flush();
         out += mark("***", off + i, caret);
         out += `<strong><em>${inline(s.slice(i + 3, e), off + i + 3, caret)}</em></strong>`;
         out += mark("***", off + e, caret);
@@ -314,6 +341,7 @@ function inline(s, off, caret) {
     if (s.startsWith("**", i)) {
       const e = findCloser(s, i + 2, "**");
       if (e !== -1) {
+        flush();
         out += mark("**", off + i, caret);
         out += `<strong>${inline(s.slice(i + 2, e), off + i + 2, caret)}</strong>`;
         out += mark("**", off + e, caret);
@@ -326,6 +354,7 @@ function inline(s, off, caret) {
     if (s.startsWith("~~", i)) {
       const e = findCloser(s, i + 2, "~~");
       if (e !== -1) {
+        flush();
         out += mark("~~", off + i, caret);
         out += `<del>${inline(s.slice(i + 2, e), off + i + 2, caret)}</del>`;
         out += mark("~~", off + e, caret);
@@ -338,6 +367,7 @@ function inline(s, off, caret) {
     if (c === "*") {
       const e = findCloser(s, i + 1, "*");
       if (e !== -1 && !/\s/.test(s[e - 1])) {
+        flush();
         out += mark("*", off + i, caret);
         out += `<em>${inline(s.slice(i + 1, e), off + i + 1, caret)}</em>`;
         out += mark("*", off + e, caret);
@@ -350,6 +380,7 @@ function inline(s, off, caret) {
     if (c === "_" && wordStart) {
       const e = findCloser(s, i + 1, "_");
       if (e !== -1 && !/\s/.test(s[e - 1])) {
+        flush();
         out += mark("_", off + i, caret);
         out += `<em>${inline(s.slice(i + 1, e), off + i + 1, caret)}</em>`;
         out += mark("_", off + e, caret);
@@ -365,10 +396,11 @@ function inline(s, off, caret) {
       if (end !== -1) {
         const href = s.slice(close + 2, end);
         if (href && !/[\s()]/.test(href)) {
+          flush();
           out += mark("[", off + i, caret);
           out += `<span class="md-link-label">${inline(s.slice(i + 1, close), off + i + 1, caret)}</span>`;
           out += mark("](", off + close, caret);
-          out += `<span class="md-link-url">${run(href, off + close + 2)}</span>`;
+          out += `<span class="md-link-url">${runOf(href, off + close + 2)}</span>`;
           out += mark(")", off + end, caret);
           i = end + 1;
           continue;
@@ -380,17 +412,25 @@ function inline(s, off, caret) {
     if (c === "h" && wordStart) {
       const m = s.slice(i).match(RE_AUTOLINK);
       if (m) {
-        out += `<span class="md-link">${run(m[0], off + i)}</span>`;
+        flush();
+        out += `<span class="md-link">${runOf(m[0], off + i)}</span>`;
         i += m[0].length;
         continue;
       }
     }
 
-    out += run(c, off + i);
+    buf.push(c, off + i);
     i++;
   }
 
+  flush();
   return out;
+}
+
+/** A single literal run. Empty text still yields a placeholder node. */
+function runOf(text, offset) {
+  if (!text) return `<span data-o="${offset}"></span>`;
+  return `<span data-o="${offset}">${escapeHTML(text)}</span>`;
 }
 
 /* ----------------------------------------------------------------- render */
@@ -410,8 +450,8 @@ export function renderMarkdown(src, caret = src.length) {
 /* ------------------------------------------------------------------ caret */
 
 /** Depth-first walk over text nodes and <br> newlines, in document order. */
-function walkRaw(el, visit) {
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
+function walkRaw(root, visit) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
     acceptNode(node) {
       return node.nodeType === Node.TEXT_NODE || node.tagName === "BR" ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
     },
@@ -420,76 +460,78 @@ function walkRaw(el, visit) {
   let total = 0;
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     const len = node.nodeType === Node.TEXT_NODE ? node.data.length : 1;
-    if (visit(node, total, len) === false) return total;
+    if (visit(node, total, len) === false) return;
     total += len;
   }
-  return total;
 }
 
 /** Recovers the markdown source from the rendered DOM. */
 export function getRawText(el) {
   let out = "";
-  walkRaw(el, (node, _start, _len) => {
+  walkRaw(el, (node) => {
     out += node.nodeType === Node.TEXT_NODE ? node.data : "\n";
   });
   return out;
 }
 
-/** Current caret position, expressed as an offset into the markdown source. */
+/**
+ * Current caret position as an offset into the markdown source, or null when
+ * the selection is not inside `el`.
+ */
 export function getCaretOffset(el) {
   const sel = window.getSelection();
-  if (!sel || !sel.rangeCount) return getRawText(el).length;
+  if (!sel || !sel.rangeCount) return null;
 
-  const { startContainer, startOffset } = sel.getRangeAt(0);
-  if (!el.contains(startContainer)) return getRawText(el).length;
+  const range = sel.getRangeAt(0);
+  if (!el.contains(range.startContainer)) return null;
 
-  let total = 0;
-  walkRaw(el, (node, start, len) => {
-    if (node === startContainer) {
-      total = start + Math.min(startOffset, len);
-      return false;
-    }
-    // Caret anchored on an element node (e.g. an empty line): count
-    // everything before it, then the child index's worth of newlines.
-    if (node.parentNode === startContainer && startOffset > 0) {
-      total = start;
-      return false;
-    }
-    return true;
+  // Clone the content up to the caret and measure it with the same rules as
+  // getRawText, so hidden markers and <br> newlines are counted correctly.
+  const before = document.createRange();
+  before.setStart(el, 0);
+  before.setEnd(range.startContainer, range.startOffset);
+
+  let count = 0;
+  walkRaw(before.cloneContents(), (node, _start, len) => {
+    count += len;
   });
 
-  return Math.min(total, getRawText(el).length);
+  return count;
 }
 
 /** Places the caret at `offset` (an index into the markdown source). */
 export function setCaretOffset(el, offset) {
-  const leaves = el.querySelectorAll("[data-o]");
-  if (!leaves.length) return;
-
-  let target = null;
-  leaves.forEach((leaf) => {
-    const start = Number(leaf.dataset.o);
-    const len = leaf.textContent.length;
-    if (len && offset >= start && offset <= start + len && (!target || len < target.len)) {
-      target = { leaf, start, len };
-    }
-  });
-
-  if (!target) {
-    // Past the last character (trailing newline / empty note): go to the end.
-    let last = null;
-    leaves.forEach((leaf) => {
-      const start = Number(leaf.dataset.o);
-      const len = leaf.textContent.length;
-      if (len && (!last || start + len > last.start + last.len)) last = { leaf, start, len };
-    });
-    if (!last) return;
-    target = { ...last, at: last.len };
-  } else {
-    target.at = offset - target.start;
+  const leaves = Array.from(el.querySelectorAll("[data-o]"));
+  if (!leaves.length) {
+    focusEnd(el);
+    return;
   }
 
-  placeCaret(el, target.leaf, target.at);
+  const info = leaves
+    .map((leaf) => ({ leaf, start: Number(leaf.dataset.o), len: leaf.textContent.length }))
+    .filter((x) => x.len > 0 && Number.isFinite(x.start));
+
+  if (!info.length) {
+    focusEnd(el);
+    return;
+  }
+
+  // Prefer the run starting exactly at the offset (matches what a browser
+  // does when you type), then the shortest run containing it.
+  let target = info.find((x) => x.start === offset);
+  if (!target) {
+    target = info
+      .filter((x) => offset >= x.start && offset <= x.start + x.len)
+      .sort((a, b) => a.len - b.len)[0];
+  }
+
+  if (!target) {
+    const last = info.reduce((a, b) => (b.start + b.len > a.start + a.len ? b : a));
+    placeCaret(el, last.leaf, last.len);
+    return;
+  }
+
+  placeCaret(el, target.leaf, offset - target.start);
 }
 
 function placeCaret(el, leaf, at) {
@@ -505,6 +547,17 @@ function placeCaret(el, leaf, at) {
   sel.addRange(range);
 }
 
+/** Last resort for empty content: focus the editor with the caret inside. */
+function focusEnd(el) {
+  const sel = window.getSelection();
+  if (!sel) return;
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  range.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
 /* ---------------------------------------------------------------- preview */
 
 /** Strips markdown down to readable plain text, for the sidebar preview. */
@@ -516,12 +569,15 @@ export function stripMarkdown(src) {
   out = out.replace(/`([^`\n]+)`/g, "$1");
   out = out.replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1");
   out = out.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1");
-  out = out.replace(/<[^>]*>/g, "");
-  out = out.replace(/^\s{0,3}#{1,6}\s+/gm, "");
-  out = out.replace(/^\s*=+\s*$/gm, "");
-  out = out.replace(/^\s*>+\s?/gm, "");
-  out = out.replace(/^\s*([-*+]|\d+[.)])\s+/gm, "");
-  out = out.replace(/^\s*(\[[ xX]\])[ \t]*/gm, "");
+  // Drop any angle-bracket construct, including unterminated ones such as
+  // "<script", rather than only well-formed "<...>" tags.
+  out = out.replace(/<[^>]*>?/g, " ");
+  out = out.replace(/[<>`]/g, " ");
+  out = out.replace(/^[ \t]{0,3}#{1,6}[ \t]+/gm, "");
+  out = out.replace(/^[ \t]*(=+|-+)[ \t]*$/gm, "");
+  out = out.replace(/^[ \t]{0,3}>[ \t]?/gm, "");
+  out = out.replace(/^[ \t]*([-*+]|\d+[.)])[ \t]+/gm, "");
+  out = out.replace(/^[ \t]*\[[ xX]\][ \t]*/gm, "");
   out = out.replace(/(\*\*\*|\*\*|__|~~|\*|_)/g, "");
   out = out.replace(/\\([\\`*_{}[\]()#+\-.!>~|<&"])/g, "$1");
   out = out.replace(/\s+/g, " ").trim();

@@ -196,14 +196,19 @@
         color: #64748b;
       }
 
-      /* List bullets / task boxes: source text stays in the DOM, the pretty
-         glyph is injected through a pseudo-element. */
+      /* List bullets / task boxes: the source characters keep their place in
+         textContent but are collapsed to zero width, and the pretty glyph is
+         injected via a pseudo-element. The span must stay displayed, or the
+         pseudo-element would not render at all. */
       .note-content-md .md-mark-swap {
-        display: none;
+        font-size: 0;
+        line-height: 0;
       }
 
       .note-content-md .md-mark-swap::after {
         content: attr(data-glyph);
+        font-size: 1rem;
+        line-height: inherit;
         color: #94a3b8;
       }
 
