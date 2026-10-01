@@ -1,24 +1,24 @@
 /**
  * Markdown live-preview renderer for the Notes tool (BETA).
  *
- * No dependencies. The rendered DOM is deliberately flat and made only of
- * <span> / <br> elements, so the markdown source can always be recovered from
- * the DOM. Three invariants make the whole thing work:
+ * No dependencies, and the rendered DOM is deliberately flat: only <span> and
+ * <br>, never <div>/<p>, so newlines stay controllable and the source can
+ * always be recovered. Three invariants make this work:
  *
- *   1. getRawText(el) === the original markdown source
- *      Every source character lives in exactly one text node, and every
- *      source newline is represented by a <br class="md-nl">.
+ *   1. getRawText(el) === the original markdown source.
+ *      Every source character lives in exactly one text node, and every source
+ *      newline is represented by a <br class="md-nl">.
  *
- *   2. Literal text is emitted in runs, never one span per character.
- *      data-o on each run is its offset in the source, which maps a caret
- *      offset back to a DOM position.
+ *   2. Literal text is emitted in batched runs (never one span per character),
+ *      each carrying data-o = its offset in the source.
  *
- *   3. Nothing but escaped text and our own spans is ever emitted, so note
- *      content cannot inject markup.
+ *   3. Every markup span carries data-from / data-to = the offsets of the whole
+ *      construct it belongs to. Rendering is therefore independent of the
+ *      caret: moving the caret only toggles classes via applyVisibility(),
+ *      which never touches the DOM structure and never loses the selection.
  *
- * Markup characters are emitted as `.md-mark` spans, hidden by CSS unless the
- * caret currently sits inside that construct: formatted while reading, raw
- * while writing (Obsidian-style live preview).
+ * Markers are hidden while the caret is outside their construct, and revealed
+ * as soon as it enters it: formatted while reading, raw while writing.
  */
 
 const ESCAPABLE = "\\`*_{}[]()#+-.!>~|<&\"";
@@ -33,14 +33,12 @@ export function escapeHTML(str) {
     .replace(/"/g, "&quot;");
 }
 
-const inRange = (caret, start, len) => caret >= start && caret <= start + len;
-
 /** Source newline. Hidden after a block line, which already breaks. */
 const NL = '<br class="md-nl">';
 
 /**
- * Collects consecutive literal characters into a single run, so a paragraph
- * of N characters costs one span instead of N.
+ * Batches consecutive literal characters into a single run, so a paragraph of
+ * N characters costs one span instead of N.
  */
 class RunBuffer {
   constructor() {
@@ -53,6 +51,11 @@ class RunBuffer {
     this.text += ch;
   }
 
+  pushText(text, offset) {
+    if (!this.text) this.start = offset;
+    this.text += text;
+  }
+
   flush() {
     if (!this.text) return "";
     const out = `<span data-o="${this.start}">${escapeHTML(this.text)}</span>`;
@@ -61,25 +64,34 @@ class RunBuffer {
   }
 }
 
-/** A markup character: hidden unless the caret is inside it. */
-function mark(text, offset, caret) {
-  const active = inRange(caret, offset, text.length);
-  return `<span class="md-mark${active ? " is-active" : ""}" data-o="${offset}">${escapeHTML(text)}</span>`;
+/**
+ * A markup construct's delimiter.
+ *
+ * `from`/`to` span the WHOLE construct (both delimiters included), so the
+ * markers stay visible while the caret is anywhere between them.
+ */
+function mark(text, offset, from, to) {
+  return `<span class="md-mark" data-o="${offset}" data-from="${from}" data-to="${to}">${escapeHTML(text)}</span>`;
+}
+
+/**
+ * A block-level construct (heading hashes, quote signs, list bullets). These
+ * stay visible for the whole line: hidden, a "> quote" would be
+ * indistinguishable from plain text.
+ */
+function blockMark(text, offset, from, to) {
+  return `<span class="md-mark is-blockmark" data-o="${offset}" data-from="${from}" data-to="${to}">${escapeHTML(text)}</span>`;
 }
 
 /**
  * A marker replaced by a nicer glyph when hidden (list bullets, task boxes).
- *
- * The span itself stays laid out at zero width (font-size:0) so the source
- * characters keep their place in textContent without taking any room, and the
- * pretty glyph is injected by a pseudo-element. The span must NOT be
- * display:none, or the pseudo-element would never render.
+ * The span stays at zero width (font-size:0) so the source characters keep
+ * their place in textContent without taking any room; the pretty glyph comes
+ * from a pseudo-element. It must NOT be display:none, or the pseudo-element
+ * would never render.
  */
-function markGlyph(text, offset, caret, glyph) {
-  if (inRange(caret, offset, text.length)) {
-    return `<span class="md-mark is-active" data-o="${offset}">${escapeHTML(text)}</span>`;
-  }
-  return `<span class="md-mark-swap" data-o="${offset}" data-glyph="${escapeHTML(glyph)}">${escapeHTML(text)}</span>`;
+function markGlyph(text, offset, from, to, glyph) {
+  return `<span class="md-mark-swap" data-o="${offset}" data-from="${from}" data-to="${to}" data-glyph="${escapeHTML(glyph)}">${escapeHTML(text)}</span>`;
 }
 
 /* ----------------------------------------------------------------- blocks */
@@ -98,16 +110,16 @@ function splitLines(src) {
 
 const RE_FENCE = /^[ \t]*(```|~~~)(.*)$/;
 const RE_HR = /^[ \t]*(?:-[ \t]*){3,}$|^[ \t]*(?:\*[ \t]*){3,}$|^[ \t]*(?:_[ \t]*){3,}$/;
-const RE_QUOTE = /^([ \t]*)(\s*>\s?)(.*)$/;
+const RE_QUOTE = /^([ \t]*)(>\s?)(.*)$/;
 const RE_HEADING = /^(#{1,6})([ \t]+)(.*)$/;
 const RE_LIST = /^([ \t]*)([-*+]|\d+[.)])([ \t]+)(\[[ xX]\])?[ \t]*(.*)$/;
-const RE_SETEXT = /^[ \t]*(=+|-+)[ \t]*$/;
+const RE_SETEXT = /^[ \t]*(?:=+|-+)[ \t]*$/;
 
 /**
  * Turns the source into top-level parts. Each part becomes one `.md-line`
- * span; parts are joined by NL so the source newlines survive the round-trip.
+ * span; parts are joined by NL so source newlines survive the round-trip.
  */
-function parseBlocks(src, caret) {
+function parseBlocks(src) {
   const lines = splitLines(src);
   const parts = [];
   let i = 0;
@@ -136,11 +148,10 @@ function parseBlocks(src, caret) {
       for (let j = i + 1; j <= last; j++) body.push(lines[j]);
 
       const buf = new RunBuffer();
-      let html = mark(line.text, line.start, caret);
+      let html = blockMark(line.text, line.start, line.start, line.start + line.text.length);
       body.forEach((l, idx) => {
-        for (const ch of l.text) buf.push(ch, l.start + buf.text.length);
-        const flushed = buf.flush();
-        html += flushed || `<span data-o="${l.start}"></span>`;
+        buf.pushText(l.text, l.start);
+        html += buf.flush() || `<span data-o="${l.start}"></span>`;
         if (idx < body.length - 1) html += NL;
       });
 
@@ -156,18 +167,19 @@ function parseBlocks(src, caret) {
     }
 
     // --------------------------------------------------------- blank -----
-    if (!line.text.trim()) {
-      push({ html: "", s: line.start, e: line.start });
+    if (!line.text) {
+      push({ html: `<span data-o="${line.start}"></span>`, s: line.start, e: line.start });
       i++;
       continue;
     }
 
     // ------------------------------------------------- thematic break -----
-    // Checked before lists: "* * *" is a break, not a list item.
+    // Checked before lists, so "* * *" is a break and not a list item.
     if (RE_HR.test(line.text)) {
       const body = line.text.trim();
+      const at = line.start + line.text.indexOf(body);
       push({
-        html: mark(body, line.start + line.text.indexOf(body), caret),
+        html: blockMark(body, at, line.start, line.start + line.text.length),
         block: true,
         cls: "md-hr",
         s: line.start,
@@ -180,7 +192,7 @@ function parseBlocks(src, caret) {
     // ---------------------------------------------------- setext title ---
     if (parts.length && !parts[parts.length - 1].block && nextText && RE_SETEXT.test(nextText)) {
       push({
-        html: inline(line.text, line.start, caret),
+        html: inline(line.text, line.start),
         block: true,
         cls: nextText.includes("=") ? "md-h1" : "md-h2",
         s: line.start,
@@ -197,34 +209,33 @@ function parseBlocks(src, caret) {
         group.push(lines[i]);
         i++;
       }
+      const from = group[0].start;
+      const tail = group[group.length - 1];
+      const to = tail.start + tail.text.length;
+
       let html = "";
       group.forEach((l, idx) => {
         const m = l.text.match(RE_QUOTE);
-        const prefix = m[1] + m[2];
-        html += mark(prefix, l.start, caret);
-        html += inline(m[3], l.start + prefix.length, caret);
+        html += blockMark(m[1] + m[2], l.start, from, to);
+        html += inline(m[3], l.start + m[1].length + m[2].length);
         if (idx < group.length - 1) html += NL;
       });
-      const tail = group[group.length - 1];
-      push({
-        html: `<span class="md-quote">${html}</span>`,
-        block: true,
-        s: group[0].start,
-        e: tail.start + tail.text.length,
-      });
+
+      push({ html: `<span class="md-quote">${html}</span>`, block: true, s: from, e: to });
       continue;
     }
 
     // ------------------------------------------------------- heading -----
     const h = line.text.match(RE_HEADING);
     if (h) {
-      const prefix = h[1] + h[2];
+      const prefixLen = h[1].length + h[2].length;
+      const to = line.start + line.text.length;
       push({
-        html: mark(prefix, line.start, caret) + inline(h[3], line.start + prefix.length, caret),
+        html: blockMark(h[1] + h[2], line.start, line.start, to) + inline(h[3], line.start + prefixLen),
         block: true,
         cls: `md-h${h[1].length}`,
         s: line.start,
-        e: line.start + line.text.length,
+        e: to,
       });
       i++;
       continue;
@@ -236,39 +247,36 @@ function parseBlocks(src, caret) {
       const [full, indent, bullet, gap, box, rest] = li;
       const level = Math.min(Math.floor(indent.replace(/\t/g, "  ").length / 2), 4);
       const ordered = /\d/.test(bullet);
+      const from = line.start;
+      const to = line.start + line.text.length;
 
       let html = "";
-      let off = line.start;
+      if (indent) html += blockMark(indent, line.start, from, to);
 
-      if (indent) {
-        html += mark(indent, off, caret);
-        off += indent.length;
-      }
-
+      const afterBullet = line.start + indent.length + bullet.length + gap.length;
       if (box) {
-        html += markGlyph(bullet + gap, off, caret, "\u2610");
-        off += bullet.length + gap.length;
-        html += mark(box, off, caret);
+        html += markGlyph(bullet + gap, line.start + indent.length, from, to, "\u2610");
+        html += blockMark(box, afterBullet, from, to);
       } else {
-        html += markGlyph(bullet + gap, off, caret, ordered ? bullet : "\u2022");
+        html += markGlyph(bullet + gap, line.start + indent.length, from, to, ordered ? bullet : "\u2022");
       }
 
-      // Rest is greedy-matched from the right, so derive its offset instead
-      // of trusting the captured group positions.
-      html += inline(rest, line.start + full.length - rest.length, caret);
+      // `rest` is greedy-matched from the right, so derive its offset from the
+      // line rather than trusting the captured group positions.
+      html += inline(rest, line.start + full.length - rest.length);
 
       push({
         html: `<span class="md-li${ordered ? " is-ordered" : ""}" style="--md-level:${level}">${html}</span>`,
         block: true,
-        s: line.start,
-        e: line.start + line.text.length,
+        s: from,
+        e: to,
       });
       i++;
       continue;
     }
 
     // ------------------------------------------------------ paragraph ----
-    push({ html: inline(line.text, line.start, caret), s: line.start, e: line.start + line.text.length });
+    push({ html: inline(line.text, line.start), s: line.start, e: line.start + line.text.length });
     i++;
   }
 
@@ -288,8 +296,13 @@ function findCloser(s, from, token) {
 
 const RE_AUTOLINK = /^https?:\/\/[^\s<>()[\]]+[^\s<>()[\].,;:!?]/;
 
+/** A single literal run. Empty text still yields a placeholder node. */
+function runOf(text, offset) {
+  return `<span data-o="${offset}">${escapeHTML(text)}</span>`;
+}
+
 /** Renders inline markdown for one line, batching literal text into runs. */
-function inline(s, off, caret) {
+function inline(s, off) {
   const buf = new RunBuffer();
   let out = "";
   let i = 0;
@@ -306,7 +319,7 @@ function inline(s, off, caret) {
     // backslash escape ---------------------------------------------------
     if (c === "\\" && i + 1 < n && ESCAPABLE.includes(s[i + 1])) {
       flush();
-      out += mark(s.slice(i, i + 2), off + i, caret);
+      out += mark(s.slice(i, i + 2), off + i, off + i, off + i + 2);
       i += 2;
       continue;
     }
@@ -316,9 +329,11 @@ function inline(s, off, caret) {
       const j = s.indexOf("`", i + 1);
       if (j > i) {
         flush();
-        out += mark("`", off + i, caret);
+        const from = off + i;
+        const to = off + j + 1;
+        out += mark("`", from, from, to);
         out += `<code class="md-code">${runOf(s.slice(i + 1, j), off + i + 1)}</code>`;
-        out += mark("`", off + j, caret);
+        out += mark("`", off + j, from, to);
         i = j + 1;
         continue;
       }
@@ -329,9 +344,11 @@ function inline(s, off, caret) {
       const e = findCloser(s, i + 3, "***");
       if (e !== -1) {
         flush();
-        out += mark("***", off + i, caret);
-        out += `<strong><em>${inline(s.slice(i + 3, e), off + i + 3, caret)}</em></strong>`;
-        out += mark("***", off + e, caret);
+        const from = off + i;
+        const to = off + e + 3;
+        out += mark("***", from, from, to);
+        out += `<strong><em>${inline(s.slice(i + 3, e), off + i + 3)}</em></strong>`;
+        out += mark("***", off + e, from, to);
         i = e + 3;
         continue;
       }
@@ -342,9 +359,11 @@ function inline(s, off, caret) {
       const e = findCloser(s, i + 2, "**");
       if (e !== -1) {
         flush();
-        out += mark("**", off + i, caret);
-        out += `<strong>${inline(s.slice(i + 2, e), off + i + 2, caret)}</strong>`;
-        out += mark("**", off + e, caret);
+        const from = off + i;
+        const to = off + e + 2;
+        out += mark("**", from, from, to);
+        out += `<strong>${inline(s.slice(i + 2, e), off + i + 2)}</strong>`;
+        out += mark("**", off + e, from, to);
         i = e + 2;
         continue;
       }
@@ -355,9 +374,11 @@ function inline(s, off, caret) {
       const e = findCloser(s, i + 2, "~~");
       if (e !== -1) {
         flush();
-        out += mark("~~", off + i, caret);
-        out += `<del>${inline(s.slice(i + 2, e), off + i + 2, caret)}</del>`;
-        out += mark("~~", off + e, caret);
+        const from = off + i;
+        const to = off + e + 2;
+        out += mark("~~", from, from, to);
+        out += `<del>${inline(s.slice(i + 2, e), off + i + 2)}</del>`;
+        out += mark("~~", off + e, from, to);
         i = e + 2;
         continue;
       }
@@ -368,9 +389,11 @@ function inline(s, off, caret) {
       const e = findCloser(s, i + 1, "*");
       if (e !== -1 && !/\s/.test(s[e - 1])) {
         flush();
-        out += mark("*", off + i, caret);
-        out += `<em>${inline(s.slice(i + 1, e), off + i + 1, caret)}</em>`;
-        out += mark("*", off + e, caret);
+        const from = off + i;
+        const to = off + e + 1;
+        out += mark("*", from, from, to);
+        out += `<em>${inline(s.slice(i + 1, e), off + i + 1)}</em>`;
+        out += mark("*", off + e, from, to);
         i = e + 1;
         continue;
       }
@@ -381,9 +404,11 @@ function inline(s, off, caret) {
       const e = findCloser(s, i + 1, "_");
       if (e !== -1 && !/\s/.test(s[e - 1])) {
         flush();
-        out += mark("_", off + i, caret);
-        out += `<em>${inline(s.slice(i + 1, e), off + i + 1, caret)}</em>`;
-        out += mark("_", off + e, caret);
+        const from = off + i;
+        const to = off + e + 1;
+        out += mark("_", from, from, to);
+        out += `<em>${inline(s.slice(i + 1, e), off + i + 1)}</em>`;
+        out += mark("_", off + e, from, to);
         i = e + 1;
         continue;
       }
@@ -397,11 +422,13 @@ function inline(s, off, caret) {
         const href = s.slice(close + 2, end);
         if (href && !/[\s()]/.test(href)) {
           flush();
-          out += mark("[", off + i, caret);
-          out += `<span class="md-link-label">${inline(s.slice(i + 1, close), off + i + 1, caret)}</span>`;
-          out += mark("](", off + close, caret);
+          const from = off + i;
+          const to = off + end + 1;
+          out += mark("[", from, from, to);
+          out += `<span class="md-link-label">${inline(s.slice(i + 1, close), off + i + 1)}</span>`;
+          out += mark("](", off + close, from, to);
           out += `<span class="md-link-url">${runOf(href, off + close + 2)}</span>`;
-          out += mark(")", off + end, caret);
+          out += mark(")", off + end, from, to);
           i = end + 1;
           continue;
         }
@@ -427,17 +454,14 @@ function inline(s, off, caret) {
   return out;
 }
 
-/** A single literal run. Empty text still yields a placeholder node. */
-function runOf(text, offset) {
-  if (!text) return `<span data-o="${offset}"></span>`;
-  return `<span data-o="${offset}">${escapeHTML(text)}</span>`;
-}
-
 /* ----------------------------------------------------------------- render */
 
-/** Renders `src` to HTML. `caret` decides which markers stay visible. */
-export function renderMarkdown(src, caret = src.length) {
-  const parts = parseBlocks(src, caret);
+/**
+ * Renders `src` to HTML. The result is caret-independent: call
+ * applyVisibility(el, caret) afterwards to reveal the markers around it.
+ */
+export function renderMarkdown(src) {
+  const parts = parseBlocks(src);
   let html = "";
   parts.forEach((p, idx) => {
     const cls = ["md-line", p.block ? "is-block" : "", p.cls].filter(Boolean).join(" ");
@@ -445,6 +469,36 @@ export function renderMarkdown(src, caret = src.length) {
     if (idx < parts.length - 1) html += NL;
   });
   return html;
+}
+
+/**
+ * Reveals the markup markers surrounding the caret, and hides every other one.
+ *
+ * This only toggles classes. It never touches the DOM structure, so the
+ * selection and the IME composition survive it. That is the whole point:
+ * re-rendering the HTML on every caret move used to reset the caret and make
+ * Enter / arrow keys behave erratically.
+ *
+ * `caret` of null (no caret in the editor) hides everything.
+ */
+export function applyVisibility(el, caret) {
+  el.querySelectorAll(".md-mark, .md-mark-swap").forEach((node) => {
+    const from = Number(node.dataset.from);
+    const to = Number(node.dataset.to);
+
+    if (caret === null || caret === undefined) {
+      node.classList.remove("is-active");
+      node.classList.remove("is-touched");
+      return;
+    }
+
+    const active = caret >= from && caret <= to;
+    node.classList.toggle("is-active", active);
+    // The touched marker is the delimiter the caret is directly on, which is
+    // where the user is about to type.
+    const at = Number(node.dataset.o);
+    node.classList.toggle("is-touched", active && caret >= at && caret <= at + node.textContent.length);
+  });
 }
 
 /* ------------------------------------------------------------------ caret */
@@ -460,7 +514,7 @@ function walkRaw(root, visit) {
   let total = 0;
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     const len = node.nodeType === Node.TEXT_NODE ? node.data.length : 1;
-    if (visit(node, total, len) === false) return;
+    visit(node, total, len);
     total += len;
   }
 }
@@ -492,7 +546,7 @@ export function getCaretOffset(el) {
   before.setEnd(range.startContainer, range.startOffset);
 
   let count = 0;
-  walkRaw(before.cloneContents(), (node, _start, len) => {
+  walkRaw(before.cloneContents(), (_node, _start, len) => {
     count += len;
   });
 
@@ -502,27 +556,23 @@ export function getCaretOffset(el) {
 /** Places the caret at `offset` (an index into the markdown source). */
 export function setCaretOffset(el, offset) {
   const leaves = Array.from(el.querySelectorAll("[data-o]"));
-  if (!leaves.length) {
-    focusEnd(el);
-    return;
-  }
-
   const info = leaves
     .map((leaf) => ({ leaf, start: Number(leaf.dataset.o), len: leaf.textContent.length }))
-    .filter((x) => x.len > 0 && Number.isFinite(x.start));
+    .filter((x) => Number.isFinite(x.start));
 
+  // Empty runs matter here: they are the only caret target inside a blank
+  // line, which is exactly where Enter leaves the user.
   if (!info.length) {
     focusEnd(el);
     return;
   }
 
-  // Prefer the run starting exactly at the offset (matches what a browser
-  // does when you type), then the shortest run containing it.
-  let target = info.find((x) => x.start === offset);
+  // A run starting exactly at the offset wins: that is where the browser puts
+  // the caret when you type, and it is the only way to land on a blank line.
+  let target = info.find((x) => x.start === offset && x.len === 0);
+  if (!target) target = info.find((x) => x.start === offset);
   if (!target) {
-    target = info
-      .filter((x) => offset >= x.start && offset <= x.start + x.len)
-      .sort((a, b) => a.len - b.len)[0];
+    target = info.filter((x) => x.len > 0 && offset >= x.start && offset <= x.start + x.len).sort((a, b) => a.len - b.len)[0];
   }
 
   if (!target) {
@@ -537,8 +587,14 @@ export function setCaretOffset(el, offset) {
 function placeCaret(el, leaf, at) {
   const sel = window.getSelection();
   if (!sel) return;
-  const textNode = leaf.firstChild;
-  if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
+
+  // An empty run has no text node; insert one so the caret has a home.
+  let textNode = leaf.firstChild;
+  if (!textNode) {
+    textNode = document.createTextNode("");
+    leaf.appendChild(textNode);
+  }
+  if (textNode.nodeType !== Node.TEXT_NODE) return;
 
   const range = document.createRange();
   range.setStart(textNode, Math.max(0, Math.min(at, textNode.length)));
@@ -569,16 +625,16 @@ export function stripMarkdown(src) {
   out = out.replace(/`([^`\n]+)`/g, "$1");
   out = out.replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1");
   out = out.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1");
-  // Drop any angle-bracket construct, including unterminated ones such as
-  // "<script", rather than only well-formed "<...>" tags.
+  // Drop every angle-bracket construct, including unterminated ones such as
+  // "<script", not just well-formed "<...>" tags.
   out = out.replace(/<[^>]*>?/g, " ");
   out = out.replace(/[<>`]/g, " ");
   out = out.replace(/^[ \t]{0,3}#{1,6}[ \t]+/gm, "");
-  out = out.replace(/^[ \t]*(=+|-+)[ \t]*$/gm, "");
+  out = out.replace(/^[ \t]*(?:=+|-+)[ \t]*$/gm, "");
   out = out.replace(/^[ \t]{0,3}>[ \t]?/gm, "");
   out = out.replace(/^[ \t]*([-*+]|\d+[.)])[ \t]+/gm, "");
   out = out.replace(/^[ \t]*\[[ xX]\][ \t]*/gm, "");
-  out = out.replace(/(\*\*\*|\*\*|__|~~|\*|_)/g, "");
+  out = out.replace(/(?:\*\*\*|\*\*|__|~~|\*|_)/g, "");
   out = out.replace(/\\([\\`*_{}[\]()#+\-.!>~|<&"])/g, "$1");
   out = out.replace(/\s+/g, " ").trim();
   return out;

@@ -178,6 +178,22 @@
         white-space: pre-wrap;
         overflow-wrap: break-word;
         cursor: text;
+        line-height: 1.7;
+      }
+
+      /* Empty lines render as a zero-height box, which makes them impossible
+         to click into. Give every line a minimum line box instead. */
+      .note-content-md .md-line {
+        min-height: 1.7em;
+      }
+
+      .note-content-md .md-line.is-block {
+        display: block;
+      }
+
+      /* A block line already starts a new line; the <br> would add a blank. */
+      .note-content-md .md-line.is-block + .md-nl {
+        display: none;
       }
 
       .note-content-md.is-empty::before {
@@ -196,6 +212,27 @@
         color: #64748b;
       }
 
+      /* Block delimiters (#, >, list bullets) keep their place visually:
+         hidden, a quote or a heading would be indistinguishable from a plain
+         line. They are only tinted once the caret is inside them. */
+      .note-content-md .md-mark.is-blockmark {
+        display: inline;
+        color: #3f4a5a;
+      }
+
+      .note-content-md .md-mark.is-blockmark.is-active {
+        color: #64748b;
+      }
+
+      /* The delimiter the caret is directly on. Also un-hides it, since the
+         caret can sit on a marker of an inactive construct while typing. */
+      .note-content-md .md-mark.is-touched {
+        display: inline;
+        color: #94a3b8;
+        background: rgba(100, 116, 139, 0.14);
+        border-radius: 2px;
+      }
+
       /* List bullets / task boxes: the source characters keep their place in
          textContent but are collapsed to zero width, and the pretty glyph is
          injected via a pseudo-element. The span must stay displayed, or the
@@ -210,15 +247,6 @@
         font-size: 1rem;
         line-height: inherit;
         color: #94a3b8;
-      }
-
-      .note-content-md .md-line.is-block {
-        display: block;
-      }
-
-      /* A block already starts a new line; the <br> would add a blank one. */
-      .note-content-md .md-line.is-block + .md-nl {
-        display: none;
       }
 
       .note-content-md .md-h1,
