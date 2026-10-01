@@ -603,6 +603,63 @@ export function setCaretOffset(el, offset) {
   placeCaret(el, target.leaf, offset - target.start);
 }
 
+/**
+ * Moves the caret out of any hidden marker and into the nearest visible text.
+ * This prevents the caret from being "stuck" inside a display:none element,
+ * which causes typed text to disappear into the marker instead of appearing
+ * in the visible text flow.
+ */
+export function moveCaretOutOfHiddenMarkers(el) {
+  const sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return;
+
+  const range = sel.getRangeAt(0);
+  const startContainer = range.startContainer;
+
+  // Check if the caret is inside a hidden marker
+  const marker = startContainer.parentElement?.closest(".md-mark:not(.is-active):not(.is-blockmark):not(.is-touched)");
+  if (!marker) return;
+
+  // Find the nearest visible text node after the marker
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
+    acceptNode(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        // Skip text nodes inside hidden markers
+        if (node.parentElement?.closest(".md-mark:not(.is-active):not(.is-blockmark):not(.is-touched)")) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+      return NodeFilter.FILTER_SKIP;
+    },
+  });
+
+  // Start from the marker position
+  walker.currentNode = marker;
+
+  // Look for the next visible text node
+  let nextNode = walker.nextNode();
+  if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
+    // Place caret at the start of the visible text
+    const newRange = document.createRange();
+    newRange.setStart(nextNode, 0);
+    newRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+  } else {
+    // If no visible text after, look before the marker
+    walker.currentNode = marker;
+    let prevNode = walker.previousNode();
+    if (prevNode && prevNode.nodeType === Node.TEXT_NODE) {
+      const newRange = document.createRange();
+      newRange.setStart(prevNode, prevNode.length);
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+    }
+  }
+}
+
 function placeCaret(el, leaf, at) {
   const sel = window.getSelection();
   if (!sel) return;

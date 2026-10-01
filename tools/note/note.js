@@ -1,4 +1,4 @@
-import { renderMarkdown, applyVisibility, getRawText, getCaretOffset, setCaretOffset, stripMarkdown } from "./markdown.js";
+import { renderMarkdown, applyVisibility, getRawText, getCaretOffset, setCaretOffset, stripMarkdown, moveCaretOutOfHiddenMarkers } from "./markdown.js";
 
 let tooltipRecentlyActive = false;
 let tooltipResetTimer = null;
@@ -496,6 +496,8 @@ function setupEventListeners() {
       if (!markdownEnabled || mdComposing || e.isComposing) return;
       if (e.key !== "Enter" || e.ctrlKey || e.metaKey || e.altKey) return;
       e.preventDefault();
+      // Move caret out of hidden markers before inserting newline
+      moveCaretOutOfHiddenMarkers(el);
       applyMarkdownEdit("\n");
     });
 
