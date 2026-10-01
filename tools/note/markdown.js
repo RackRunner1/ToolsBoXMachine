@@ -577,7 +577,7 @@ export function setCaretOffset(el, offset) {
   const leaves = Array.from(el.querySelectorAll("[data-o]"));
   const info = leaves
     .map((leaf) => ({ leaf, start: Number(leaf.dataset.o), len: leaf.textContent.length }))
-    .filter((x) => Number.isFinite(x.start));
+    .filter((x) => Number.isFinite(x.start) && x.len > 0 && x.leaf.firstChild);
 
   // Empty runs matter here: they are the only caret target inside a blank
   // line, which is exactly where Enter leaves the user.
