@@ -77,6 +77,8 @@ function renderMd(text, caret, place = false) {
 
   if (place && text) setCaretOffset(elements.contentMd, caret);
   updateMdVisibility();
+  // Ensure caret is not stuck inside hidden markers after render
+  if (markdownEnabled && text) moveCaretOutOfHiddenMarkers(elements.contentMd);
 }
 
 function applyMarkdownMode() {
@@ -477,6 +479,8 @@ function setupEventListeners() {
       if (mdComposing) return;
       syncMarkdownEditor();
       updateMdVisibility();
+      // Ensure caret is not stuck inside hidden markers after sync
+      moveCaretOutOfHiddenMarkers(elements.contentMd);
     });
   }
 
