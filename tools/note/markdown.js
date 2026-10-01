@@ -288,7 +288,16 @@ function parseBlocks(src) {
 function findCloser(s, from, token) {
   let idx = from;
   while ((idx = s.indexOf(token, idx)) !== -1) {
-    if (idx > from) return idx;
+    if (idx > from) {
+      // Count backslashes before the token; odd count means it's escaped.
+      let backslashes = 0;
+      let j = idx - 1;
+      while (j >= 0 && s[j] === "\\") {
+        backslashes++;
+        j--;
+      }
+      if (backslashes % 2 === 0) return idx;
+    }
     idx++;
   }
   return -1;
