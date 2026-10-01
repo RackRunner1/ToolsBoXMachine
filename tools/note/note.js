@@ -71,8 +71,9 @@ function setContent(text) {
  * `place` moves the caret to `caret`; pass false to leave the selection alone.
  */
 function renderMd(text, caret, place = false) {
+  // Empty content leaves the element truly empty, which :empty uses to show
+  // the placeholder.
   elements.contentMd.innerHTML = text ? renderMarkdown(text) : "";
-  elements.contentMd.classList.toggle("is-empty", !text);
 
   if (place && text) setCaretOffset(elements.contentMd, caret);
   updateMdVisibility();
@@ -91,7 +92,6 @@ function applyMarkdownMode() {
   } else {
     elements.contentInput.value = text;
     elements.contentMd.textContent = "";
-    elements.contentMd.classList.toggle("is-empty", true);
   }
 }
 

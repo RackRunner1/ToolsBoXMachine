@@ -196,7 +196,9 @@
         display: none;
       }
 
-      .note-content-md.is-empty::before {
+      /* Driven by :empty so the placeholder tracks the content automatically.
+         A JS-toggled class went stale as soon as typing stopped re-rendering. */
+      .note-content-md:empty::before {
         content: attr(data-placeholder);
         color: #475569;
       }
