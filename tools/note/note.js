@@ -1,15 +1,19 @@
+import { renderMarkdown, applyVisibility, getRawText, getCaretOffset, setCaretOffset, stripMarkdown } from "./markdown.js";
+
 let tooltipRecentlyActive = false;
 let tooltipResetTimer = null;
 
 const STORAGE_KEY = "tbxm_notes";
 const MODAL_KEY = "tbxm_notes_modal_dismissed";
 const SKIP_DELETE_KEY = "tbxm_notes_skip_delete_confirm";
+const MARKDOWN_KEY = "tbxm_notes_markdown";
 
 const elements = {
   editorEmpty: document.getElementById("editor-empty"),
   editorView: document.getElementById("editor-view"),
   titleInput: document.getElementById("note-title"),
   contentInput: document.getElementById("note-content"),
+  contentMd: document.getElementById("note-content-md"),
   dateDisplay: document.getElementById("note-date"),
   deleteBtn: document.getElementById("delete-btn"),
   createBtn: document.getElementById("create-btn"),
@@ -26,6 +30,7 @@ const elements = {
   settingsModal: document.getElementById("settings-modal"),
   settingsCloseBtn: document.getElementById("settings-close-btn"),
   skipDeleteConfirm: document.getElementById("setting-skip-delete-confirm"),
+  markdownToggle: document.getElementById("setting-markdown"),
   deleteModal: document.getElementById("delete-modal"),
   deleteModalCancel: document.getElementById("delete-modal-cancel"),
   deleteModalConfirm: document.getElementById("delete-modal-confirm"),
@@ -36,13 +41,68 @@ let activeNoteId = null;
 let saveTimeout = null;
 let contextTargetNoteId = null;
 let skipDeleteConfirm = localStorage.getItem(SKIP_DELETE_KEY) === "true";
+let markdownEnabled = localStorage.getItem(MARKDOWN_KEY) === "true";
+
+/* ------------------------------------------------------- Markdown (BETA) --- */
+
+/** Which element currently holds the note body, depending on the setting. */
+function contentEl() {
+  return markdownEnabled ? elements.contentMd : elements.contentInput;
+}
+
+function getContent() {
+  return markdownEnabled ? getRawText(elements.contentMd) : elements.contentInput.value;
+}
+
+/** Writes the body to both editors so toggling the setting is lossless. */
+function setContent(text) {
+  elements.contentInput.value = text;
+  if (markdownEnabled) {
+    renderMd(text, text.length);
+  } else {
+    elements.contentMd.textContent = "";
+  }
+  // Nothing to reveal until the editor actually holds a caret.
+  if (markdownEnabled) applyVisibility(elements.contentMd, null);
+}
+
+/**
+ * Renders the note body into the markdown editor.
+ * `place` moves the caret to `caret`; pass false to leave the selection alone.
+ */
+function renderMd(text, caret, place = false) {
+  elements.contentMd.innerHTML = text ? renderMarkdown(text) : "";
+  elements.contentMd.classList.toggle("is-empty", !text);
+
+  if (place && text) setCaretOffset(elements.contentMd, caret);
+  updateMdVisibility();
+}
+
+function applyMarkdownMode() {
+  // Read the body from the editor that is CURRENTLY active, before the
+  // setting flips and switches which one that is.
+  const text = getContent();
+
+  elements.contentInput.hidden = markdownEnabled;
+  elements.contentMd.hidden = !markdownEnabled;
+
+  if (markdownEnabled) {
+    renderMd(text, text.length);
+  } else {
+    elements.contentInput.value = text;
+    elements.contentMd.textContent = "";
+    elements.contentMd.classList.toggle("is-empty", true);
+  }
+}
 
 function init() {
   loadNotes();
   renderList();
   setupEventListeners();
+  applyMarkdownMode();
   selectFirstNote();
   elements.skipDeleteConfirm.checked = skipDeleteConfirm;
+  elements.markdownToggle.checked = markdownEnabled;
   setupStorageModal();
 }
 
@@ -108,8 +168,9 @@ function renderList() {
     item.className = `note-item${note.id === activeNoteId ? " active" : ""}`;
     item.dataset.id = note.id;
 
-    const preview = note.content
-      ? note.content.substring(0, 120).replace(/\n/g, " ")
+    const plain = markdownEnabled ? stripMarkdown(note.content) : note.content;
+    const preview = plain
+      ? plain.substring(0, 120).replace(/\n/g, " ")
       : "Empty note";
 
     const createdDate = new Date(note.createdAt).toLocaleDateString(undefined, {
@@ -190,7 +251,7 @@ function selectNote(id) {
   elements.editorView.style.display = "flex";
 
   elements.titleInput.value = note.title;
-  elements.contentInput.value = note.content;
+  setContent(note.content);
   const dateStr = new Date(note.modifiedAt).toLocaleString();
   elements.dateDisplay.textContent = dateStr;
 
@@ -232,7 +293,7 @@ function saveCurrentNote(autoSave = false) {
   if (!activeNoteId) return;
 
   const title = elements.titleInput.value.trim();
-  const content = elements.contentInput.value.trim();
+  const content = getContent().trim();
   const index = notes.findIndex((n) => n.id === activeNoteId);
 
   if (index === -1) return;
@@ -284,10 +345,10 @@ function handleExternalSync() {
     } else if (!hadPendingSave) {
       if (
         elements.titleInput.value !== activeNote.title ||
-        elements.contentInput.value !== activeNote.content
+        getContent() !== activeNote.content
       ) {
         elements.titleInput.value = activeNote.title;
-        elements.contentInput.value = activeNote.content;
+        setContent(activeNote.content);
         elements.dateDisplay.textContent = new Date(activeNote.modifiedAt).toLocaleString();
       }
     }
@@ -341,10 +402,12 @@ function setupEventListeners() {
   elements.titleInput.addEventListener("input", scheduleAutoSave);
   elements.contentInput.addEventListener("input", scheduleAutoSave);
 
+  setupMarkdownEditor();
+
   elements.titleInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === "Tab") {
       e.preventDefault();
-      elements.contentInput.focus();
+      contentEl().focus();
     }
   });
 
@@ -358,6 +421,141 @@ function setupEventListeners() {
       showNotification("Note saved!");
     }
   });
+
+  elements.contentMd.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      clearTimeout(saveTimeout);
+      saveTimeout = null;
+      saveCurrentNote();
+      renderList();
+      showNotification("Note saved!");
+    }
+  });
+
+  /* ------------------------------------------------ Markdown (BETA) --- */
+
+  // Set while an IME composition is in progress. Re-rendering the DOM during
+  // composition would cancel the in-flight input, so we defer instead.
+  let mdComposing = false;
+  let mdRenderQueued = false;
+
+  /**
+   * Applies a source edit and re-renders from scratch.
+   *
+   * Only used when the DOM itself cannot produce the right result (Enter,
+   * paste). Plain typing is left to the browser: re-rendering on every
+   * keystroke reset the caret and made Enter and the arrow keys unreliable.
+   */
+  function applyMarkdownEdit(mutate) {
+    const el = elements.contentMd;
+    const text = getRawText(el);
+    const caret = getCaretOffset(el) ?? text.length;
+    const next = text.slice(0, caret) + mutate + text.slice(caret);
+    const nextCaret = caret + mutate.length;
+
+    elements.contentInput.value = next;
+    renderMd(next, nextCaret, true);
+    scheduleAutoSave();
+  }
+
+  /** Keeps the plain textarea and the store in sync after a DOM edit. */
+  function syncMarkdownEditor() {
+    if (!markdownEnabled) return;
+    const text = getRawText(elements.contentMd);
+    if (text !== elements.contentInput.value) {
+      elements.contentInput.value = text;
+      scheduleAutoSave();
+    }
+  }
+
+  function queueMarkdownSync() {
+    if (mdRenderQueued) return;
+    mdRenderQueued = true;
+    requestAnimationFrame(() => {
+      mdRenderQueued = false;
+      if (mdComposing) return;
+      syncMarkdownEditor();
+      updateMdVisibility();
+    });
+  }
+
+  /** Reveals the markers around the caret, without touching the DOM structure. */
+  function updateMdVisibility() {
+    if (!markdownEnabled) return;
+    applyVisibility(elements.contentMd, getCaretOffset(elements.contentMd));
+  }
+
+  function setupMarkdownEditor() {
+    const el = elements.contentMd;
+
+    // Enter and Shift+Enter: a contenteditable would otherwise insert its own
+    // <div>/<br> structure, which breaks the "one <br> per source newline"
+    // invariant and makes the caret jump. We insert the newline ourselves.
+    el.addEventListener("keydown", (e) => {
+      if (!markdownEnabled || mdComposing || e.isComposing) return;
+      if (e.key !== "Enter" || e.ctrlKey || e.metaKey || e.altKey) return;
+      e.preventDefault();
+      applyMarkdownEdit("\n");
+    });
+
+    // Paste as plain text: rich HTML would break the DOM invariant and could
+    // inject markup. execCommand keeps the browser's native undo stack.
+    el.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData)?.getData("text/plain") ?? "";
+      if (!text) return;
+      document.execCommand("insertText", false, text);
+      queueMarkdownSync();
+    });
+
+    // Drop/paste of files or rich content that slips through as HTML.
+    el.addEventListener("drop", (e) => {
+      e.preventDefault();
+    });
+
+    el.addEventListener("compositionstart", () => {
+      mdComposing = true;
+    });
+
+    el.addEventListener("compositionend", () => {
+      mdComposing = false;
+      queueMarkdownSync();
+    });
+
+    el.addEventListener("input", () => {
+      if (mdComposing) return;
+      queueMarkdownSync();
+    });
+
+    // Keep marker visibility in sync with the caret. This only toggles
+    // classes, so the selection is never disturbed. selectionchange does not
+    // bubble, so this has to listen on the document.
+    document.addEventListener("selectionchange", () => {
+      if (!markdownEnabled || mdComposing) return;
+      if (document.activeElement !== el) return;
+      updateMdVisibility();
+    });
+
+    // Focusing by keyboard/tab leaves no caret inside the editor, so typing
+    // would go nowhere. Place it at the end of the note instead.
+    el.addEventListener("focus", () => {
+      if (!markdownEnabled || mdComposing) return;
+      if (getCaretOffset(el) !== null) {
+        updateMdVisibility();
+        return;
+      }
+      const text = getRawText(el);
+      if (text) setCaretOffset(el, text.length);
+      updateMdVisibility();
+    });
+
+    el.addEventListener("blur", () => {
+      if (!markdownEnabled) return;
+      // Collapse every marker back to its rendered form.
+      applyVisibility(el, null);
+    });
+  }
 
   elements.notesList.addEventListener("contextmenu", (e) => {
     if (e.target.closest(".note-item")) return;
@@ -450,6 +648,25 @@ function setupEventListeners() {
   elements.skipDeleteConfirm.addEventListener("change", () => {
     skipDeleteConfirm = elements.skipDeleteConfirm.checked;
     localStorage.setItem(SKIP_DELETE_KEY, skipDeleteConfirm);
+  });
+
+  elements.markdownToggle.addEventListener("change", () => {
+    // Persist the current text while the previous editor is still the active
+    // one, then switch modes.
+    saveCurrentNote(true);
+
+    markdownEnabled = elements.markdownToggle.checked;
+    localStorage.setItem(MARKDOWN_KEY, String(markdownEnabled));
+
+    applyMarkdownMode();
+    renderList();
+
+    if (markdownEnabled) {
+      showNotification("Markdown enabled (BETA)");
+      elements.contentMd.focus();
+    } else {
+      elements.contentInput.focus();
+    }
   });
 
   window.addEventListener("storage", (e) => {

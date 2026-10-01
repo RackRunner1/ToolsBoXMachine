@@ -172,6 +172,193 @@
         color: #475569;
       }
 
+      /* ------------------------------------------------ Markdown (BETA) --- */
+
+      .note-content-md {
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+        cursor: text;
+        line-height: 1.7;
+      }
+
+      /* Empty lines render as a zero-height box, which makes them impossible
+         to click into. Give every line a minimum line box instead. */
+      .note-content-md .md-line {
+        min-height: 1.7em;
+      }
+
+      .note-content-md .md-line.is-block {
+        display: block;
+      }
+
+      /* A block line already starts a new line; the <br> would add a blank. */
+      .note-content-md .md-line.is-block + .md-nl {
+        display: none;
+      }
+
+      .note-content-md.is-empty::before {
+        content: attr(data-placeholder);
+        color: #475569;
+      }
+
+      /* Markup characters: present in the DOM (so the source round-trips)
+         but invisible, unless the caret is currently inside the construct. */
+      .note-content-md .md-mark {
+        display: none;
+      }
+
+      .note-content-md .md-mark.is-active {
+        display: inline;
+        color: #64748b;
+      }
+
+      /* Block delimiters (#, >, list bullets) keep their place visually:
+         hidden, a quote or a heading would be indistinguishable from a plain
+         line. They are only tinted once the caret is inside them. */
+      .note-content-md .md-mark.is-blockmark {
+        display: inline;
+        color: #3f4a5a;
+      }
+
+      .note-content-md .md-mark.is-blockmark.is-active {
+        color: #64748b;
+      }
+
+      /* The delimiter the caret is directly on. Also un-hides it, since the
+         caret can sit on a marker of an inactive construct while typing. */
+      .note-content-md .md-mark.is-touched {
+        display: inline;
+        color: #94a3b8;
+        background: rgba(100, 116, 139, 0.14);
+        border-radius: 2px;
+      }
+
+      /* List bullets / task boxes: the source characters keep their place in
+         textContent but are collapsed to zero width, and the pretty glyph is
+         injected via a pseudo-element. The span must stay displayed, or the
+         pseudo-element would not render at all. */
+      .note-content-md .md-mark-swap {
+        font-size: 0;
+        line-height: 0;
+      }
+
+      .note-content-md .md-mark-swap::after {
+        content: attr(data-glyph);
+        font-size: 1rem;
+        line-height: inherit;
+        color: #94a3b8;
+      }
+
+      .note-content-md .md-h1,
+      .note-content-md .md-h2,
+      .note-content-md .md-h3,
+      .note-content-md .md-h4,
+      .note-content-md .md-h5,
+      .note-content-md .md-h6 {
+        display: block;
+        font-weight: 700;
+        color: #f8fafc;
+        line-height: 1.3;
+        margin: 0.6rem 0 0.2rem;
+      }
+
+      .note-content-md .md-h1 { font-size: 1.7rem; }
+      .note-content-md .md-h2 { font-size: 1.45rem; }
+      .note-content-md .md-h3 { font-size: 1.25rem; }
+      .note-content-md .md-h4 { font-size: 1.1rem; }
+      .note-content-md .md-h5 { font-size: 1rem; }
+      .note-content-md .md-h6 { font-size: 0.92rem; color: #cbd5e1; }
+
+      .note-content-md .md-quote {
+        display: block;
+        border-left: 3px solid #475569;
+        padding-left: 0.9rem;
+        color: #94a3b8;
+        margin: 0.4rem 0;
+      }
+
+      .note-content-md .md-li {
+        display: block;
+        padding-left: calc(1.25rem + var(--md-level, 0) * 1.25rem);
+        margin: 0.1rem 0;
+      }
+
+      .note-content-md .md-hr {
+        display: block;
+        color: #334155;
+        overflow: hidden;
+        margin: 0.75rem 0;
+      }
+
+      .note-content-md .md-hr::after {
+        content: "";
+        display: block;
+        border-top: 1px solid #334155;
+      }
+
+      .note-content-md .md-codeblock {
+        display: block;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.86rem;
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.5rem;
+        padding: 0.75rem 0.9rem;
+        margin: 0.5rem 0;
+        white-space: pre-wrap;
+      }
+
+      .note-content-md .md-code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.88em;
+        background: rgba(51, 65, 85, 0.6);
+        border-radius: 0.3rem;
+        padding: 0.1rem 0.3rem;
+        color: #7dd3fc;
+      }
+
+      .note-content-md .md-link-label {
+        color: #60a5fa;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .note-content-md .md-link {
+        color: #60a5fa;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .note-content-md .md-link-url {
+        color: #7dd3fc;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.85em;
+        background: rgba(51, 65, 85, 0.5);
+        border-radius: 0.3rem;
+        padding: 0.1rem 0.3rem;
+      }
+
+      .note-content-md del {
+        color: #94a3b8;
+      }
+
+      /* ------------------------------------------------------------ BETA --- */
+
+      .beta-badge {
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 0.45rem;
+        padding: 0.05rem 0.4rem;
+        border-radius: 0.35rem;
+        font-size: 0.6rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        color: #fbbf24;
+        background: rgba(245, 158, 11, 0.14);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        cursor: help;
+      }
+
       .editor-empty {
         flex: 1;
         display: flex;
@@ -909,6 +1096,16 @@
             class="note-content-input"
             placeholder="Start writing..."
           ></textarea>
+          <div
+            id="note-content-md"
+            class="note-content-input note-content-md"
+            contenteditable="true"
+            spellcheck="true"
+            role="textbox"
+            aria-multiline="true"
+            data-placeholder="Start writing..."
+            hidden
+          ></div>
         </div>
       </div>
 
@@ -943,6 +1140,19 @@
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="setting-skip-delete-confirm" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-card">
+            <div class="setting-card-info">
+              <div class="setting-card-title">
+                Markdown
+                <span class="beta-badge" title="Beta feature">BETA</span>
+              </div>
+              <div class="setting-card-desc">Render Markdown as you type, with syntax markers hidden until you type on them</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-markdown" />
               <span class="toggle-slider"></span>
             </label>
           </div>
