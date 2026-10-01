@@ -548,18 +548,28 @@ export function getCaretOffset(el) {
   const range = sel.getRangeAt(0);
   if (!el.contains(range.startContainer)) return null;
 
-  // Clone the content up to the caret and measure it with the same rules as
-  // getRawText, so hidden markers and <br> newlines are counted correctly.
-  const before = document.createRange();
-  before.setStart(el, 0);
-  before.setEnd(range.startContainer, range.startOffset);
-
+  // Walk the live DOM up to the caret, counting every character (including
+  // hidden markers) so the offset matches the markdown source exactly.
+  // cloneContents() would skip display:none elements, losing marker chars.
   let count = 0;
-  walkRaw(before.cloneContents(), (_node, _start, len) => {
-    count += len;
+  let found = false;
+
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
+    acceptNode(node) {
+      return node.nodeType === Node.TEXT_NODE || node.tagName === "BR" ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+    },
   });
 
-  return count;
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (node === range.startContainer) {
+      count += range.startOffset;
+      found = true;
+      break;
+    }
+    count += node.nodeType === Node.TEXT_NODE ? node.data.length : 1;
+  }
+
+  return found ? count : null;
 }
 
 /** Places the caret at `offset` (an index into the markdown source). */
