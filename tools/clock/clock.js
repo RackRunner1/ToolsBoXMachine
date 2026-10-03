@@ -9,6 +9,9 @@
   const dateDisplay = document.getElementById("date-display");
   const formatSection = document.getElementById("format-section");
   const fullscreenBtn = document.getElementById("fullscreen-btn");
+  const clockLayout = document.querySelector(".clock-layout");
+  const sidebar = document.getElementById("clock-sidebar");
+  const sidebarToggle = document.getElementById("sidebar-toggle");
 
   const toggleSeconds = document.getElementById("toggle-seconds");
   const toggleDate = document.getElementById("toggle-date");
@@ -175,6 +178,26 @@
     }
   }
 
+  // Sidebar collapse
+  function setSidebarCollapsed(collapsed) {
+    sidebar.classList.toggle("collapsed", collapsed);
+    clockLayout.classList.toggle("sidebar-collapsed", collapsed);
+    sidebarToggle.setAttribute("aria-expanded", String(!collapsed));
+    const label = collapsed ? "Expand settings" : "Collapse settings";
+    sidebarToggle.title = label;
+    sidebarToggle.setAttribute("aria-label", label);
+    if (collapsed) {
+      document.querySelectorAll(".custom-select-container").forEach((c) => c.classList.remove("open"));
+    }
+  }
+
+  if (sidebar && sidebarToggle && clockLayout) {
+    sidebarToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setSidebarCollapsed(!sidebar.classList.contains("collapsed"));
+    });
+  }
+
   // Custom select
   function setupSelect(containerId, onChange) {
     const container = document.getElementById(containerId);
@@ -282,5 +305,6 @@
   buildNumbers();
   applyColor(accentColor);
   setMode(mode);
+  setSidebarCollapsed(true);
   requestAnimationFrame(updateClock);
 })();
