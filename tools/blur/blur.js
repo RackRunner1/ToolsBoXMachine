@@ -46,64 +46,179 @@ const supportsCtxFilter = (() => {
 
 // Fallback for engines without CanvasRenderingContext2D.filter
 // (WebKit / Safari / WebKitGTK: assignment is silently ignored, so all
-// blur() calls below would draw sharp pixels). Pure-canvas downscale /
-// upscale blur: works everywhere, no pixel loops, fast enough for large
-// photos and per-dab brush stamping.
+// blur() calls below would draw sharp pixels). True gaussian-approximated
+// box blur (3 stacked passes) at full resolution: smooth everywhere, no
+// pixelation, cached per image/radius so brush dabs stay cheap.
 let _blurCache = { src: null, radius: -1, canvas: null };
 
+// Box sizes whose stacked result approximates gaussian(sigma) (Kutskir).
+function boxesForGauss(sigma, n) {
+  const wIdeal = Math.sqrt((12 * sigma * sigma) / n + 1);
+  let wl = Math.floor(wIdeal);
+  if (wl % 2 === 0) wl--;
+  if (wl < 1) wl = 1;
+  const wu = wl + 2;
+  const mIdeal =
+    (12 * sigma * sigma - n * wl * wl - 4 * n * wl - 3 * n) / (-4 * wl - 4);
+  const m = Math.max(0, Math.min(n, Math.round(mIdeal)));
+  const sizes = [];
+  for (let i = 0; i < n; i++) sizes.push(i < m ? wl : wu);
+  return sizes;
+}
+
+function boxBlurH(src, dst, w, h, r) {
+  const div = 2 * r + 1;
+  for (let y = 0; y < h; y++) {
+    const row = y * w;
+    let accR = 0, accG = 0, accB = 0, accA = 0;
+    for (let i = -r; i <= r; i++) {
+      const x = i < 0 ? 0 : i > w - 1 ? w - 1 : i;
+      const idx = (row + x) * 4;
+      accR += src[idx];
+      accG += src[idx + 1];
+      accB += src[idx + 2];
+      accA += src[idx + 3];
+    }
+    for (let x = 0; x < w; x++) {
+      const idx = (row + x) * 4;
+      dst[idx] = accR / div;
+      dst[idx + 1] = accG / div;
+      dst[idx + 2] = accB / div;
+      dst[idx + 3] = accA / div;
+      const xOut = x - r < 0 ? 0 : x - r;
+      const xIn = x + r + 1 > w - 1 ? w - 1 : x + r + 1;
+      const iOut = (row + xOut) * 4;
+      const iIn = (row + xIn) * 4;
+      accR += src[iIn] - src[iOut];
+      accG += src[iIn + 1] - src[iOut + 1];
+      accB += src[iIn + 2] - src[iOut + 2];
+      accA += src[iIn + 3] - src[iOut + 3];
+    }
+  }
+}
+
+function boxBlurV(src, dst, w, h, r) {
+  const div = 2 * r + 1;
+  for (let x = 0; x < w; x++) {
+    let accR = 0, accG = 0, accB = 0, accA = 0;
+    for (let i = -r; i <= r; i++) {
+      const y = i < 0 ? 0 : i > h - 1 ? h - 1 : i;
+      const idx = (y * w + x) * 4;
+      accR += src[idx];
+      accG += src[idx + 1];
+      accB += src[idx + 2];
+      accA += src[idx + 3];
+    }
+    for (let y = 0; y < h; y++) {
+      const idx = (y * w + x) * 4;
+      dst[idx] = accR / div;
+      dst[idx + 1] = accG / div;
+      dst[idx + 2] = accB / div;
+      dst[idx + 3] = accA / div;
+      const yOut = y - r < 0 ? 0 : y - r;
+      const yIn = y + r + 1 > h - 1 ? h - 1 : y + r + 1;
+      const iOut = (yOut * w + x) * 4;
+      const iIn = (yIn * w + x) * 4;
+      accR += src[iIn] - src[iOut];
+      accG += src[iIn + 1] - src[iOut + 1];
+      accB += src[iIn + 2] - src[iOut + 2];
+      accA += src[iIn + 3] - src[iOut + 3];
+    }
+  }
+}
+
+// Last-resort blur when pixel reads are blocked (tainted canvas from a
+// cross-origin image): stepwise-halve downscale then one upscale. Smooth,
+// no readback needed.
+function smoothDownscaleBlur(src, w, h, sigma) {
+  const target = Math.max(1, sigma / 2);
+  const sw = Math.max(1, Math.round(w / target));
+  const sh = Math.max(1, Math.round(h / target));
+  let cur = src;
+  let curW = w;
+  let curH = h;
+  while (curW / 2 >= sw && curH / 2 >= sh && Math.min(curW, curH) > 16) {
+    curW = Math.round(curW / 2);
+    curH = Math.round(curH / 2);
+    const step = document.createElement("canvas");
+    step.width = curW;
+    step.height = curH;
+    const sctx = step.getContext("2d");
+    sctx.imageSmoothingEnabled = true;
+    sctx.imageSmoothingQuality = "high";
+    sctx.drawImage(cur, 0, 0, curW, curH);
+    cur = step;
+  }
+  if (cur.width !== sw || cur.height !== sh) {
+    const small = document.createElement("canvas");
+    small.width = sw;
+    small.height = sh;
+    const sctx = small.getContext("2d");
+    sctx.imageSmoothingEnabled = true;
+    sctx.imageSmoothingQuality = "high";
+    sctx.drawImage(cur, 0, 0, sw, sh);
+    cur = small;
+  }
+  const out = document.createElement("canvas");
+  out.width = w;
+  out.height = h;
+  const octx = out.getContext("2d");
+  octx.imageSmoothingEnabled = true;
+  octx.imageSmoothingQuality = "high";
+  octx.drawImage(cur, 0, 0, w, h);
+  return out;
+}
+
 function manualBlurCanvas(src, radius) {
-  const r = Math.round(radius);
+  const sigma = Math.round(radius);
   const w = src.naturalWidth || src.width;
   const h = src.naturalHeight || src.height;
   const out = document.createElement("canvas");
   out.width = w;
   out.height = h;
   const octx = out.getContext("2d");
-  if (!(r > 0)) {
+  octx.imageSmoothingEnabled = true;
+  octx.imageSmoothingQuality = "high";
+  if (!(sigma > 0)) {
     octx.drawImage(src, 0, 0);
     return out;
   }
-  // Downscale factor calibrated so blur(10px) ~= factor 2.5 and
-  // blur(50px) ~= factor 12.5. Two upscale passes approximate gaussian.
-  const factor = Math.max(1, r / 4);
-  const sw = Math.max(1, Math.round(w / factor));
-  const sh = Math.max(1, Math.round(h / factor));
-  const small = document.createElement("canvas");
-  small.width = sw;
-  small.height = sh;
-  const sctx = small.getContext("2d");
-  sctx.imageSmoothingEnabled = true;
-  sctx.imageSmoothingQuality = "high";
-  sctx.drawImage(src, 0, 0, sw, sh);
-  let upSource = small;
-  if (r >= 20) {
-    // Extra pass for strong radii: halve once more before upscaling.
-    const sw2 = Math.max(1, Math.round(sw / 2));
-    const sh2 = Math.max(1, Math.round(sh / 2));
-    const smaller = document.createElement("canvas");
-    smaller.width = sw2;
-    smaller.height = sh2;
-    const smctx = smaller.getContext("2d");
-    smctx.imageSmoothingEnabled = true;
-    smctx.imageSmoothingQuality = "high";
-    smctx.drawImage(small, 0, 0, sw2, sh2);
-    upSource = smaller;
+
+  // Cap the working resolution so huge photos stay fast; the blur itself
+  // is still computed with real box passes, then upscaled smoothly.
+  const MAX_PIXELS = 2000000;
+  const scale = Math.min(1, Math.sqrt(MAX_PIXELS / (w * h)));
+  const ww = Math.max(1, Math.round(w * scale));
+  const hh = Math.max(1, Math.round(h * scale));
+  const work = document.createElement("canvas");
+  work.width = ww;
+  work.height = hh;
+  const wctx = work.getContext("2d");
+  wctx.imageSmoothingEnabled = true;
+  wctx.imageSmoothingQuality = "high";
+  wctx.drawImage(src, 0, 0, ww, hh);
+
+  let imgData = null;
+  try {
+    imgData = wctx.getImageData(0, 0, ww, hh);
+  } catch (e) {
+    imgData = null;
   }
-  octx.imageSmoothingEnabled = true;
-  octx.imageSmoothingQuality = "high";
-  octx.drawImage(upSource, 0, 0, w, h);
-  if (r > 5) {
-    // Second smoothing iteration for a less blocky result.
-    const tmp = document.createElement("canvas");
-    tmp.width = sw;
-    tmp.height = sh;
-    const tctx = tmp.getContext("2d");
-    tctx.imageSmoothingEnabled = true;
-    tctx.imageSmoothingQuality = "high";
-    tctx.drawImage(out, 0, 0, sw, sh);
-    octx.clearRect(0, 0, w, h);
-    octx.drawImage(tmp, 0, 0, w, h);
+  if (!imgData) return smoothDownscaleBlur(src, w, h, sigma);
+
+  const wSigma = Math.max(1, Math.round(sigma * scale));
+  const boxes = boxesForGauss(wSigma, 3);
+  let bufA = new Uint8ClampedArray(imgData.data);
+  let bufB = new Uint8ClampedArray(bufA.length);
+  for (let b = 0; b < boxes.length; b++) {
+    const r = (boxes[b] - 1) >> 1;
+    if (r <= 0) continue;
+    boxBlurH(bufA, bufB, ww, hh, r);
+    boxBlurV(bufB, bufA, ww, hh, r);
   }
+  imgData.data.set(bufA);
+  wctx.putImageData(imgData, 0, 0);
+  octx.drawImage(work, 0, 0, w, h);
   return out;
 }
 
