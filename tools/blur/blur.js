@@ -34,11 +34,88 @@ const supportsCtxFilter = (() => {
   try {
     const testCanvas = document.createElement("canvas");
     const testCtx = testCanvas.getContext("2d");
-    return typeof testCtx.filter !== "undefined";
+    if (typeof testCtx.filter === "undefined") return false;
+    // WebKit may expose the property but silently ignore assignments,
+    // so verify the value actually sticks.
+    testCtx.filter = "blur(2px)";
+    return testCtx.filter === "blur(2px)";
   } catch (e) {
     return false;
   }
 })();
+
+// Fallback for engines without CanvasRenderingContext2D.filter
+// (WebKit / Safari / WebKitGTK: assignment is silently ignored, so all
+// blur() calls below would draw sharp pixels). Pure-canvas downscale /
+// upscale blur: works everywhere, no pixel loops, fast enough for large
+// photos and per-dab brush stamping.
+let _blurCache = { src: null, radius: -1, canvas: null };
+
+function manualBlurCanvas(src, radius) {
+  const r = Math.round(radius);
+  const w = src.naturalWidth || src.width;
+  const h = src.naturalHeight || src.height;
+  const out = document.createElement("canvas");
+  out.width = w;
+  out.height = h;
+  const octx = out.getContext("2d");
+  if (!(r > 0)) {
+    octx.drawImage(src, 0, 0);
+    return out;
+  }
+  // Downscale factor calibrated so blur(10px) ~= factor 2.5 and
+  // blur(50px) ~= factor 12.5. Two upscale passes approximate gaussian.
+  const factor = Math.max(1, r / 4);
+  const sw = Math.max(1, Math.round(w / factor));
+  const sh = Math.max(1, Math.round(h / factor));
+  const small = document.createElement("canvas");
+  small.width = sw;
+  small.height = sh;
+  const sctx = small.getContext("2d");
+  sctx.imageSmoothingEnabled = true;
+  sctx.imageSmoothingQuality = "high";
+  sctx.drawImage(src, 0, 0, sw, sh);
+  let upSource = small;
+  if (r >= 20) {
+    // Extra pass for strong radii: halve once more before upscaling.
+    const sw2 = Math.max(1, Math.round(sw / 2));
+    const sh2 = Math.max(1, Math.round(sh / 2));
+    const smaller = document.createElement("canvas");
+    smaller.width = sw2;
+    smaller.height = sh2;
+    const smctx = smaller.getContext("2d");
+    smctx.imageSmoothingEnabled = true;
+    smctx.imageSmoothingQuality = "high";
+    smctx.drawImage(small, 0, 0, sw2, sh2);
+    upSource = smaller;
+  }
+  octx.imageSmoothingEnabled = true;
+  octx.imageSmoothingQuality = "high";
+  octx.drawImage(upSource, 0, 0, w, h);
+  if (r > 5) {
+    // Second smoothing iteration for a less blocky result.
+    const tmp = document.createElement("canvas");
+    tmp.width = sw;
+    tmp.height = sh;
+    const tctx = tmp.getContext("2d");
+    tctx.imageSmoothingEnabled = true;
+    tctx.imageSmoothingQuality = "high";
+    tctx.drawImage(out, 0, 0, sw, sh);
+    octx.clearRect(0, 0, w, h);
+    octx.drawImage(tmp, 0, 0, w, h);
+  }
+  return out;
+}
+
+function getBlurredSource(radius) {
+  const r = Math.round(radius);
+  if (_blurCache.src === imageObjects && _blurCache.radius === r && _blurCache.canvas) {
+    return _blurCache.canvas;
+  }
+  const blurred = manualBlurCanvas(imageObjects, r);
+  _blurCache = { src: imageObjects, radius: r, canvas: blurred };
+  return blurred;
+}
 
 // Preview Brush state
 let showBrushPreview = false;
@@ -176,10 +253,16 @@ function updateCanvas() {
   const mode = document.querySelector('input[name="blurMode"]:checked').value;
 
   if (mode === "full") {
-    // Always use ctx.filter instead of CSS filter so toDataURL() captures the blur
-    ctx.filter = `blur(${blurIntensityInput.value}px)`;
-    ctx.drawImage(imageObjects, 0, 0);
-    ctx.filter = "none";
+    // Always use ctx.filter instead of CSS filter so toDataURL() captures the blur.
+    // WebKit fallback: stamp a pre-blurred copy instead.
+    const blurPx = parseInt(blurIntensityInput.value, 10) || 0;
+    if (supportsCtxFilter) {
+      ctx.filter = `blur(${blurPx}px)`;
+      ctx.drawImage(imageObjects, 0, 0);
+      ctx.filter = "none";
+    } else {
+      ctx.drawImage(getBlurredSource(blurPx), 0, 0);
+    }
   } else {
     canvas.style.filter = "none";
     ctx.drawImage(imageObjects, 0, 0);
@@ -303,6 +386,7 @@ function loadImage(src) {
     blurHistory = [];
 
     imageObjects = img;
+    _blurCache = { src: null, radius: -1, canvas: null };
 
     const placeholder = document.getElementById("canvas-placeholder");
     if (placeholder) placeholder.style.display = "none";
@@ -313,6 +397,9 @@ function loadImage(src) {
 
     renderBlurredOffscreen();
     updateCanvas();
+  };
+  img.onerror = () => {
+    showPasteError("This file could not be read as an image.");
   };
   img.src = src;
 }
@@ -326,13 +413,71 @@ upload.addEventListener("change", (e) => {
   reader.readAsDataURL(file);
 });
 
-// Clipboard Logic
+// Clipboard & Drag&Drop Logic
+function showPasteError(msg) {
+  const label = document.querySelector(".custom-file-upload");
+  if (!label) return;
+  let err = document.getElementById("paste-error");
+  if (!err) {
+    err = document.createElement("p");
+    err.id = "paste-error";
+    err.style.cssText =
+      "font-size:0.75rem;color:#f87171;margin:0;display:none;";
+    label.appendChild(err);
+  }
+  err.textContent = msg;
+  err.style.display = "block";
+  clearTimeout(showPasteError._t);
+  showPasteError._t = setTimeout(() => {
+    err.style.display = "none";
+  }, 4000);
+}
+
+// Some OS / screenshot tools paste images with an empty MIME type,
+// so don't reject those outright: let the Image loader validate them.
+function isProbablyImageFile(file) {
+  if (!file) return false;
+  if (file.type && file.type.startsWith("image/")) return true;
+  if (file.type && file.type !== "") return false;
+  if (file.name && !/\.(png|jpe?g|webp|gif|bmp|avif|svg)$/i.test(file.name))
+    return false;
+  return true;
+}
+
 function loadFile(file) {
-  if (!file || !file.type || !file.type.startsWith("image/")) return false;
+  if (!isProbablyImageFile(file)) return false;
   const reader = new FileReader();
   reader.onload = (event) => loadImage(event.target.result);
   reader.readAsDataURL(file);
   return true;
+}
+
+// Try to load pasted text: image data-URL, <img> HTML, or remote image URL.
+function tryLoadTextAsImage(text) {
+  if (!text) return false;
+  const trimmed = text.trim();
+  if (trimmed.startsWith("data:image/")) {
+    loadImage(trimmed);
+    return true;
+  }
+  const imgSrc = trimmed.match(/<img[^>]+src=["']([^"']+)["']/i);
+  if (imgSrc && imgSrc[1] && imgSrc[1].startsWith("data:image/")) {
+    loadImage(imgSrc[1]);
+    return true;
+  }
+  if (/^https?:\/\/\S+$/i.test(trimmed)) {
+    fetch(trimmed)
+      .then((res) => {
+        if (!res.ok) throw new Error("fetch failed");
+        return res.blob();
+      })
+      .then((blob) => {
+        if (!loadFile(blob)) showPasteError("This link is not an image.");
+      })
+      .catch(() => loadImage(trimmed));
+    return true;
+  }
+  return false;
 }
 
 function handlePaste(e) {
@@ -341,8 +486,8 @@ function handlePaste(e) {
 
   // Files pasted directly (screenshot tool, file from explorer, ...)
   if (clipboardData.files && clipboardData.files.length > 0) {
-    for (const file of clipboardData.files) {
-      if (loadFile(file)) {
+    for (let i = 0; i < clipboardData.files.length; i++) {
+      if (loadFile(clipboardData.files[i])) {
         e.preventDefault();
         return;
       }
@@ -350,32 +495,96 @@ function handlePaste(e) {
   }
 
   // Image items ("Copy image" from another page, screenshot, ...)
+  // Note: item.type can be empty depending on OS/browser, so accept
+  // kind === "file" and let isProbablyImageFile() decide.
   const items = clipboardData.items;
-  if (!items) return;
-  for (const item of items) {
-    if (item.kind === "file" && item.type && item.type.startsWith("image/")) {
-      const blob = item.getAsFile();
-      if (blob && loadFile(blob)) {
-        e.preventDefault();
-        return;
+  if (items) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind === "file") {
+        let blob = null;
+        try {
+          blob = item.getAsFile();
+        } catch (_) {
+          blob = null;
+        }
+        if (blob && loadFile(blob)) {
+          e.preventDefault();
+          return;
+        }
       }
     }
+    // String items: data-URL or image URL copied as text
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind === "string" && item.getAsString) {
+        item.getAsString((text) => {
+          if (text) tryLoadTextAsImage(text);
+        });
+      }
+    }
+    if (items.length > 0) return;
+  }
+
+  // Synchronous text fallback
+  try {
+    const plainText =
+      (clipboardData.getData &&
+        (clipboardData.getData("text/plain") ||
+          clipboardData.getData("text/uri-list"))) ||
+      "";
+    if (plainText && tryLoadTextAsImage(plainText)) {
+      e.preventDefault();
+      return;
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  if (
+    clipboardData.files &&
+    clipboardData.files.length > 0 &&
+    clipboardData.types &&
+    clipboardData.types.includes("Files")
+  ) {
+    showPasteError("This file could not be read as an image.");
   }
 }
 
-// Ctrl/Cmd + V paste support
+// Ctrl/Cmd + V paste support (single listener: the event bubbles up to window)
 window.addEventListener("paste", handlePaste);
+
+// Drag & drop support (same loader as paste)
+window.addEventListener("dragover", (e) => e.preventDefault());
+window.addEventListener("drop", (e) => {
+  e.preventDefault();
+  const files = e.dataTransfer && e.dataTransfer.files;
+  if (!files) return;
+  for (let i = 0; i < files.length; i++) {
+    if (loadFile(files[i])) return;
+  }
+});
 
 // Pad offscreen canvas to avoid edge transparency with blur
 function renderBlurredOffscreen() {
   if (!imageObjects) return;
-  const blurValue = parseInt(blurIntensityInput.value, 10);
+  const blurValue = parseInt(blurIntensityInput.value, 10) || 0;
+  if (!supportsCtxFilter) {
+    // Manual blur clamps edges (no transparency), so no padding needed
+    // and 1:1 geometry keeps the selector preview aligned.
+    _blurCache.src = null; // intensity may have changed; force recompute
+    offscreenCanvas.width = imageObjects.width;
+    offscreenCanvas.height = imageObjects.height;
+    offscreenCanvas.getContext("2d").drawImage(getBlurredSource(blurValue), 0, 0);
+    return;
+  }
   const pad = blurValue;
 
   offscreenCanvas.width = imageObjects.width + pad * 2;
   offscreenCanvas.height = imageObjects.height + pad * 2;
   offscreenCtx.filter = `blur(${blurValue}px)`;
   offscreenCtx.drawImage(imageObjects, pad, pad);
+  offscreenCtx.filter = "none";
 }
 
 // Map canvas coordinates from pointer/touch events, accounting for CSS transforms
@@ -559,9 +768,13 @@ function drawBlur(e) {
   paintCtx.clip();
 
   if (mode === "brush") {
-    paintCtx.filter = `blur(${blurValue}px)`;
-    paintCtx.drawImage(imageObjects, 0, 0);
-    paintCtx.filter = "none";
+    if (supportsCtxFilter) {
+      paintCtx.filter = `blur(${blurValue}px)`;
+      paintCtx.drawImage(imageObjects, 0, 0);
+      paintCtx.filter = "none";
+    } else {
+      paintCtx.drawImage(getBlurredSource(blurValue), 0, 0);
+    }
   } else if (mode === "eraser") {
     paintCtx.fill();
   }
@@ -584,9 +797,13 @@ function applySelectorBlur() {
   paintCtx.beginPath();
   paintCtx.rect(x, y, w, h);
   paintCtx.clip();
-  paintCtx.filter = `blur(${blurIntensityInput.value}px)`;
-  paintCtx.drawImage(imageObjects, 0, 0);
-  paintCtx.filter = "none";
+  if (supportsCtxFilter) {
+    paintCtx.filter = `blur(${blurIntensityInput.value}px)`;
+    paintCtx.drawImage(imageObjects, 0, 0);
+    paintCtx.filter = "none";
+  } else {
+    paintCtx.drawImage(getBlurredSource(blurIntensityInput.value), 0, 0);
+  }
   paintCtx.restore();
 }
 
@@ -601,9 +818,14 @@ downloadBtn.addEventListener("click", () => {
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
     const tempCtx = tempCanvas.getContext("2d");
-    const blurValue = parseInt(blurIntensityInput.value, 10);
-    tempCtx.filter = `blur(${blurValue}px)`;
-    tempCtx.drawImage(imageObjects, 0, 0);
+    const blurValue = parseInt(blurIntensityInput.value, 10) || 0;
+    if (supportsCtxFilter) {
+      tempCtx.filter = `blur(${blurValue}px)`;
+      tempCtx.drawImage(imageObjects, 0, 0);
+      tempCtx.filter = "none";
+    } else {
+      tempCtx.drawImage(getBlurredSource(blurValue), 0, 0);
+    }
     link.href = tempCanvas.toDataURL("image/png");
   } else {
     link.href = canvas.toDataURL("image/png");
@@ -646,9 +868,14 @@ copyBtn.addEventListener("click", () => {
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
     const tempCtx = tempCanvas.getContext("2d");
-    const blurValue = parseInt(blurIntensityInput.value, 10);
-    tempCtx.filter = `blur(${blurValue}px)`;
-    tempCtx.drawImage(imageObjects, 0, 0);
+    const blurValue = parseInt(blurIntensityInput.value, 10) || 0;
+    if (supportsCtxFilter) {
+      tempCtx.filter = `blur(${blurValue}px)`;
+      tempCtx.drawImage(imageObjects, 0, 0);
+      tempCtx.filter = "none";
+    } else {
+      tempCtx.drawImage(getBlurredSource(blurValue), 0, 0);
+    }
     tempCanvas.toBlob((blob) => {
       if (!blob) return;
       const item = new ClipboardItem({ "image/png": blob });
