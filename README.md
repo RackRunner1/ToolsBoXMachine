@@ -79,4 +79,3 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before
 ## License
 
 [Unlicense](LICENSE): public domain.
-
