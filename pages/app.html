@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToolsBoXApp (TBXA): ToolsBoXMachine as a Local Linux App</title>
+    <link rel="icon" href="../.assets/logo/fav.png" />
+    <link rel="stylesheet" href="../style.css" />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "ToolsBoXApp (TBXA) - ToolsBoXMachine",
+  "url": "https://www.tbxm.org/pages/app.html",
+  "description": "ToolsBoXApp (TBXA) brings ToolsBoXMachine to your Linux PC as a fully local app. No Cloudflare requests, works offline.",
+  "publisher": { "@type": "Person", "name": "RackRunner" }
+}
+</script>
+    <meta name="description" content="ToolsBoXApp (TBXA) is ToolsBoXMachine as an app installed on your Linux PC. Everything runs locally, with no requests to Cloudflare. Works offline." />
+    <meta name="content-signal" content="ai-train, ai-input, search" />
+    <link rel="canonical" href="https://www.tbxm.org/pages/app.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://www.tbxm.org/og/homepage.png" />
+    <meta property="og:site_name" content="ToolsBoXMachine" />
+    <meta property="og:title" content="ToolsBoXApp (TBXA): ToolsBoXMachine as a Local Linux App" />
+    <meta property="og:url" content="https://www.tbxm.org/pages/app.html" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ToolsBoXApp (TBXA): ToolsBoXMachine as a Local Linux App" />
+    <meta name="twitter:image" content="https://www.tbxm.org/og/homepage.png" />
+    <meta property="og:description" content="ToolsBoXApp (TBXA) is ToolsBoXMachine as an app installed on your Linux PC. Everything runs locally, with no requests to Cloudflare. Works offline." />
+    <meta name="twitter:description" content="ToolsBoXApp (TBXA) is ToolsBoXMachine as an app installed on your Linux PC. Everything runs locally, with no requests to Cloudflare. Works offline." />
+    <style>
+      .app-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #94a3b8;
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 2rem;
+        letter-spacing: 0.02em;
+      }
+      .app-badge-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+      }
+      .feature-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1.5rem 0;
+      }
+      @media (max-width: 640px) {
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .feature-card {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid var(--card-border);
+        border-radius: 0.875rem;
+        padding: 1.25rem;
+      }
+      .feature-card strong {
+        display: block;
+        margin-bottom: 0.4rem;
+        color: var(--text-color);
+      }
+      .feature-card p {
+        margin-bottom: 0;
+        font-size: 0.925rem;
+      }
+      .code-block {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        background: #020617;
+        border: 1px solid var(--card-border);
+        border-radius: 0.75rem;
+        padding: 0.875rem 1rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+      }
+      .code-block code {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: #7dd3fc;
+        white-space: nowrap;
+      }
+      .code-block button {
+        flex-shrink: 0;
+        background: #1e293b;
+        color: #e2e8f0;
+        border: 1px solid #334155;
+        border-radius: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+      .code-block button:hover {
+        background: #334155;
+      }
+      .notice {
+        background: rgba(245, 158, 11, 0.08);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 0.875rem;
+        padding: 1rem 1.25rem;
+        margin: 1.5rem 0;
+      }
+      .notice p {
+        margin-bottom: 0;
+        font-size: 0.925rem;
+      }
+      .legal-card a {
+        color: var(--primary-color);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="navbar-placeholder"></div>
+
+    <div class="content-container">
+      <div class="legal-card fade-in">
+        <div style="text-align: center">
+          <span class="app-badge"><span class="app-badge-dot"></span>New &middot; Linux &middot; 100% Local</span>
+        </div>
+        <h1>ToolsBoXApp (TBXA)</h1>
+        <p style="text-align: center; color: #94a3b8">
+          ToolsBoXMachine, as an app installed on your PC.
+        </p>
+
+        <section>
+          <h2>What is ToolsBoXApp?</h2>
+          <p>
+            <strong>ToolsBoXApp (TBXA)</strong> is our new project: the full
+            ToolsBoXMachine experience, packaged as an app installed directly
+            on your Linux PC. Same tools, same speed, same simplicity, but running
+            but running entirely from your own machine.
+          </p>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <strong>&#x1F4E6; Same toolbox</strong>
+              <p>Every TBXM tool you already know, available as a desktop app.</p>
+            </div>
+            <div class="feature-card">
+              <strong>&#x26A1; Same behavior</strong>
+              <p>Identical features and interface to the website version.</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2>Why go local?</h2>
+          <p>
+            When you visit the website, your browser has to contact our servers
+            through Cloudflare to load the pages. Like most CDN providers,
+            Cloudflare may keep connection logs, including IP addresses.
+          </p>
+          <p>
+            With TBXA, that step disappears: <strong>everything is local</strong>.
+            No page loads over the network, no requests to Cloudflare, nothing
+            to log. You can even <strong>turn off your internet connection</strong>.
+            The app keeps working exactly the same way.
+          </p>
+        </section>
+
+        <section>
+          <h2>Compatibility</h2>
+          <p>
+            TBXA currently supports <strong>Linux only</strong> (Debian/Ubuntu
+            derivatives via <code>.deb</code>, Fedora/RHEL derivatives via
+            <code>.rpm</code>, with Arch Linux support on the way).
+          </p>
+          <div class="notice">
+            <p>
+              Windows and macOS are unfortunately not supported, as explained in
+              <a href="https://github.com/RackRunner1/ToolsBoXMachine/discussions/33" target="_blank" rel="noopener noreferrer">discussion #33 on GitHub</a>.
+              Only Linux is supported for now.
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <h2>Installation</h2>
+          <p>
+            Open a terminal and run the one-line installer. It detects your
+            distribution and installs the matching package automatically:
+          </p>
+          <div class="code-block">
+            <code>curl -fsSL https://tbxm.org/install.sh | bash</code>
+            <button onclick="navigator.clipboard.writeText('curl -fsSL https://tbxm.org/install.sh | bash')">Copy</button>
+          </div>
+          <p>
+            Prefer to install manually? Download the package for your
+            distribution from our
+            <a href="https://github.com/RackRunner1/ToolsBoXApp/releases" target="_blank" rel="noopener noreferrer">GitHub releases page</a>,
+            then install it with your package manager. Once installed, you are
+            ready to go.
+          </p>
+        </section>
+
+        <section>
+          <h2>Updates and removal</h2>
+          <p>TBXA is managed from the terminal with the <code>tbxa</code> command:</p>
+          <ul>
+            <li>To update to the latest version: <code>tbxa update</code></li>
+            <li>To remove the app: <code>tbxa uninstall</code></li>
+          </ul>
+          <div class="code-block">
+            <code>tbxa update</code>
+            <button onclick="navigator.clipboard.writeText('tbxa update')">Copy</button>
+          </div>
+          <div class="code-block">
+            <code>tbxa uninstall</code>
+            <button onclick="navigator.clipboard.writeText('tbxa uninstall')">Copy</button>
+          </div>
+        </section>
+
+        <div style="margin-top: 3rem; text-align: center">
+          <a href="/" class="btn btn-primary">Back to Home</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="/ui/include.js"></script>
+    <script src="/ui/navbar.js"></script>
+  </body>
+</html>

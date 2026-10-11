@@ -85,6 +85,21 @@ h1 {
 .nav-links {
   display: flex;
   gap: 1.5rem;
+  align-items: center;
+}
+
+.nav-app-btn {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.4rem 1.1rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.nav-app-btn:hover {
+  background: var(--primary-hover);
+  color: white;
 }
 
 .nav-link {
@@ -834,7 +849,7 @@ input[type="range"] {
 }
 
 /* ===========================
-   RESPONSIVE — Tablet
+   RESPONSIVE: Tablet
    =========================== */
 @media (max-width: 1024px) {
   .navbar {
@@ -880,7 +895,7 @@ input[type="range"] {
 }
 
 /* ===========================
-   RESPONSIVE — Phone (large)
+   RESPONSIVE: Phone (large)
    =========================== */
 @media (max-width: 768px) {
   .blur-tool-layout {
@@ -1060,7 +1075,7 @@ input[type="range"] {
 }
 
 /* ===========================
-   RESPONSIVE — Phone (small)
+   RESPONSIVE: Phone (small)
    =========================== */
 @media (max-width: 480px) {
   .navbar {

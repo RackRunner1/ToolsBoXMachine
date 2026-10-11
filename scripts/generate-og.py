@@ -59,7 +59,7 @@ HOMEPAGE_OG_SOURCE = os.path.join(PROJECT_ROOT, ".assets", "homepage.png")
 PAGE_META = {
     "homepage": ("ToolsBoXMachine", "🔨", "A collection of free, privacy-first browser tools for everyday tasks."),
     "about": ("About", "ℹ️", "Learn about ToolsBoXMachine, a free and open-source collection of browser tools."),
-    "privacy": ("Privacy Policy", "🛡️", "Your data stays in your browser — nothing is ever sent to servers."),
+    "privacy": ("Privacy Policy", "🛡️", "Your data stays in your browser. Nothing is ever sent to servers."),
     "terms": ("Terms of Service", "📜", "Free, open source tools for everyone, no strings attached."),
     "philosophy": ("Philosophy", "💡", "Privacy-first, open source, no trackers and no accounts."),
 }
