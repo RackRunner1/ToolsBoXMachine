@@ -513,9 +513,6 @@ function loadImage(src) {
     renderBlurredOffscreen();
     updateCanvas();
   };
-  img.onerror = () => {
-    showPasteError("This file could not be read as an image.");
-  };
   img.src = src;
 }
 
@@ -523,86 +520,34 @@ upload.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
+  hidePasteHint();
   const reader = new FileReader();
   reader.onload = (event) => loadImage(event.target.result);
   reader.readAsDataURL(file);
 });
 
-// Clipboard & Drag&Drop Logic
-function showPasteError(msg) {
-  const label = document.querySelector(".custom-file-upload");
-  if (!label) return;
-  let err = document.getElementById("paste-error");
-  if (!err) {
-    err = document.createElement("p");
-    err.id = "paste-error";
-    err.style.cssText =
-      "font-size:0.75rem;color:#f87171;margin:0;display:none;";
-    label.appendChild(err);
-  }
-  err.textContent = msg;
-  err.style.display = "block";
-  clearTimeout(showPasteError._t);
-  showPasteError._t = setTimeout(() => {
-    err.style.display = "none";
-  }, 4000);
-}
-
-// Some OS / screenshot tools paste images with an empty MIME type,
-// so don't reject those outright: let the Image loader validate them.
-function isProbablyImageFile(file) {
-  if (!file) return false;
-  if (file.type && file.type.startsWith("image/")) return true;
-  if (file.type && file.type !== "") return false;
-  if (file.name && !/\.(png|jpe?g|webp|gif|bmp|avif|svg)$/i.test(file.name))
-    return false;
-  return true;
-}
-
+// Clipboard Logic
 function loadFile(file) {
-  if (!isProbablyImageFile(file)) return false;
+  if (!file || !file.type || !file.type.startsWith("image/")) return false;
   const reader = new FileReader();
   reader.onload = (event) => loadImage(event.target.result);
   reader.readAsDataURL(file);
   return true;
 }
 
-// Try to load pasted text: image data-URL, <img> HTML, or remote image URL.
-function tryLoadTextAsImage(text) {
-  if (!text) return false;
-  const trimmed = text.trim();
-  if (trimmed.startsWith("data:image/")) {
-    loadImage(trimmed);
-    return true;
-  }
-  const imgSrc = trimmed.match(/<img[^>]+src=["']([^"']+)["']/i);
-  if (imgSrc && imgSrc[1] && imgSrc[1].startsWith("data:image/")) {
-    loadImage(imgSrc[1]);
-    return true;
-  }
-  if (/^https?:\/\/\S+$/i.test(trimmed)) {
-    fetch(trimmed)
-      .then((res) => {
-        if (!res.ok) throw new Error("fetch failed");
-        return res.blob();
-      })
-      .then((blob) => {
-        if (!loadFile(blob)) showPasteError("This link is not an image.");
-      })
-      .catch(() => loadImage(trimmed));
-    return true;
-  }
-  return false;
-}
-
 function handlePaste(e) {
   const clipboardData = e.clipboardData;
-  if (!clipboardData) return;
+  if (!clipboardData) {
+    // WebKit may provide no clipboardData at all: try the async API.
+    pasteFromClipboardAPI(e);
+    return;
+  }
 
   // Files pasted directly (screenshot tool, file from explorer, ...)
   if (clipboardData.files && clipboardData.files.length > 0) {
-    for (let i = 0; i < clipboardData.files.length; i++) {
-      if (loadFile(clipboardData.files[i])) {
+    for (const file of clipboardData.files) {
+      if (loadFile(file)) {
+        hidePasteHint();
         e.preventDefault();
         return;
       }
@@ -610,75 +555,109 @@ function handlePaste(e) {
   }
 
   // Image items ("Copy image" from another page, screenshot, ...)
-  // Note: item.type can be empty depending on OS/browser, so accept
-  // kind === "file" and let isProbablyImageFile() decide.
+  // NOTE: WebKit/Safari leaves files *and* items empty for pasted images,
+  // so falling through to the navigator.clipboard.read() fallback below
+  // is the expected path there — not an error.
   const items = clipboardData.items;
   if (items) {
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.kind === "file") {
-        let blob = null;
-        try {
-          blob = item.getAsFile();
-        } catch (_) {
-          blob = null;
-        }
+    for (const item of items) {
+      if (item.kind === "file" && item.type && item.type.startsWith("image/")) {
+        const blob = item.getAsFile();
         if (blob && loadFile(blob)) {
+          hidePasteHint();
           e.preventDefault();
           return;
         }
       }
     }
-    // String items: data-URL or image URL copied as text
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.kind === "string" && item.getAsString) {
-        item.getAsString((text) => {
-          if (text) tryLoadTextAsImage(text);
-        });
-      }
-    }
-    if (items.length > 0) return;
   }
 
-  // Synchronous text fallback
+  // A text paste (string items) is not a failed image paste: leave it
+  // alone so ordinary text pastes never trigger a clipboard-read
+  // permission prompt or a misleading hint.
+  if (items) {
+    for (const item of items) {
+      if (item.kind === "string") return;
+    }
+  } else if (
+    clipboardData.types &&
+    Array.prototype.some.call(
+      clipboardData.types,
+      (t) => typeof t === "string" && t.startsWith("text/"),
+    )
+  ) {
+    return;
+  }
+
+  // Neither files nor items yielded an image (WebKit behavior):
+  // fall back to the async Clipboard API while still in the paste gesture.
+  pasteFromClipboardAPI(e);
+}
+
+// WebKit fallback: Safari/Epiphany/WebKitGTK do not expose pasted images
+// via clipboardData.files/items. navigator.clipboard.read() is invoked
+// synchronously inside the paste (user-gesture) handler so the transient
+// activation still applies; only the blob decoding continues async.
+function pasteFromClipboardAPI(e) {
   try {
-    const plainText =
-      (clipboardData.getData &&
-        (clipboardData.getData("text/plain") ||
-          clipboardData.getData("text/uri-list"))) ||
-      "";
-    if (plainText && tryLoadTextAsImage(plainText)) {
-      e.preventDefault();
+    if (
+      !navigator.clipboard ||
+      typeof navigator.clipboard.read !== "function"
+    ) {
+      showPasteHint();
       return;
     }
+    // Suppress any default paste behavior while the async read is pending.
+    // Harmless on pages without an editable target; prevents inline
+    // insertion if one ever exists.
+    if (e && typeof e.preventDefault === "function") e.preventDefault();
+    navigator.clipboard
+      .read()
+      .then(async (clipboardItems) => {
+        try {
+          for (const item of clipboardItems || []) {
+            const types = item.types || [];
+            const imageType = types.find(
+              (t) => typeof t === "string" && t.startsWith("image/"),
+            );
+            if (!imageType) continue;
+            try {
+              const blob = await item.getType(imageType);
+              if (blob && loadFile(blob)) {
+                hidePasteHint();
+                return;
+              }
+            } catch (_) {
+              continue;
+            }
+          }
+          showPasteHint();
+        } catch (_) {
+          showPasteHint();
+        }
+      })
+      .catch(() => showPasteHint());
   } catch (_) {
-    // ignore
-  }
-
-  if (
-    clipboardData.files &&
-    clipboardData.files.length > 0 &&
-    clipboardData.types &&
-    clipboardData.types.includes("Files")
-  ) {
-    showPasteError("This file could not be read as an image.");
+    showPasteHint();
   }
 }
 
-// Ctrl/Cmd + V paste support (single listener: the event bubbles up to window)
-window.addEventListener("paste", handlePaste);
+function getPasteHintEl() {
+  return document.getElementById("paste-hint");
+}
 
-// Drag & drop support (same loader as paste)
-window.addEventListener("dragover", (e) => e.preventDefault());
-window.addEventListener("drop", (e) => {
-  e.preventDefault();
-  const files = e.dataTransfer && e.dataTransfer.files;
-  if (!files) return;
-  for (let i = 0; i < files.length; i++) {
-    if (loadFile(files[i])) return;
-  }
-});
+function showPasteHint() {
+  const el = getPasteHintEl();
+  if (el) el.hidden = false;
+}
+
+function hidePasteHint() {
+  const el = getPasteHintEl();
+  if (el) el.hidden = true;
+}
+
+// Ctrl/Cmd + V paste support
+window.addEventListener("paste", handlePaste);
 
 // Pad offscreen canvas to avoid edge transparency with blur
 function renderBlurredOffscreen() {
