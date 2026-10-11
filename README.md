@@ -106,4 +106,3 @@ Thanks a lot for your understanding, your interest, and any contribution you mig
 ## License
 
 [Unlicense](LICENSE): public domain.
-
