@@ -88,20 +88,6 @@ h1 {
   align-items: center;
 }
 
-.nav-app-btn {
-  background: var(--primary-color);
-  color: white;
-  padding: 0.4rem 1.1rem;
-  border-radius: 2rem;
-  font-weight: 600;
-  transition: background 0.2s ease;
-}
-
-.nav-app-btn:hover {
-  background: var(--primary-hover);
-  color: white;
-}
-
 .nav-link {
   color: var(--text-color);
   text-decoration: none;
