@@ -47,10 +47,10 @@ Thanks for your interest in contributing to TBXM! This guide explains how to par
 - **Never push directly to `main`**.
 - Create a branch from `main` for each change.
 - Name branches using the format `type/your-name`:
-  - `feature/blur` — new "blur" tool
-  - `feature/calculator-dark-mode` — add dark mode to calculator
-  - `fix/timer-pause-bug` — fix the pause button
-  - `docs/update-readme` — update documentation
+  - `feature/blur`: new "blur" tool
+  - `feature/calculator-dark-mode`: add dark mode to calculator
+  - `fix/timer-pause-bug`: fix the pause button
+  - `docs/update-readme`: update documentation
 - Delete branches after merge.
 
 ### Creating and pushing a branch
@@ -59,7 +59,7 @@ Thanks for your interest in contributing to TBXM! This guide explains how to par
 git checkout main
 git pull origin main
 
-# Examples — replace with what YOU are working on
+# Examples: replace with what YOU are working on
 git checkout -b feature/blur
 git checkout -b feature/calculator-dark-mode
 git checkout -b fix/timer-pause-bug

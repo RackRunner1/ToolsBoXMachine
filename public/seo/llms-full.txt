@@ -1,8 +1,8 @@
-# ToolsBoXMachine (TBXM) — Full Documentation
+# ToolsBoXMachine (TBXM): Full Documentation
 
 ## Overview
 
-ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utility tools. Every tool runs entirely client-side — no data is sent to any server. Built for privacy, speed, and simplicity.
+ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utility tools. Every tool runs entirely client-side. No data is sent to any server. Built for privacy, speed, and simplicity.
 
 **Maintained by:** RackRunner
 **Source:** https://github.com/RackRunner1/ToolsBoXMachine
@@ -74,7 +74,7 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 
 - **Rendering:** Static HTML + vanilla JavaScript
 - **Hosting:** Cloudflare Pages (static site)
-- **No frameworks:** Pure HTML, CSS, JS — no React, no build step
+- **No frameworks:** Pure HTML, CSS, JS with no React and no build step
 - **Privacy:** All data processed in-browser via localStorage
 - **Accessibility:** Responsive design, keyboard navigable
 

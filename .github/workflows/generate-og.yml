@@ -40,10 +40,10 @@ jobs:
           CHANGED="false"
           if [ "$FORCE" = "true" ]; then
             CHANGED="true"
-            echo "Force regeneration enabled — running generation"
+            echo "Force regeneration enabled: running generation"
           elif [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
             CHANGED="true"
-            echo "Manual dispatch or new branch — running generation"
+            echo "Manual dispatch or new branch: running generation"
           else
             ADDED=$(git diff --name-only --diff-filter=A "$BEFORE" "$AFTER" -- index.html tools/ pages/ 2>/dev/null || true)
             DELETED=$(git diff --name-only --diff-filter=D "$BEFORE" "$AFTER" -- index.html tools/ pages/ 2>/dev/null || true)
@@ -52,7 +52,7 @@ jobs:
               echo "Pages added/removed:"
               echo "$ADDED$DELETED" | sed 's/^/  /'
             else
-              echo "No pages added or removed — skipping generation"
+              echo "No pages added or removed, skipping generation"
             fi
           fi
           echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"

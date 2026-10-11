@@ -557,7 +557,7 @@ function handlePaste(e) {
   // Image items ("Copy image" from another page, screenshot, ...)
   // NOTE: WebKit/Safari leaves files *and* items empty for pasted images,
   // so falling through to the navigator.clipboard.read() fallback below
-  // is the expected path there — not an error.
+  // is the expected path there, not an error.
   const items = clipboardData.items;
   if (items) {
     for (const item of items) {
