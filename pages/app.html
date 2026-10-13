@@ -109,9 +109,61 @@
         font-weight: 600;
         cursor: pointer;
         transition: background 0.2s ease;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        min-width: 95px;
       }
       .code-block button:hover {
         background: #334155;
+      }
+      .copy-icon-original {
+        display: inline-flex;
+        align-items: center;
+      }
+      .copy-icon-wrapper {
+        position: relative;
+        width: 20px;
+        height: 20px;
+      }
+      /* Icône fade-out */
+      .copy-icon-original.fade {
+        animation: fadeInOut 2s ease-in-out;
+      }
+      @keyframes fadeInOut {
+        0% {
+          opacity: 1;
+        }
+        25% {
+          opacity: 0;
+        }
+        75% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      .copy-icon-check {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+      }
+      /* Animation du checkmark (identique à Blur Image) */
+      .checkmark polyline {
+        stroke-dasharray: 30;
+        stroke-dashoffset: -30;
+        animation: drawCheck 0.8s ease-in-out forwards;
+      }
+      @keyframes drawCheck {
+        to {
+          stroke-dashoffset: 0;
+        }
       }
       .notice {
         background: rgba(245, 158, 11, 0.08);
@@ -205,7 +257,27 @@
           </p>
           <div class="code-block">
             <code>curl -fsSL https://tbxm.org/install.sh | bash</code>
-            <button onclick="navigator.clipboard.writeText('curl -fsSL https://tbxm.org/install.sh | bash')">Copy</button>
+            <button class="copy-btn" data-copy="curl -fsSL https://tbxm.org/install.sh | bash">
+              <span class="copy-icon-wrapper">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                  <path
+                    d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                  ></path>
+                </svg>
+              </span>
+              <span>Copy</span>
+            </button>
           </div>
           <p>
             Prefer to install manually? Download the package for your
@@ -225,11 +297,51 @@
           </ul>
           <div class="code-block">
             <code>tbxa update</code>
-            <button onclick="navigator.clipboard.writeText('tbxa update')">Copy</button>
+            <button class="copy-btn" data-copy="tbxa update">
+              <span class="copy-icon-wrapper">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                  <path
+                    d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                  ></path>
+                </svg>
+              </span>
+              <span>Copy</span>
+            </button>
           </div>
           <div class="code-block">
             <code>tbxa uninstall</code>
-            <button onclick="navigator.clipboard.writeText('tbxa uninstall')">Copy</button>
+            <button class="copy-btn" data-copy="tbxa uninstall">
+              <span class="copy-icon-wrapper">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                  <path
+                    d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+                  ></path>
+                </svg>
+              </span>
+              <span>Copy</span>
+            </button>
           </div>
         </section>
 
@@ -243,5 +355,49 @@
 
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>
+    <script>
+      document.querySelectorAll(".copy-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const text = btn.getAttribute("data-copy");
+          if (text) {
+            navigator.clipboard.writeText(text).catch(() => {});
+          }
+
+          if (btn.dataset.animating) return;
+          btn.dataset.animating = "1";
+
+          const originalContent = btn.innerHTML;
+
+          btn.innerHTML = `
+            <span class="copy-icon-wrapper">
+              <span class="copy-icon-original fade">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                </svg>
+              </span>
+
+              <span class="copy-icon-check">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="checkmark">
+                  <polyline points="20,6 9,17 4,12"></polyline>
+                </svg>
+              </span>
+            </span>
+
+            <span>Copied!</span>
+          `;
+
+          setTimeout(() => {
+            btn.innerHTML = originalContent;
+            delete btn.dataset.animating;
+          }, 2000);
+        });
+      });
+    </script>
   </body>
 </html>
