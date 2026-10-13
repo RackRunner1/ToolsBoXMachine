@@ -31,7 +31,7 @@
       }
 
       .clock-layout.sidebar-collapsed {
-        grid-template-columns: 68px minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr);
       }
 
       .clock-sidebar {
@@ -73,26 +73,13 @@
         gap: 2rem;
       }
 
-      /* Collapsed sidebar */
+      /* Collapsed sidebar -> fully hidden (no empty rectangle) */
       .clock-sidebar.collapsed {
-        padding: 0.75rem;
-        align-items: center;
-      }
-
-      .clock-sidebar.collapsed .sidebar-title {
         display: none;
-      }
-
-      .clock-sidebar.collapsed .sidebar-header {
-        justify-content: center;
       }
 
       .clock-layout.sidebar-collapsed .sidebar-toggle svg {
         transform: rotate(-90deg);
-      }
-
-      .clock-sidebar.collapsed .sidebar-content {
-        display: none;
       }
 
       .sidebar-section h3 {
@@ -469,17 +456,7 @@
         }
 
         .clock-sidebar.collapsed {
-          padding: 0.75rem;
-          align-items: stretch;
-        }
-
-        .clock-sidebar.collapsed .sidebar-header {
-          justify-content: flex-start;
-        }
-
-        .clock-sidebar.collapsed .sidebar-toggle {
-          width: 36px;
-          height: 36px;
+          display: none;
         }
 
         .clock-main {
