@@ -11,8 +11,6 @@
   var elStatusText = document.getElementById("ny-status-text");
   var elYearLabel = document.getElementById("ny-year-label");
   var elTargetYear = document.getElementById("ny-target-year");
-  var elTimezone = document.getElementById("ny-timezone");
-  var elTargetDate = document.getElementById("ny-target-date");
   var elTargetLine = document.getElementById("ny-target-line");
   var elFill = document.getElementById("ny-progress-fill");
   var elPct = document.getElementById("ny-progress-pct");
@@ -29,15 +27,6 @@
     } catch (e) {
       return "Local time";
     }
-  }
-
-  function getOffsetLabel(date) {
-    var offMin = -date.getTimezoneOffset();
-    var sign = offMin >= 0 ? "+" : "-";
-    var abs = Math.abs(offMin);
-    var h = Math.floor(abs / 60);
-    var m = abs % 60;
-    return "GMT" + sign + h + (m ? ":" + pad(m) : "");
   }
 
   function formatTargetDate(d, tz) {
@@ -116,8 +105,6 @@
         "</strong>";
       elProgressLabel.textContent = "Year progress";
     }
-
-    elTimezone.textContent = tz + " (" + getOffsetLabel(now) + ")";
 
     var yearLen = state.yearEnd.getTime() - state.yearStart.getTime();
     var yearDone = now.getTime() - state.yearStart.getTime();
