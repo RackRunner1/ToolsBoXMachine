@@ -14,6 +14,7 @@ TBXM is an open-source toolbox running entirely client-side. All processing happ
 - [Emoji Keyboard](/tools/emoji-keyboard/emoji-keyboard.html): Browse and copy emojis with one click
 - [Notes](/tools/note/note.html): Create, save, and manage notes
 - [Clock](/tools/clock/clock.html): Display the current time
+- [New Year Countdown](/tools/new-year-countdown/new-year-countdown.html): Time remaining until January 1st, in your timezone
 
 ## Machine-Readable Endpoints
 

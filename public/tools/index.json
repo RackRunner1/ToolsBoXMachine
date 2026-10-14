@@ -86,6 +86,16 @@
       "category": "productivity",
       "clientSide": true,
       "keywords": ["clock", "time", "analog", "digital", "timezone", "world clock"]
+    },
+    {
+      "id": "new-year-countdown",
+      "name": "New Year Countdown",
+      "emoji": "🎆",
+      "description": "Time remaining until January 1st, in your timezone",
+      "url": "/tools/new-year-countdown/new-year-countdown.html",
+      "category": "productivity",
+      "clientSide": true,
+      "keywords": ["new year", "countdown", "timer", "january", "celebration", "clock"]
     }
   ]
 }
