@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Free online New Year countdown. Time remaining until January 1st, automatically in your timezone. No settings, no tracking."
+    />
+    <meta
+      name="keywords"
+      content="new year countdown, countdown to new year, new year timer, days until new year, january 1 countdown, tbxm, toolsboxmachine"
+    />
+    <title>New Year Countdown: Time Until January 1st (TBXM)</title>
+    <link rel="icon" href="../../.assets/logo/fav.png" />
+    <link rel="stylesheet" href="../../style.css" />
+    <style>
+      .ny-wrap {
+        width: 100%;
+        max-width: 900px;
+        padding: 0 2rem;
+        margin: 1rem auto 4rem;
+        flex: 1;
+      }
+
+      .ny-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1.25rem;
+        padding: 2.5rem 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.75rem;
+        box-shadow:
+          0 20px 50px rgba(0, 0, 0, 0.3),
+          inset 0 0 40px rgba(255, 255, 255, 0.02);
+        position: relative;
+      }
+
+      .ny-fullscreen-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #94a3b8;
+        border-radius: 0.5rem;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        z-index: 20;
+      }
+
+      .ny-fullscreen-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .ny-card:fullscreen {
+        background: #020617;
+        border: none;
+        border-radius: 0;
+        justify-content: center;
+        min-height: 100vh;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+
+      .ny-card:-webkit-full-screen {
+        background: #020617;
+        border: none;
+        border-radius: 0;
+        justify-content: center;
+        min-height: 100vh;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+
+      .ny-card:fullscreen .ny-value {
+        font-size: 5rem;
+      }
+
+      .ny-card:-webkit-full-screen .ny-value {
+        font-size: 5rem;
+      }
+
+      .ny-card:fullscreen .ny-status,
+      .ny-card:fullscreen .ny-meta,
+      .ny-card:fullscreen .ny-progress-wrap {
+        display: none;
+      }
+
+      .ny-card:-webkit-full-screen .ny-status,
+      .ny-card:-webkit-full-screen .ny-meta,
+      .ny-card:-webkit-full-screen .ny-progress-wrap {
+        display: none;
+      }
+
+      .ny-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: rgba(59, 130, 246, 0.12);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        color: #93c5fd;
+      }
+
+      .ny-status.elapsed {
+        background: rgba(16, 185, 129, 0.12);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #6ee7b7;
+      }
+
+      .ny-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        animation: ny-pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes ny-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+      }
+
+      .ny-year {
+        font-size: 1.1rem;
+        color: #94a3b8;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+
+      .ny-year strong {
+        color: #fff;
+        font-size: 1.4rem;
+        font-weight: 800;
+      }
+
+      .ny-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        width: 100%;
+        max-width: 640px;
+      }
+
+      .ny-unit {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+        padding: 1.5rem 0.5rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .ny-value {
+        font-size: 3.2rem;
+        font-weight: 800;
+        line-height: 1;
+        color: #fff;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+      }
+
+      .ny-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: #94a3b8;
+        font-weight: 600;
+      }
+
+      .ny-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.9rem;
+        color: #94a3b8;
+        text-align: center;
+      }
+
+      .ny-meta strong {
+        color: #cbd5e1;
+        font-weight: 600;
+      }
+
+      .ny-progress-wrap {
+        width: 100%;
+        max-width: 640px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .ny-progress-top {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+      }
+
+      .ny-progress-top span:last-child {
+        color: var(--primary-color);
+        font-family: var(--font-mono, monospace);
+      }
+
+      .ny-progress {
+        height: 8px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+      }
+
+      .ny-progress-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #3b82f6, #a78bfa);
+        transition: width 1s linear;
+      }
+
+      @media (max-width: 640px) {
+        .ny-wrap {
+          padding: 0 1rem;
+        }
+
+        .ny-card {
+          padding: 1.75rem 1.25rem;
+          gap: 1.25rem;
+        }
+
+        .ny-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .ny-value {
+          font-size: 2.6rem;
+        }
+      }
+    </style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "New Year Countdown",
+  "url": "https://www.tbxm.org/tools/new-year-countdown/new-year-countdown.html",
+  "description": "Free online New Year countdown. Time remaining until January 1st, automatically in your timezone.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "creator": { "@type": "Person", "name": "RackRunner" }
+}
+    </script>
+    <meta name="content-signal" content="ai-train, ai-input, search" />
+    <link rel="canonical" href="https://www.tbxm.org/tools/new-year-countdown/new-year-countdown.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://www.tbxm.org/og/new-year-countdown.png" />
+    <meta property="og:site_name" content="ToolsBoXMachine" />
+    <meta property="og:title" content="New Year Countdown: Time Until January 1st (TBXM)" />
+    <meta property="og:url" content="https://www.tbxm.org/tools/new-year-countdown/new-year-countdown.html" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="New Year Countdown: Time Until January 1st (TBXM)" />
+    <meta name="twitter:image" content="https://www.tbxm.org/og/new-year-countdown.png" />
+    <meta property="og:description" content="Free online New Year countdown. Time remaining until January 1st, automatically in your timezone. No settings, no tracking." />
+    <meta name="twitter:description" content="Free online New Year countdown. Time remaining until January 1st, automatically in your timezone. No settings, no tracking." />
+  </head>
+
+  <body class="tool-page">
+    <div id="navbar-placeholder"></div>
+
+    <div class="hero-section">
+      <h1 class="page-title">New Year Countdown</h1>
+      <p class="subtitle">Time remaining until January 1st, in your timezone.</p>
+    </div>
+
+    <main class="ny-wrap">
+      <div class="ny-card" id="ny-card">
+        <button
+          class="ny-fullscreen-btn"
+          id="ny-fullscreen-btn"
+          title="Toggle Fullscreen"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+            ></path>
+          </svg>
+        </button>
+        <div class="ny-status" id="ny-status">
+          <span class="ny-status-dot"></span>
+          <span id="ny-status-text">Time until New Year</span>
+        </div>
+
+        <div class="ny-year" id="ny-year-label">Counting down to <strong id="ny-target-year">…</strong></div>
+
+        <div class="ny-grid" role="timer" aria-live="off" aria-label="New Year countdown">
+          <div class="ny-unit">
+            <div class="ny-value" id="ny-days">–</div>
+            <div class="ny-label">Days</div>
+          </div>
+          <div class="ny-unit">
+            <div class="ny-value" id="ny-hours">–</div>
+            <div class="ny-label">Hours</div>
+          </div>
+          <div class="ny-unit">
+            <div class="ny-value" id="ny-minutes">–</div>
+            <div class="ny-label">Minutes</div>
+          </div>
+          <div class="ny-unit">
+            <div class="ny-value" id="ny-seconds">–</div>
+            <div class="ny-label">Seconds</div>
+          </div>
+        </div>
+
+        <div class="ny-meta">
+          <div id="ny-target-line">New Year: <strong id="ny-target-date">…</strong></div>
+        </div>
+
+        <div class="ny-progress-wrap">
+          <div class="ny-progress-top">
+            <span id="ny-progress-label">Year progress</span>
+            <span id="ny-progress-pct">…</span>
+          </div>
+          <div class="ny-progress">
+            <div class="ny-progress-fill" id="ny-progress-fill"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="./new-year-countdown.js"></script>
+    <script src="/ui/include.js"></script>
+    <script src="/ui/navbar.js"></script>
+  </body>
+</html>
