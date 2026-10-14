@@ -68,6 +68,14 @@ const tools = [
     keywords: "clock time analog digital timezone world watch",
     url: "/tools/clock/clock.html",
   },
+  {
+    id: "card-new-year",
+    name: "New Year Countdown",
+    emoji: "🎆",
+    desc: "Time remaining until January 1st, in your timezone.",
+    keywords: "new year countdown timer january celebration fireworks clock",
+    url: "/tools/new-year-countdown/new-year-countdown.html",
+  },
 ];
 
 function updateSearch() {
