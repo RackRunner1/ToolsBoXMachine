@@ -105,6 +105,7 @@
       .ny-card:-webkit-full-screen .ny-progress-wrap {
         display: flex;
         flex-direction: row;
+        flex-wrap: nowrap;
         align-items: center;
         gap: 1rem;
         max-width: 800px;
@@ -118,6 +119,7 @@
       .ny-card:fullscreen .ny-progress,
       .ny-card:-webkit-full-screen .ny-progress {
         flex: 1;
+        min-width: 0;
       }
 
       .ny-card:fullscreen .ny-progress-pct,
@@ -234,6 +236,8 @@
       }
 
       .ny-progress-label {
+        grid-column: 1;
+        grid-row: 1;
         font-size: 0.75rem;
         color: #64748b;
         text-transform: uppercase;
@@ -242,6 +246,9 @@
       }
 
       .ny-progress-pct {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
         color: var(--primary-color);
         font-family: var(--font-mono, monospace);
         font-size: 0.75rem;
@@ -250,6 +257,7 @@
 
       .ny-progress {
         grid-column: 1 / -1;
+        grid-row: 2;
         height: 8px;
         border-radius: 4px;
         background: rgba(255, 255, 255, 0.06);
