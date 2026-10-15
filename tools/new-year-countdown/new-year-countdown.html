@@ -92,15 +92,37 @@
       }
 
       .ny-card:fullscreen .ny-status,
-      .ny-card:fullscreen .ny-meta,
-      .ny-card:fullscreen .ny-progress-wrap {
+      .ny-card:fullscreen .ny-meta {
         display: none;
       }
 
       .ny-card:-webkit-full-screen .ny-status,
-      .ny-card:-webkit-full-screen .ny-meta,
-      .ny-card:-webkit-full-screen .ny-progress-wrap {
+      .ny-card:-webkit-full-screen .ny-meta {
         display: none;
+      }
+
+      .ny-card:fullscreen .ny-progress-wrap,
+      .ny-card:-webkit-full-screen .ny-progress-wrap {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+        max-width: 800px;
+      }
+
+      .ny-card:fullscreen .ny-progress-label,
+      .ny-card:-webkit-full-screen .ny-progress-label {
+        white-space: nowrap;
+      }
+
+      .ny-card:fullscreen .ny-progress,
+      .ny-card:-webkit-full-screen .ny-progress {
+        flex: 1;
+      }
+
+      .ny-card:fullscreen .ny-progress-pct,
+      .ny-card:-webkit-full-screen .ny-progress-pct {
+        white-space: nowrap;
       }
 
       .ny-status {
@@ -204,14 +226,14 @@
       .ny-progress-wrap {
         width: 100%;
         max-width: 640px;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        column-gap: 0.5rem;
+        row-gap: 0.5rem;
       }
 
-      .ny-progress-top {
-        display: flex;
-        justify-content: space-between;
+      .ny-progress-label {
         font-size: 0.75rem;
         color: #64748b;
         text-transform: uppercase;
@@ -219,12 +241,15 @@
         font-weight: 600;
       }
 
-      .ny-progress-top span:last-child {
+      .ny-progress-pct {
         color: var(--primary-color);
         font-family: var(--font-mono, monospace);
+        font-size: 0.75rem;
+        font-weight: 600;
       }
 
       .ny-progress {
+        grid-column: 1 / -1;
         height: 8px;
         border-radius: 4px;
         background: rgba(255, 255, 255, 0.06);
@@ -350,13 +375,11 @@
         </div>
 
         <div class="ny-progress-wrap">
-          <div class="ny-progress-top">
-            <span id="ny-progress-label">Year progress</span>
-            <span id="ny-progress-pct">…</span>
-          </div>
+          <span class="ny-progress-label" id="ny-progress-label">Year progress</span>
           <div class="ny-progress">
             <div class="ny-progress-fill" id="ny-progress-fill"></div>
           </div>
+          <span class="ny-progress-pct" id="ny-progress-pct">…</span>
         </div>
       </div>
     </main>
