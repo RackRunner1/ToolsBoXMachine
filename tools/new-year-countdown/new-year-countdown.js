@@ -148,12 +148,14 @@
       }
     });
 
-    var updateFullscreenIcon = function () {
-      fullscreenBtn.innerHTML = isFullscreen() ? ICON_COMPRESS : ICON_EXPAND;
+    var syncFullscreen = function () {
+      var on = isFullscreen();
+      card.classList.toggle("ny-fullscreen", on);
+      fullscreenBtn.innerHTML = on ? ICON_COMPRESS : ICON_EXPAND;
     };
 
-    document.addEventListener("fullscreenchange", updateFullscreenIcon);
-    document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);
+    document.addEventListener("fullscreenchange", syncFullscreen);
+    document.addEventListener("webkitfullscreenchange", syncFullscreen);
   }
 
   // Exposed for testing.
