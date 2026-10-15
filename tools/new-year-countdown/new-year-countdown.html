@@ -61,7 +61,7 @@
         color: white;
       }
 
-      .ny-card:fullscreen {
+      .ny-card.ny-fullscreen {
         background: #020617;
         border: none;
         border-radius: 0;
@@ -72,37 +72,16 @@
         margin: 0;
       }
 
-      .ny-card:-webkit-full-screen {
-        background: #020617;
-        border: none;
-        border-radius: 0;
-        justify-content: center;
-        min-height: 100vh;
-        width: 100%;
-        max-width: none;
-        margin: 0;
-      }
-
-      .ny-card:fullscreen .ny-value {
+      .ny-card.ny-fullscreen .ny-value {
         font-size: 5rem;
       }
 
-      .ny-card:-webkit-full-screen .ny-value {
-        font-size: 5rem;
-      }
-
-      .ny-card:fullscreen .ny-status,
-      .ny-card:fullscreen .ny-meta {
+      .ny-card.ny-fullscreen .ny-status,
+      .ny-card.ny-fullscreen .ny-meta {
         display: none;
       }
 
-      .ny-card:-webkit-full-screen .ny-status,
-      .ny-card:-webkit-full-screen .ny-meta {
-        display: none;
-      }
-
-      .ny-card:fullscreen .ny-progress-wrap,
-      .ny-card:-webkit-full-screen .ny-progress-wrap {
+      .ny-card.ny-fullscreen .ny-progress-wrap {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
@@ -111,19 +90,16 @@
         max-width: 800px;
       }
 
-      .ny-card:fullscreen .ny-progress-label,
-      .ny-card:-webkit-full-screen .ny-progress-label {
+      .ny-card.ny-fullscreen .ny-progress-label {
         white-space: nowrap;
       }
 
-      .ny-card:fullscreen .ny-progress,
-      .ny-card:-webkit-full-screen .ny-progress {
+      .ny-card.ny-fullscreen .ny-progress {
         flex: 1;
         min-width: 0;
       }
 
-      .ny-card:fullscreen .ny-progress-pct,
-      .ny-card:-webkit-full-screen .ny-progress-pct {
+      .ny-card.ny-fullscreen .ny-progress-pct {
         white-space: nowrap;
       }
 
