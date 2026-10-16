@@ -86,6 +86,20 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Sudo upfront (before anything is displayed)
+# ---------------------------------------------------------------------------
+# Ask for the sudo password FIRST, before the banner and progress bar, so no
+# `[sudo] password for ...` prompt ever pops up mid-display: later sudo calls
+# silently reuse the cached credentials.
+if [ "$(id -u)" -ne 0 ]; then
+  command -v sudo >/dev/null 2>&1 || die "root privileges are required: run as root or install sudo."
+  sudo -v || die "sudo authentication failed."
+  SUDO="sudo"
+else
+  SUDO=""
+fi
+
+# ---------------------------------------------------------------------------
 # 1. Detect the native package format (via /etc/os-release first)
 # ---------------------------------------------------------------------------
 # Checking manager presence alone (apt before dnf before pacman) mis-detects
@@ -325,17 +339,10 @@ verify_sha256 "$FILE" "$ASSET_NAME" "$SUMS"
 bar_draw 75
 
 # ---------------------------------------------------------------------------
-# 5. Install with the native package manager (sudo unless root)
+# 5. Install with the native package manager (sudo already authed upfront)
 # ---------------------------------------------------------------------------
-# Manager output goes to a log (shown only on failure) to keep the display
-# to the banner plus the progress bar. sudo still prompts on /dev/tty.
-if [ "$(id -u)" -ne 0 ]; then
-  command -v sudo >/dev/null 2>&1 || die "root privileges are required: run as root or install sudo."
-  SUDO="sudo"
-else
-  SUDO=""
-fi
-
+# Manager output goes to a log, shown only on failure, to keep the display
+# to the banner plus the progress bar.
 bar_draw 85
 LOG="$TMP/pkg-manager.log"
 if [ "$EXT" = ".deb" ]; then
