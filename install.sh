@@ -275,9 +275,6 @@ verify_sha256() {
   fi
 }
 
-if [ -z "$PINNED_VERSION" ]; then
-  warn "no version pinned: 'latest' is convenient but not reproducible. Set TOOLBOXAPP_VERSION=<tag> to pin."
-fi
 print_banner
 
 DOC="$(fetch "$API_URL")" || die "could not reach the GitHub API (network, rate limit, or bad tag '$PINNED_VERSION'?)."
