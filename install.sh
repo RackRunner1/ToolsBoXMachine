@@ -5,9 +5,12 @@
 # latest GitHub release:
 #   - Debian/Ubuntu and derivatives -> .deb via apt-get
 #   - Fedora/RHEL and derivatives   -> .rpm via dnf (else yum)
+#   - Arch Linux and derivatives    -> .pkg.tar.zst via pacman
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/RackRunner1/ToolsBoXApp/main/install.sh | bash
+#   curl -fsSL https://tbxm.org/install.sh | bash
+#   or:
+#   curl -fsSL https://raw.githubusercontent.com/RackRunner1/ToolsBoXMachine/main/install.sh | bash
 #   or:
 #   bash install.sh
 set -euo pipefail
@@ -24,8 +27,10 @@ if command -v apt-get >/dev/null 2>&1; then
   EXT=".deb"
 elif command -v dnf >/dev/null 2>&1 || command -v yum >/dev/null 2>&1; then
   EXT=".rpm"
+elif command -v pacman >/dev/null 2>&1; then
+  EXT=".pkg.tar.zst"
 else
-  die "unsupported distribution: need apt-get (Debian/Ubuntu) or dnf/yum (Fedora/RHEL)."
+  die "unsupported distribution: need apt-get (Debian/Ubuntu), dnf/yum (Fedora/RHEL) or pacman (Arch Linux)."
 fi
 
 # ---------------------------------------------------------------------------
@@ -104,7 +109,7 @@ fi
 if [ "$EXT" = ".deb" ]; then
   echo "Installing with apt-get (root privileges required)..."
   $SUDO apt-get install -y "$FILE"
-else
+elif [ "$EXT" = ".rpm" ]; then
   if command -v dnf >/dev/null 2>&1; then
     MANAGER="dnf"
   else
@@ -112,6 +117,9 @@ else
   fi
   echo "Installing with $MANAGER (root privileges required)..."
   $SUDO "$MANAGER" install -y "$FILE"
+else
+  echo "Installing with pacman (root privileges required)..."
+  $SUDO pacman -U --noconfirm "$FILE"
 fi
 
-echo "ToolsBoXApp installed. Run 'tbxa update' later to update, 'tbxa uninstall' to remove."
+echo "ToolsBoXApp installed. Run 'tbxa update' later to update, 'tbxa uninstall' to remove ('tbxm' works too)."
