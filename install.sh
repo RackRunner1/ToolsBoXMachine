@@ -21,8 +21,51 @@ set -euo pipefail
 
 REPO="RackRunner1/ToolsBoXApp"
 
-die() { printf 'install.sh: %s\n' "$*" >&2; exit 1; }
+die() {
+  if [ "${BAR_ACTIVE:-0}" -eq 1 ]; then bar_done; fi
+  printf 'install.sh: %s\n' "$*" >&2; exit 1;
+}
 warn() { printf 'install.sh: warning: %s\n' "$*" >&2; }
+
+# ---------------------------------------------------------------------------
+# Pretty output: two blank lines, ASCII banner, single-line progress bar.
+# ---------------------------------------------------------------------------
+BANNER='████████╗ ██████╗  ██████╗ ██╗     ███████╗██████╗  ██████╗ ██╗  ██╗ █████╗ ██████╗ ██████╗
+╚══██╔══╝██╔═══██╗██╔═══██╗██║     ██╔════╝██╔══██╗██╔═══██╗╚██╗██╔╝██╔══██╗██╔══██╗██╔══██╗
+   ██║   ██║   ██║██║   ██║██║     ███████╗██████╔╝██║   ██║ ╚███╔╝ ███████║██████╔╝██████╔╝
+   ██║   ██║   ██║██║   ██║██║     ╚════██║██╔══██╗██║   ██║ ██╔██╗ ██╔══██║██╔═══╝ ██╔═══╝
+   ██║   ╚██████╔╝╚██████╔╝███████╗███████║██████╔╝╚██████╔╝██╔╝ ██╗██║  ██║██║     ██║
+   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝'
+
+print_banner() { printf '\n\n%s\n' "$BANNER"; }
+
+BAR_W=30
+BAR_ACTIVE=0
+TTY_OUT=0
+[ -t 1 ] && TTY_OUT=1
+
+# Redraws `██████░░░░░░  42%` on one line (plain lines when piped).
+bar_draw() {
+  local pct=$1 filled empty i bar
+  [ "$pct" -gt 100 ] && pct=100
+  filled=$(( pct * BAR_W / 100 )); empty=$(( BAR_W - filled )); bar=""
+  i=0; while [ "$i" -lt "$filled" ]; do bar="${bar}█"; i=$((i+1)); done
+  i=0; while [ "$i" -lt "$empty" ]; do bar="${bar}░"; i=$((i+1)); done
+  if [ "$TTY_OUT" -eq 1 ]; then
+    printf '\r%s %3d%%' "$bar" "$pct"
+  else
+    printf '%s %3d%%\n' "$bar" "$pct"
+  fi
+  BAR_ACTIVE=1
+}
+
+# Removes the bar line, keeping only the banner and the final message.
+bar_done() {
+  if [ "$TTY_OUT" -eq 1 ]; then
+    printf '\r%*s\r' 40 ''
+  fi
+  BAR_ACTIVE=0
+}
 
 # ---------------------------------------------------------------------------
 # 0. Pinned version (reproducible installs)
@@ -124,10 +167,10 @@ esac
 # ---------------------------------------------------------------------------
 if command -v curl >/dev/null 2>&1; then
   fetch() { curl -fsSL --max-time 60 -H "Accept: application/vnd.github+json" -H "User-Agent: toolsboxapp-install" "$1"; }
-  download() { curl -fSL --max-time 600 -o "$2" "$1"; }
+  download() { curl -fsSL --max-time 600 -o "$2" "$1"; }
 elif command -v wget >/dev/null 2>&1; then
   fetch() { wget -qO- --timeout=60 "$1"; }
-  download() { wget --timeout=600 -O "$2" "$1"; }
+  download() { wget -q --timeout=600 -O "$2" "$1"; }
 else
   die "curl or wget is required to download the package."
 fi
@@ -230,16 +273,15 @@ verify_sha256() {
        "$(printf '%s' "$actual" | tr '[:upper:]' '[:lower:]')" ]; then
     die "SHA-256 mismatch for $asset_name (expected $expected, got $actual). Aborting."
   fi
-  echo "SHA-256 verified: $asset_name ($actual)."
 }
 
-if [ -n "$PINNED_VERSION" ]; then
-  echo "Checking $REPO release $PINNED_VERSION for a $EXT package ($ARCH)..."
-else
-  echo "Checking the latest $REPO release for a $EXT package ($ARCH)..."
+if [ -z "$PINNED_VERSION" ]; then
   warn "no version pinned: 'latest' is convenient but not reproducible. Set TOOLBOXAPP_VERSION=<tag> to pin."
 fi
+print_banner
+
 DOC="$(fetch "$API_URL")" || die "could not reach the GitHub API (network, rate limit, or bad tag '$PINNED_VERSION'?)."
+bar_draw 10
 # pick_asset uses exit code 2 for "right format, wrong arch" (python branch);
 # guard with set +e so `set -e` does not abort before we can emit the
 # foreign-arch error message.
@@ -256,17 +298,16 @@ print(" ".join(a.get("name", "") for a in doc.get("assets", []) if a.get("name",
 ' 2>/dev/null || printf '%s' "$DOC" | jq -r --arg ext "$EXT" '[.assets[] | select(.name | endswith($ext)) | .name] | join(" ")')"
   die "no $EXT asset matches architecture '$ARCH' (pattern: $ARCH_PAT). Available $EXT assets: ${AVAIL:-<none>}. Refusing to install a foreign-arch package."
 fi
+bar_draw 20
 read -r TAG URL ASSET_NAME <<<"$PICK_OUT"
 [ -n "${URL:-}" ] || die "no $EXT asset found in this release."
 [ -n "${ASSET_NAME:-}" ] || ASSET_NAME="$(basename "$URL")"
-
-echo "Release: ${TAG:-unknown}"
-echo "Downloading $URL ..."
 
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/toolsboxapp-install-XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 FILE="$TMP/$ASSET_NAME"
 download "$URL" "$FILE" || die "download failed (network issue?)."
+bar_draw 50
 
 # ---------------------------------------------------------------------------
 # 4b. Checksum verification (mandatory: the pipeline publishes checksums.txt)
@@ -280,14 +321,17 @@ if [ -z "$CHECKSUM_INFO" ]; then
   die "no checksums.txt asset in this release; refusing to install an unverifiable package."
 fi
 read -r CHECKSUM_URL CHECKSUM_NAME <<<"$CHECKSUM_INFO"
-echo "Verifying SHA-256 against $CHECKSUM_NAME ..."
 SUMS="$TMP/$CHECKSUM_NAME"
 download "$CHECKSUM_URL" "$SUMS" || die "checksum download failed."
+bar_draw 65
 verify_sha256 "$FILE" "$ASSET_NAME" "$SUMS"
+bar_draw 75
 
 # ---------------------------------------------------------------------------
 # 5. Install with the native package manager (sudo unless root)
 # ---------------------------------------------------------------------------
+# Manager output goes to a log (shown only on failure) to keep the display
+# to the banner plus the progress bar. sudo still prompts on /dev/tty.
 if [ "$(id -u)" -ne 0 ]; then
   command -v sudo >/dev/null 2>&1 || die "root privileges are required: run as root or install sudo."
   SUDO="sudo"
@@ -295,9 +339,10 @@ else
   SUDO=""
 fi
 
+bar_draw 85
+LOG="$TMP/pkg-manager.log"
 if [ "$EXT" = ".deb" ]; then
-  echo "Installing with apt-get (root privileges required)..."
-  $SUDO apt-get install -y "$FILE"
+  $SUDO apt-get install -y "$FILE" >"$LOG" 2>&1 || { tail -n 20 "$LOG" >&2; die "apt-get install failed (see above)."; }
 elif [ "$EXT" = ".rpm" ]; then
   if command -v dnf >/dev/null 2>&1; then
     MANAGER="dnf"
@@ -306,15 +351,15 @@ elif [ "$EXT" = ".rpm" ]; then
   else
     MANAGER="zypper"
   fi
-  echo "Installing with $MANAGER (root privileges required)..."
   if [ "$MANAGER" = "zypper" ]; then
-    $SUDO "$MANAGER" --non-interactive install --allow-unsigned-rpm "$FILE"
+    $SUDO "$MANAGER" --non-interactive install --allow-unsigned-rpm "$FILE" >"$LOG" 2>&1 || { tail -n 20 "$LOG" >&2; die "zypper install failed (see above)."; }
   else
-    $SUDO "$MANAGER" install -y "$FILE"
+    $SUDO "$MANAGER" install -y "$FILE" >"$LOG" 2>&1 || { tail -n 20 "$LOG" >&2; die "$MANAGER install failed (see above)."; }
   fi
 else
-  echo "Installing with pacman (root privileges required)..."
-  $SUDO pacman -U --noconfirm "$FILE"
+  $SUDO pacman -U --noconfirm "$FILE" >"$LOG" 2>&1 || { tail -n 20 "$LOG" >&2; die "pacman install failed (see above)."; }
 fi
+bar_draw 100
 
-echo "ToolsBoXApp installed. Run 'tbxa update' later to update, 'tbxa uninstall' to remove ('tbxm' works too)."
+bar_done
+echo "Welcome to ToolsBoXApp!"
