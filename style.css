@@ -905,7 +905,11 @@ input[type="range"] {
 
   .hero-section {
     margin: 4.8rem auto 0.5rem;
-    padding: 0 1rem;
+    padding: 3px 1rem 0;
+  }
+
+  body.tool-page .hero-section {
+    padding-top: 3px;
   }
 
   .hero-card {
