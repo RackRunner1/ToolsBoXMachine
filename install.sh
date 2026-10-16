@@ -37,7 +37,7 @@ BANNER='████████╗ ██████╗  ██████╗
    ██║   ╚██████╔╝╚██████╔╝███████╗███████║██████╔╝╚██████╔╝██╔╝ ██╗██║  ██║██║     ██║
    ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝'
 
-print_banner() { printf '\n\n%s\n' "$BANNER"; }
+print_banner() { printf '\n\n%s\n\n' "$BANNER"; }
 
 BAR_W=30
 BAR_ACTIVE=0
@@ -93,7 +93,17 @@ fi
 # silently reuse the cached credentials.
 if [ "$(id -u)" -ne 0 ]; then
   command -v sudo >/dev/null 2>&1 || die "root privileges are required: run as root or install sudo."
-  sudo -v || die "sudo authentication failed."
+  if sudo -n true 2>/dev/null; then
+    PROMPTED=0
+  else
+    sudo -v || die "sudo authentication failed."
+    PROMPTED=1
+  fi
+  # Erase sudo's password prompt line so the display starts clean
+  # (the typed password is never echoed, the line holds only the prompt).
+  if [ "$PROMPTED" -eq 1 ] && [ "$TTY_OUT" -eq 1 ]; then
+    printf '\e[F\e[K'
+  fi
   SUDO="sudo"
 else
   SUDO=""
