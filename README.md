@@ -8,6 +8,8 @@
 
 **ToolsBoXMachine (TBXM)** is a free, open-source collection of browser-based utility tools. Every tool runs entirely client-side: no data is ever sent to any server. Built for privacy, speed, and simplicity.
 
+<img width="1496" height="890" alt="image" src="https://github.com/user-attachments/assets/08bd584a-009e-4ed2-a23c-aabbdc6419fe" />
+
 **Live:** [tbxm.org](https://www.tbxm.org)
 
 ## Technologies
