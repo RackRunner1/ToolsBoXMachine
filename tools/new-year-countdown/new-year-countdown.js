@@ -119,7 +119,7 @@
   }
 
   render();
-  setInterval(render, 250);
+  setInterval(render, 1000);
 
   // Fullscreen
   var card = document.getElementById("ny-card");
