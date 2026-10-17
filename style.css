@@ -59,9 +59,12 @@ h1 {
   top: 0;
   left: 0;
   width: 100%;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  /* Left and right columns are equal, so the middle column (search) stays
+     perfectly centered regardless of how much content sits on either side. */
+  grid-template-columns: 1fr minmax(0, 400px) 1fr;
   align-items: center;
+  column-gap: 2rem;
   padding: 1.25rem 3rem;
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
@@ -75,6 +78,7 @@ h1 {
   display: flex;
   align-items: center;
   gap: 1rem;
+  justify-self: start;
 }
 
 .nav-logo {
@@ -86,6 +90,7 @@ h1 {
   display: flex;
   gap: 1.5rem;
   align-items: center;
+  justify-self: end;
 }
 
 .nav-link {
@@ -101,9 +106,7 @@ h1 {
 
 /* Nav Search */
 .nav-search {
-  flex: 1;
-  max-width: 400px;
-  margin: 0 2rem;
+  width: 100%;
 }
 
 .search-input-wrapper {
@@ -840,11 +843,8 @@ input[type="range"] {
 @media (max-width: 1024px) {
   .navbar {
     padding: 1rem 1.5rem;
-  }
-
-  .nav-search {
-    max-width: 280px;
-    margin: 0 1rem;
+    grid-template-columns: 1fr minmax(0, 280px) 1fr;
+    column-gap: 1rem;
   }
 
   .hero-section {
@@ -890,13 +890,14 @@ input[type="range"] {
 
   .navbar {
     padding: 0.85rem 1rem;
+    /* On phones the links are hidden, so only brand (auto) + search (1fr). */
+    grid-template-columns: auto 1fr;
+    column-gap: 0.75rem;
   }
 
   .nav-search {
+    width: 100%;
     max-width: none;
-    margin: 0 0.75rem;
-    order: 3;
-    flex: 1;
   }
 
   .nav-links {
@@ -1070,14 +1071,11 @@ input[type="range"] {
 @media (max-width: 480px) {
   .navbar {
     padding: 0.75rem 0.75rem;
+    column-gap: 0.5rem;
   }
 
   .nav-logo {
     height: 26px;
-  }
-
-  .nav-search {
-    margin: 0 0.5rem;
   }
 
   .search-input-wrapper input {
