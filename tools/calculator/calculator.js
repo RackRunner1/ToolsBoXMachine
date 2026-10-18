@@ -29,7 +29,9 @@ function render() {
     return;
   }
 
-  const parts = tokens.slice();
+  const parts = tokens.map((token) =>
+    isOperator(token) ? SYMBOLS[token] : token,
+  );
   if (!awaitingNumber) {
     parts.push(currentInput);
   }
