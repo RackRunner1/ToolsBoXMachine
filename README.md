@@ -1,6 +1,5 @@
-<p align="center">
-  <img src="https://github.com/RackRunner1/ToolsBoXMachine/blob/main/.assets/logo/logo.png?raw=true" width="10000">
-</p>
+# ToolsBoXMachine
+A project by the ToolsBoXCompany.
 
 ---
 
