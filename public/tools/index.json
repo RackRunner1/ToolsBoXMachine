@@ -91,11 +91,11 @@
       "id": "new-year-countdown",
       "name": "New Year Countdown",
       "emoji": "🎆",
-      "description": "Time remaining until January 1st, in your timezone",
+      "description": "Time until and since New Year, in your timezone",
       "url": "/tools/new-year-countdown/new-year-countdown.html",
       "category": "productivity",
       "clientSide": true,
-      "keywords": ["new year", "countdown", "timer", "january", "celebration", "clock"]
+      "keywords": ["new year", "countdown", "timer", "january", "time since new year", "elapsed time", "celebration", "clock"]
     }
   ]
 }

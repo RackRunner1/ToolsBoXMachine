@@ -116,6 +116,7 @@
     elPct.textContent = pct.toFixed(2) + "%";
 
     document.title =
+      "New Year Countdown: " +
       d + "d " + pad(h) + ":" + pad(m) + ":" + pad(s) +
       (state.mode === "elapsed" ? " since " : " until ") +
       state.targetYear + " | TBXM";

@@ -72,8 +72,8 @@ const tools = [
     id: "card-new-year",
     name: "New Year Countdown",
     emoji: "🎆",
-    desc: "Time remaining until January 1st, in your timezone.",
-    keywords: "new year countdown timer january celebration fireworks clock",
+    desc: "Time until and since New Year, in your timezone.",
+    keywords: "new year countdown timer january celebration fireworks clock time since new year elapsed timer",
     url: "/tools/new-year-countdown/new-year-countdown.html",
   },
 ];
