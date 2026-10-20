@@ -235,6 +235,14 @@
     format24 = val === "24";
   });
 
+  setupSelect("size-select", (val) => {
+    const scale = parseFloat(val);
+    document.documentElement.style.setProperty(
+      "--clock-scale",
+      Number.isFinite(scale) ? scale : 1
+    );
+  });
+
   setupSelect("timezone-select", (val) => {
     timezone = val;
   });
