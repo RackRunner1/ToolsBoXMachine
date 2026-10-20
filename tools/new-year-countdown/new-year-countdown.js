@@ -92,7 +92,6 @@
         "New Year was: <strong>" +
         formatTargetDate(state.yearStart, tz) +
         "</strong>";
-      elProgressLabel.textContent = "New Year progress";
     } else {
       elStatus.classList.remove("elapsed");
       elStatusText.textContent = "Time until New Year";
@@ -103,8 +102,12 @@
         "New Year: <strong>" +
         formatTargetDate(state.yearEnd, tz) +
         "</strong>";
-      elProgressLabel.textContent = "Year progress";
     }
+
+    // Both modes track progress through the current calendar year, so the
+    // label is shared: during the "elapsed" window the new year has just
+    // started, which legitimately shows ~0%.
+    elProgressLabel.textContent = "Year progress";
 
     var yearLen = state.yearEnd.getTime() - state.yearStart.getTime();
     var yearDone = now.getTime() - state.yearStart.getTime();
