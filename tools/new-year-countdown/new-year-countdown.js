@@ -104,14 +104,18 @@
         "</strong>";
     }
 
-    // Both modes track progress through the current calendar year, so the
-    // label is shared: during the "elapsed" window the new year has just
-    // started, which legitimately shows ~0%.
-    elProgressLabel.textContent = "Year progress";
+    // During the 48h that follow New Year the bar stays full: the milestone
+    // has just been reached. Once that window closes it drops to the real
+    // progress through the calendar year.
+    elProgressLabel.textContent =
+      state.mode === "elapsed" ? "New Year progress" : "Year progress";
 
-    var yearLen = state.yearEnd.getTime() - state.yearStart.getTime();
-    var yearDone = now.getTime() - state.yearStart.getTime();
-    var pct = Math.min(100, Math.max(0, (yearDone / yearLen) * 100));
+    var pct = 100;
+    if (state.mode === "countdown") {
+      var yearLen = state.yearEnd.getTime() - state.yearStart.getTime();
+      var yearDone = now.getTime() - state.yearStart.getTime();
+      pct = Math.min(100, Math.max(0, (yearDone / yearLen) * 100));
+    }
     elFill.style.width = pct.toFixed(3) + "%";
     elPct.textContent = pct.toFixed(2) + "%";
 
