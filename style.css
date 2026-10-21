@@ -77,13 +77,21 @@ h1 {
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.4rem;
   justify-self: start;
 }
 
 .nav-logo {
   height: 32px;
   width: auto;
+}
+
+.nav-edition {
+  color: #64748b; /* gray, same tone as the search icon */
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .nav-links {
@@ -1076,6 +1084,15 @@ input[type="range"] {
 
   .nav-logo {
     height: 26px;
+  }
+
+  .nav-edition {
+    font-size: 0.6rem;
+    letter-spacing: 0.01em;
+  }
+
+  .nav-brand {
+    gap: 0.25rem;
   }
 
   .search-input-wrapper input {
