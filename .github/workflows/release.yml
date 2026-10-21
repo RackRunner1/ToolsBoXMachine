@@ -44,18 +44,35 @@ jobs:
           TAG="${TODAY}${NEXT_NUM}"
           echo "New tag: $TAG"
 
+          # Edition name from edition.txt (falls back to empty if missing)
+          EDITION=""
+          if [ -f edition.txt ]; then
+            EDITION=$(head -n1 edition.txt | tr -d '\r' | xargs)
+          fi
+          echo "Edition: $EDITION"
+
+          if [ -n "$EDITION" ]; then
+            RELEASE_NAME="${TAG} (${EDITION} Edition)"
+          else
+            RELEASE_NAME="$TAG"
+          fi
+          echo "Release name: $RELEASE_NAME"
+
           # Set outputs
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "release_name=$RELEASE_NAME" >> "$GITHUB_OUTPUT"
           echo "last_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
 
       - name: Generate release notes
         id: notes
         env:
           TAG: ${{ steps.tag.outputs.tag }}
+          RELEASE_NAME: ${{ steps.tag.outputs.release_name }}
           LAST_TAG: ${{ steps.tag.outputs.last_tag }}
         run: |
           echo "=== Generating notes ==="
           echo "TAG: $TAG"
+          echo "RELEASE_NAME: $RELEASE_NAME"
           echo "LAST_TAG: $LAST_TAG"
 
           OUTPUT_FILE=$(mktemp)
@@ -72,7 +89,7 @@ jobs:
 
           # Write header
           {
-            echo "# 🪟 Build Name: ${TAG}"
+            echo "# 🪟 Build Name: ${RELEASE_NAME}"
             echo ""
             echo "## 🌟 What's Changed"
             echo ""
@@ -163,7 +180,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
-          name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.release_name }}
           body: ${{ steps.notes.outputs.body }}
           make_latest: true
           generate_release_notes: false
