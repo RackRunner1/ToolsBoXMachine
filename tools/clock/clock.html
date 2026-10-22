@@ -167,11 +167,12 @@
         --digital-base: 8rem;
       }
 
+      /* 4rem removed: the scale-aware analog margin already provides the
+         clearance, so the date keeps the standard 1.5rem flex gap. */
       #clock-main.fullscreen .date-display {
         --date-base: 1.4rem;
         position: relative;
         z-index: 100;
-        margin-top: 4rem;
       }
 
       /* Analog Clock */
