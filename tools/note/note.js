@@ -1,4 +1,4 @@
-import { renderMarkdown, applyVisibility, getRawText, getCaretOffset, setCaretOffset, stripMarkdown, moveCaretOutOfHiddenMarkers } from "./markdown.js";
+import { renderMarkdown, applyVisibility, getRawText, getCaretOffset, setCaretOffset, stripMarkdown, moveCaretOutOfHiddenMarkers, RE_LIST } from "./markdown.js?v=2";
 
 let tooltipRecentlyActive = false;
 let tooltipResetTimer = null;
@@ -54,31 +54,67 @@ function getContent() {
   return markdownEnabled ? getRawText(elements.contentMd) : elements.contentInput.value;
 }
 
+/** Source text currently rendered in the contenteditable (last renderMd). */
+let mdRenderedSource = "";
+/** Caret offset, in source coordinates, of the last placed selection. */
+let lastPlacedCaret = 0;
+
+/* Own history: hand-driven DOM re-renders break the browser's native undo
+   stack, so the editor tracks its own snapshots (source + caret). */
+const mdUndoStack = [];
+const mdRedoStack = [];
+const MD_HISTORY_LIMIT = 300;
+
 /** Writes the body to both editors so toggling the setting is lossless. */
 function setContent(text) {
   elements.contentInput.value = text;
-  if (markdownEnabled) {
-    renderMd(text, text.length);
-  } else {
+
+  if (!markdownEnabled) {
     elements.contentMd.textContent = "";
+    return;
   }
-  // Nothing to reveal until the editor actually holds a caret.
-  if (markdownEnabled) applyVisibility(elements.contentMd, null);
+
+  // While the user is typing inside the markdown editor, keep the caret
+  // where it is across the re-render; otherwise leave the selection alone
+  // and collapse every marker to its rendered form.
+  const focused = document.activeElement === elements.contentMd;
+  const caret = focused ? getCaretOffset(elements.contentMd) : null;
+  renderMd(text, caret ?? text.length, caret !== null);
+  if (caret === null) applyVisibility(elements.contentMd, null);
 }
 
 /**
  * Renders the note body into the markdown editor.
- * `place` moves the caret to `caret`; pass false to leave the selection alone.
+ * When `place` is true, the caret is moved back to `caret` (a source offset)
+ * right after the render, with the markers around it revealed first — that
+ * ordering is what keeps the caret from collapsing into hidden markers.
  */
 function renderMd(text, caret, place = false) {
   // Empty content leaves the element truly empty, which :empty uses to show
   // the placeholder.
   elements.contentMd.innerHTML = text ? renderMarkdown(text) : "";
+  elements.contentInput.value = text;
+  mdRenderedSource = text;
 
-  if (place && text) setCaretOffset(elements.contentMd, caret);
-  updateMdVisibility();
-  // Ensure caret is not stuck inside hidden markers after render
-  if (markdownEnabled && text) moveCaretOutOfHiddenMarkers(elements.contentMd);
+  if (!markdownEnabled) return;
+
+  if (!text) {
+    applyVisibility(elements.contentMd, null);
+    return;
+  }
+
+  if (place && caret !== null && caret !== undefined) {
+    // Reveal first, place second: a caret dropped inside a still-hidden
+    // marker is lost to the browser (display:none anchors collapse), and no
+    // amount of post-processing puts it back where it belongs.
+    applyVisibility(elements.contentMd, caret);
+    setCaretOffset(elements.contentMd, caret);
+    // Safety net for the zero-width glyph spans, which are never revealable.
+    moveCaretOutOfHiddenMarkers(elements.contentMd);
+    lastPlacedCaret = caret;
+  } else {
+    applyVisibility(elements.contentMd, null);
+  }
 }
 
 function applyMarkdownMode() {
@@ -94,7 +130,52 @@ function applyMarkdownMode() {
   } else {
     elements.contentInput.value = text;
     elements.contentMd.textContent = "";
+    mdRenderedSource = "";
   }
+}
+
+/* ------------------------------------------------------- undo / redo --- */
+
+function pushUndo(source, caret) {
+  // Collapse no-op pushes (visibility-only passes push the same source).
+  const last = mdUndoStack[mdUndoStack.length - 1];
+  if (last && last.source === source) {
+    if (caret !== undefined && caret !== null) last.caret = caret;
+    return;
+  }
+  mdUndoStack.push({ source, caret: caret ?? 0 });
+  if (mdUndoStack.length > MD_HISTORY_LIMIT) mdUndoStack.shift();
+  mdRedoStack.length = 0;
+}
+
+/** Rewinds to a history state, keeping the other stack for the opposite key. */
+function travelMarkdown(state) {
+  const current = {
+    source: mdRenderedSource,
+    caret: getCaretOffset(elements.contentMd) ?? lastPlacedCaret,
+  };
+  renderMd(state.source, state.caret, true);
+  scheduleAutoSave();
+  return current;
+}
+
+function undoMarkdown() {
+  if (!markdownEnabled) return false;
+  const state = mdUndoStack.pop();
+  if (!state) return false;
+  mdRedoStack.push(travelMarkdown(state));
+  return true;
+}
+
+function redoMarkdown() {
+  if (!markdownEnabled) return false;
+  const state = mdRedoStack.pop();
+  if (!state) return false;
+  // Re-push the current state without wiping the redo stack (pushUndo
+  // clears it, which would eat every remaining redo entry).
+  mdUndoStack.push(travelMarkdown(state));
+  if (mdUndoStack.length > MD_HISTORY_LIMIT) mdUndoStack.shift();
+  return true;
 }
 
 function init() {
@@ -440,54 +521,63 @@ function setupEventListeners() {
   // Set while an IME composition is in progress. Re-rendering the DOM during
   // composition would cancel the in-flight input, so we defer instead.
   let mdComposing = false;
-  let mdRenderQueued = false;
+  let mdRefreshQueued = false;
+
+  /** Reveals the markers around the caret, without touching the DOM structure. */
+  function updateMdVisibility() {
+    if (!markdownEnabled) return;
+    const caret = getCaretOffset(elements.contentMd);
+    if (caret !== null) lastPlacedCaret = caret;
+    applyVisibility(elements.contentMd, caret);
+  }
 
   /**
-   * Applies a source edit and re-renders from scratch.
-   *
-   * Only used when the DOM itself cannot produce the right result (Enter,
-   * paste). Plain typing is left to the browser: re-rendering on every
-   * keystroke reset the caret and made Enter and the arrow keys unreliable.
+   * Live preview pass: reads the post-keystroke source from the DOM and
+   * re-renders whole. Native typing is what mutates the DOM (so the browser
+   * owns caret motion and IME), and the flat-DOM renderer + exact-offset
+   * caret restore keep the selection rock solid across the re-render.
+   */
+  function refreshMarkdown() {
+    if (!markdownEnabled) return;
+    const el = elements.contentMd;
+    const text = getRawText(el);
+    const focused = document.activeElement === el;
+    const caret = focused ? getCaretOffset(el) : null;
+
+    if (text === mdRenderedSource) {
+      updateMdVisibility();
+      return;
+    }
+
+    pushUndo(mdRenderedSource, lastPlacedCaret);
+    renderMd(text, caret ?? text.length, caret !== null);
+    scheduleAutoSave();
+  }
+
+  function queueMarkdownRefresh() {
+    if (mdRefreshQueued) return;
+    mdRefreshQueued = true;
+    requestAnimationFrame(() => {
+      mdRefreshQueued = false;
+      if (mdComposing) return;
+      refreshMarkdown();
+    });
+  }
+
+  /**
+   * Applies a structured edit (Enter, paste): rewrites the source around the
+   * caret and re-renders from scratch, since the DOM itself cannot produce
+   * the required result. `mutate(text, caret)` returns { next, nextCaret }.
    */
   function applyMarkdownEdit(mutate) {
     const el = elements.contentMd;
     const text = getRawText(el);
     const caret = getCaretOffset(el) ?? text.length;
-    const next = text.slice(0, caret) + mutate + text.slice(caret);
-    const nextCaret = caret + mutate.length;
+    const { next, nextCaret } = mutate(text, caret);
 
-    elements.contentInput.value = next;
+    pushUndo(text, caret);
     renderMd(next, nextCaret, true);
     scheduleAutoSave();
-  }
-
-  /** Keeps the plain textarea and the store in sync after a DOM edit. */
-  function syncMarkdownEditor() {
-    if (!markdownEnabled) return;
-    const text = getRawText(elements.contentMd);
-    if (text !== elements.contentInput.value) {
-      elements.contentInput.value = text;
-      scheduleAutoSave();
-    }
-  }
-
-  function queueMarkdownSync() {
-    if (mdRenderQueued) return;
-    mdRenderQueued = true;
-    requestAnimationFrame(() => {
-      mdRenderQueued = false;
-      if (mdComposing) return;
-      syncMarkdownEditor();
-      updateMdVisibility();
-      // Ensure caret is not stuck inside hidden markers after sync
-      moveCaretOutOfHiddenMarkers(elements.contentMd);
-    });
-  }
-
-  /** Reveals the markers around the caret, without touching the DOM structure. */
-  function updateMdVisibility() {
-    if (!markdownEnabled) return;
-    applyVisibility(elements.contentMd, getCaretOffset(elements.contentMd));
   }
 
   function setupMarkdownEditor() {
@@ -495,30 +585,108 @@ function setupEventListeners() {
 
     // Enter and Shift+Enter: a contenteditable would otherwise insert its own
     // <div>/<br> structure, which breaks the "one <br> per source newline"
-    // invariant and makes the caret jump. We insert the newline ourselves.
+    // invariant and makes the caret jump. We insert the newline ourselves,
+    // with Obsidian's list semantics: an item continues, an empty item exits
+    // the list (its marker collapses away).
     el.addEventListener("keydown", (e) => {
       if (!markdownEnabled || mdComposing || e.isComposing) return;
       if (e.key !== "Enter" || e.ctrlKey || e.metaKey || e.altKey) return;
       e.preventDefault();
-      // Move caret out of hidden markers before inserting newline
-      moveCaretOutOfHiddenMarkers(el);
-      applyMarkdownEdit("\n");
+
+      const src = getRawText(el);
+      const caret = getCaretOffset(el) ?? src.length;
+
+      const lineStart = src.lastIndexOf("\n", caret - 1) + 1;
+      const nlAfter = src.indexOf("\n", caret);
+      const lineEnd = nlAfter === -1 ? src.length : nlAfter;
+
+      // Shift+Enter is a soft break: never continue a list.
+      if (e.shiftKey) {
+        applyMarkdownEdit(() => ({
+          next: src.slice(0, caret) + "\n" + src.slice(caret),
+          nextCaret: caret + 1,
+        }));
+        return;
+      }
+
+      const li = src.slice(lineStart, lineEnd).match(RE_LIST);
+      if (!li) {
+        applyMarkdownEdit(() => ({
+          next: src.slice(0, caret) + "\n" + src.slice(caret),
+          nextCaret: caret + 1,
+        }));
+        return;
+      }
+
+      const [, indent, bullet, gap, box, rest] = li;
+
+      // Enter on an empty item exits the list: the marker collapses away and
+      // the caret lands on the now-blank line.
+      if (rest === "") {
+        applyMarkdownEdit(() => ({
+          next: src.slice(0, lineStart) + "\n" + src.slice(lineEnd),
+          nextCaret: lineStart + 1,
+        }));
+        return;
+      }
+
+      // Continue the list: same indent, same marker (incremented for ordered
+      // lists), same task box.
+      const ordered = /\d/.test(bullet);
+      let nextBullet = bullet;
+      if (ordered) {
+        const num = parseInt(bullet, 10);
+        nextBullet = String(num + 1) + bullet.slice(String(num).length);
+      }
+      const cont = indent + nextBullet + gap + (box ? box + " " : "");
+
+      applyMarkdownEdit(() => ({
+        next: src.slice(0, caret) + "\n" + cont + src.slice(caret),
+        nextCaret: caret + 1 + cont.length,
+      }));
     });
 
-    // Paste as plain text: rich HTML would break the DOM invariant and could
-    // inject markup. execCommand keeps the browser's native undo stack.
+    // Our own history: re-rendering per keystroke voids the browser's native
+    // contenteditable undo stack, so Ctrl+Z / Ctrl+Y drive ours instead.
+    el.addEventListener("keydown", (e) => {
+      if (!markdownEnabled || mdComposing || e.isComposing) return;
+      if (!((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z" || e.key === "y" || e.key === "Y"))) return;
+      e.preventDefault();
+      if (e.key === "y" || e.key === "Y" || e.shiftKey) redoMarkdown();
+      else undoMarkdown();
+    });
+
+    // The browser also delivers undo through beforeinput; cancel those or it
+    // would rewind the DOM into an inconsistent state behind our back.
+    el.addEventListener("beforeinput", (e) => {
+      if (!markdownEnabled) return;
+      if (e.inputType === "historyUndo") {
+        e.preventDefault();
+        undoMarkdown();
+      } else if (e.inputType === "historyRedo") {
+        e.preventDefault();
+        redoMarkdown();
+      }
+    });
+
+    // Paste as plain text, spliced straight into the source: rich HTML would
+    // break the DOM invariant, and multi-line text does not survive a
+    // contenteditable insertion as "one <br> per newline" anyway.
     el.addEventListener("paste", (e) => {
+      if (!markdownEnabled) return;
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData)?.getData("text/plain") ?? "";
       if (!text) return;
-      document.execCommand("insertText", false, text);
-      queueMarkdownSync();
+      const normalized = text.replace(/\r\n?/g, "\n");
+      applyMarkdownEdit((src, caret) => ({
+        next: src.slice(0, caret) + normalized + src.slice(caret),
+        nextCaret: caret + normalized.length,
+      }));
     });
 
-    // Drop/paste of files or rich content that slips through as HTML.
-    el.addEventListener("drop", (e) => {
-      e.preventDefault();
-    });
+    // Dragging text (inside or from outside) fights the flat-DOM invariant.
+    el.addEventListener("dragover", (e) => e.preventDefault());
+    el.addEventListener("drop", (e) => e.preventDefault());
 
     el.addEventListener("compositionstart", () => {
       mdComposing = true;
@@ -526,12 +694,12 @@ function setupEventListeners() {
 
     el.addEventListener("compositionend", () => {
       mdComposing = false;
-      queueMarkdownSync();
+      queueMarkdownRefresh();
     });
 
     el.addEventListener("input", () => {
       if (mdComposing) return;
-      queueMarkdownSync();
+      queueMarkdownRefresh();
     });
 
     // Keep marker visibility in sync with the caret. This only toggles
@@ -552,7 +720,10 @@ function setupEventListeners() {
         return;
       }
       const text = getRawText(el);
-      if (text) setCaretOffset(el, text.length);
+      if (text) {
+        setCaretOffset(el, text.length);
+        lastPlacedCaret = text.length;
+      }
       updateMdVisibility();
     });
 
