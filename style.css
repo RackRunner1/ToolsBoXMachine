@@ -29,14 +29,28 @@ body {
     -apple-system,
     sans-serif;
   background-color: var(--bg-color);
-  background-image:
-    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(167, 139, 250, 0.05) 0px, transparent 50%);
   color: var(--text-color);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
+}
+
+/* Decorative top orbs. Painted on a fixed-height layer anchored to the
+   document's top so their radius never depends on the document height
+   (on the body itself they would stretch across every long page). */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(167, 139, 250, 0.05) 0px, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 h1 {
