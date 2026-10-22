@@ -122,6 +122,7 @@ jobs:
 
               case "${TYPE,,}" in
                 feat)     echo "$LINE" >> "$FEAT_FILE" ;;
+                remove)   echo "$LINE" >> "$FEAT_FILE" ;;
                 fix)      echo "$LINE" >> "$FIX_FILE" ;;
                 chore)    echo "$LINE" >> "$CHORE_FILE" ;;
                 docs)     echo "$LINE" >> "$DOCS_FILE" ;;
