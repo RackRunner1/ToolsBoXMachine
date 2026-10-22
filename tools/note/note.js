@@ -1,4 +1,4 @@
-import { renderMarkdown, applyVisibility, getRawText, getCaretOffset, setCaretOffset, stripMarkdown, moveCaretOutOfHiddenMarkers, RE_LIST } from "./markdown.js?v=2";
+import { renderMarkdown, htmlSkeleton, applyVisibility, getRawText, getCaretOffset, setCaretOffset, stripMarkdown, moveCaretOutOfHiddenMarkers, RE_LIST } from "./markdown.js?v=3";
 
 let tooltipRecentlyActive = false;
 let tooltipResetTimer = null;
@@ -58,6 +58,10 @@ function getContent() {
 let mdRenderedSource = "";
 /** Caret offset, in source coordinates, of the last placed selection. */
 let lastPlacedCaret = 0;
+/** Structural fingerprint (tags/classes only) of the last render. Plain
+    typing never changes it, so those keystrokes skip the re-render entirely
+    and the browser caret — not us — owns the selection. */
+let mdRenderedLayout = "";
 
 /* Own history: hand-driven DOM re-renders break the browser's native undo
    stack, so the editor tracks its own snapshots (source + caret). */
@@ -89,10 +93,12 @@ function setContent(text) {
  * right after the render, with the markers around it revealed first — that
  * ordering is what keeps the caret from collapsing into hidden markers.
  */
-function renderMd(text, caret, place = false) {
+function renderMd(text, caret, place = false, html = null) {
   // Empty content leaves the element truly empty, which :empty uses to show
-  // the placeholder.
-  elements.contentMd.innerHTML = text ? renderMarkdown(text) : "";
+  // the placeholder. `html` lets a caller reuse an already-computed render.
+  const rendered = html ?? (text ? renderMarkdown(text) : "");
+  elements.contentMd.innerHTML = rendered;
+  mdRenderedLayout = htmlSkeleton(rendered);
   elements.contentInput.value = text;
   mdRenderedSource = text;
 
@@ -131,6 +137,44 @@ function applyMarkdownMode() {
     elements.contentInput.value = text;
     elements.contentMd.textContent = "";
     mdRenderedSource = "";
+    mdRenderedLayout = "";
+  }
+}
+
+/**
+ * Copies the data-* source offsets from a fresh canonical render onto the
+ * live DOM without touching a single character of text. Used by the
+ * live-preview pass when typing did not change the structure: the DOM (and
+ * the browser's caret inside it) stays exactly where it is, while the hidden
+ * offsets stay in sync with the source. Returns false when the two trees do
+ * not match node-for-node, in which case the caller must do a full re-render.
+ */
+function syncMarkerOffsets(el, html) {
+  try {
+    const probe = document.createElement("template");
+    probe.innerHTML = html;
+    const SEL = ".md-line, .md-mark, .md-mark-swap, [data-o]";
+    const live = el.querySelectorAll(SEL);
+    const fresh = probe.content.querySelectorAll(SEL);
+    if (live.length !== fresh.length) return false;
+
+    // Transient states set by applyVisibility must not count as differences.
+    const cls = (node) =>
+      node.className
+        .split(/\s+/)
+        .filter((c) => c && c !== "is-active" && c !== "is-touched")
+        .sort()
+        .join(" ");
+
+    for (let k = 0; k < live.length; k++) {
+      if (cls(live[k]) !== cls(fresh[k])) return false;
+      for (const key of ["o", "from", "to", "s", "e"]) {
+        if (fresh[k].dataset[key] !== undefined) live[k].dataset[key] = fresh[k].dataset[key];
+      }
+    }
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -533,9 +577,10 @@ function setupEventListeners() {
 
   /**
    * Live preview pass: reads the post-keystroke source from the DOM and
-   * re-renders whole. Native typing is what mutates the DOM (so the browser
-   * owns caret motion and IME), and the flat-DOM renderer + exact-offset
-   * caret restore keep the selection rock solid across the re-render.
+   * re-renders only when the parse actually changed the structure. Native
+   * typing is what mutates the DOM (so the browser owns caret motion and
+   * IME); the flat-DOM renderer + exact-offset caret restore keep the
+   * selection rock solid across the few re-renders that remain.
    */
   function refreshMarkdown() {
     if (!markdownEnabled) return;
@@ -550,7 +595,24 @@ function setupEventListeners() {
     }
 
     pushUndo(mdRenderedSource, lastPlacedCaret);
-    renderMd(text, caret ?? text.length, caret !== null);
+
+    // Re-render only when the new parse actually changed the editor's
+    // STRUCTURE (a span or marker added/removed). Typing inside an unchanged
+    // line — the overwhelmingly common case — never re-renders: the DOM and
+    // the browser's selection are left alone and only the hidden data-*
+    // offsets get synced. Fighting the caret on every keystroke is what made
+    // it jump back to previous lines mid-word.
+    const html = text ? renderMarkdown(text) : "";
+    if (htmlSkeleton(html) === mdRenderedLayout && syncMarkerOffsets(el, html)) {
+      if (caret !== null) lastPlacedCaret = caret;
+      elements.contentInput.value = text;
+      mdRenderedSource = text;
+      applyVisibility(el, caret);
+      scheduleAutoSave();
+      return;
+    }
+
+    renderMd(text, caret ?? text.length, caret !== null, html);
     scheduleAutoSave();
   }
 
@@ -712,9 +774,22 @@ function setupEventListeners() {
     });
 
     // Focusing by keyboard/tab leaves no caret inside the editor, so typing
-    // would go nowhere. Place it at the end of the note instead.
+    // would go nowhere. Place it at the end of the note instead — but never
+    // during a mouse click: focus fires mid-click, before the browser has
+    // moved the caret to the clicked spot, and rewriting the selection there
+    // makes Chrome finish the click as a drag-selection instead of a plain
+    // caret move. During a mouse focus the click itself does the placing.
+    let mdMouseFocus = false;
+    el.addEventListener("mousedown", () => {
+      mdMouseFocus = true;
+    });
     el.addEventListener("focus", () => {
       if (!markdownEnabled || mdComposing) return;
+      if (mdMouseFocus) {
+        mdMouseFocus = false;
+        updateMdVisibility();
+        return;
+      }
       if (getCaretOffset(el) !== null) {
         updateMdVisibility();
         return;
