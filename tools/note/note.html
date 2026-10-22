@@ -181,9 +181,11 @@
         line-height: 1.5;
       }
 
-      /* Empty lines render as a zero-height box, which makes them impossible
-         to click into. Give every line a minimum line box instead. */
-      .note-content-md .md-line {
+      /* Empty lines are block boxes with a real line box (see parseBlocks:
+         an empty inline span gets no line box at all). Non-empty lines are
+         inline and size from their text. */
+      .note-content-md .md-line.md-blank {
+        display: block;
         min-height: 1.5em;
       }
 
@@ -227,12 +229,12 @@
       }
 
       /* The delimiter the caret is directly on. Also un-hides it, since the
-         caret can sit on a marker of an inactive construct while typing. */
+         caret can sit on a marker of an inactive construct while typing. No
+         background tint: a gray box appearing on the marker read like a
+         stray selection artifact rather than an intentional state. */
       .note-content-md .md-mark.is-touched {
         display: inline;
         color: #94a3b8;
-        background: rgba(100, 116, 139, 0.14);
-        border-radius: 2px;
       }
 
       /* List bullets / task boxes: the source characters keep their place in
@@ -1229,7 +1231,7 @@
       </div>
     </div>
 
-    <script type="module" src="./note.js?v=2"></script>
+    <script type="module" src="./note.js?v=3"></script>
     <div id="footer-placeholder"></div>
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>

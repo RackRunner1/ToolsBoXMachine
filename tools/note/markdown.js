@@ -167,8 +167,11 @@ function parseBlocks(src) {
     }
 
     // --------------------------------------------------------- blank -----
+    // A blank line MUST be a block box: an empty inline span gets no line
+    // box, so the line had zero height — the caret bounced back onto the
+    // previous line and blank lines were impossible to click into.
     if (!line.text) {
-      push({ html: `<span data-o="${line.start}"></span>`, s: line.start, e: line.start });
+      push({ html: `<span data-o="${line.start}"></span>`, block: true, cls: "md-blank", s: line.start, e: line.start });
       i++;
       continue;
     }
@@ -346,49 +349,94 @@ function inline(s, off) {
         i = j + 1;
         continue;
       }
+      // Obsidian-style live preview: an open backtick styles the rest of the
+      // line as code until the closing one is typed — but only when it is a
+      // real opener (backtick + non-space), so "2 ` 3" stays literal. There
+      // cannot be another backtick in the rest, so the recursion stays flat.
+      if (s[i + 1] && !/\s/.test(s[i + 1])) {
+        flush();
+        const from = off + i;
+        out += mark("`", from, from, off + n);
+        out += `<code class="md-code">${inline(s.slice(i + 1), off + i + 1)}</code>`;
+        i = n;
+        continue;
+      }
     }
 
     // ***bold italic*** ---------------------------------------------------
     if (s.startsWith("***", i)) {
+      // The "rest of the line" style only kicks in for a real opener: an
+      // asterisk run followed by whitespace (e.g. "2 *** 3") stays literal.
+      // Balanced windows keep matching without an opener guard.
+      const nextCh = s[i + 3] ?? "";
+      // A longer asterisk run (****) must not open here either.
+      const openish = nextCh && nextCh !== "*" && !/\s/.test(nextCh);
       const e = findCloser(s, i + 3, "***");
-      if (e !== -1) {
+      if (e !== -1 || openish) {
         flush();
         const from = off + i;
-        const to = off + e + 3;
+        const to = e !== -1 ? off + e + 3 : off + n;
         out += mark("***", from, from, to);
-        out += `<strong><em>${inline(s.slice(i + 3, e), off + i + 3)}</em></strong>`;
-        out += mark("***", off + e, from, to);
-        i = e + 3;
+        if (e !== -1) {
+          out += `<strong><em>${inline(s.slice(i + 3, e), off + i + 3)}</em></strong>`;
+          out += mark("***", off + e, from, to);
+          i = e + 3;
+        } else {
+          // Obsidian-style: the open *** keeps formatting the rest of the line.
+          out += `<strong><em>${inline(s.slice(i + 3), off + i + 3)}</em></strong>`;
+          i = n;
+        }
         continue;
       }
     }
 
     // **bold** -----------------------------------------------------------
     if (s.startsWith("**", i)) {
+      // Opener guard for the unterminated window only (see *** branch).
+      // The *** case already tried its own branch; reaching ** with a '*'
+      // after means a longer asterisk run that must stay literal (e.g. "2
+      // *** 3").
+      const nextCh = s[i + 2] ?? "";
+      const openish = nextCh && nextCh !== "*" && !/\s/.test(nextCh);
       const e = findCloser(s, i + 2, "**");
-      if (e !== -1) {
+      if (e !== -1 || openish) {
         flush();
         const from = off + i;
-        const to = off + e + 2;
+        const to = e !== -1 ? off + e + 2 : off + n;
         out += mark("**", from, from, to);
-        out += `<strong>${inline(s.slice(i + 2, e), off + i + 2)}</strong>`;
-        out += mark("**", off + e, from, to);
-        i = e + 2;
+        if (e !== -1) {
+          out += `<strong>${inline(s.slice(i + 2, e), off + i + 2)}</strong>`;
+          out += mark("**", off + e, from, to);
+          i = e + 2;
+        } else {
+          // Obsidian-style: **bon shows up bold right away, before the closer.
+          out += `<strong>${inline(s.slice(i + 2), off + i + 2)}</strong>`;
+          i = n;
+        }
         continue;
       }
     }
 
     // ~~strikethrough~~ ---------------------------------------------------
     if (s.startsWith("~~", i)) {
+      // Opener guard for the unterminated window only (see *** branch).
+      const nextCh = s[i + 2] ?? "";
+      const openish = nextCh && !/\s/.test(nextCh);
       const e = findCloser(s, i + 2, "~~");
-      if (e !== -1) {
+      if (e !== -1 || openish) {
         flush();
         const from = off + i;
-        const to = off + e + 2;
+        const to = e !== -1 ? off + e + 2 : off + n;
         out += mark("~~", from, from, to);
-        out += `<del>${inline(s.slice(i + 2, e), off + i + 2)}</del>`;
-        out += mark("~~", off + e, from, to);
-        i = e + 2;
+        if (e !== -1) {
+          out += `<del>${inline(s.slice(i + 2, e), off + i + 2)}</del>`;
+          out += mark("~~", off + e, from, to);
+          i = e + 2;
+        } else {
+          // Obsidian-style: the open ~~ strikes through the rest of the line.
+          out += `<del>${inline(s.slice(i + 2), off + i + 2)}</del>`;
+          i = n;
+        }
         continue;
       }
     }
@@ -406,6 +454,16 @@ function inline(s, off) {
         i = e + 1;
         continue;
       }
+      // Obsidian-style: an open *italic* formats the rest of the line, but a
+      // star followed by whitespace is just a literal character.
+      if (s[i + 1] && !/\s/.test(s[i + 1])) {
+        flush();
+        const from = off + i;
+        out += mark("*", from, from, off + n);
+        out += `<em>${inline(s.slice(i + 1), off + i + 1)}</em>`;
+        i = n;
+        continue;
+      }
     }
 
     // _italic_ -----------------------------------------------------------
@@ -419,6 +477,15 @@ function inline(s, off) {
         out += `<em>${inline(s.slice(i + 1, e), off + i + 1)}</em>`;
         out += mark("_", off + e, from, to);
         i = e + 1;
+        continue;
+      }
+      // Obsidian-style: an open _italic_ formats the rest of the line.
+      if (s[i + 1] && !/\s/.test(s[i + 1])) {
+        flush();
+        const from = off + i;
+        out += mark("_", from, from, off + n);
+        out += `<em>${inline(s.slice(i + 1), off + i + 1)}</em>`;
+        i = n;
         continue;
       }
     }
@@ -478,6 +545,19 @@ export function renderMarkdown(src) {
     if (idx < parts.length - 1) html += NL;
   });
   return html;
+}
+
+/**
+ * Structural fingerprint of rendered HTML: the tag/class skeleton with every
+ * text run and shifting offset stripped out. Two renders with equal skeletons
+ * have the same spans, markers and nesting — only their text and offsets
+ * changed. The live-preview pass uses this to skip re-renders (and the caret
+ * disturbance they cause) whenever plain typing did not change the structure.
+ */
+export function htmlSkeleton(html) {
+  return html
+    .replace(/\s+data-(?:o|from|to|s|e)="[^"]*"/g, "")
+    .replace(/>[^<]*</g, "><");
 }
 
 /**
@@ -611,6 +691,17 @@ export function setCaretOffset(el, offset) {
   // leaves the user.
   const info = Array.from(el.querySelectorAll("[data-o]"))
     .filter((leaf) => !leaf.classList.contains("md-mark-swap"))
+    // A still-hidden marker is never a caret home: the caret would vanish
+    // into display:none and typed text would go with it. applyVisibility has
+    // already revealed the markers around the caret, so anything that is
+    // still hidden lies outside the caret and must not be targeted.
+    .filter(
+      (leaf) =>
+        !leaf.classList.contains("md-mark") ||
+        leaf.classList.contains("is-active") ||
+        leaf.classList.contains("is-touched") ||
+        leaf.classList.contains("is-blockmark")
+    )
     .map((leaf) => ({ leaf, start: Number(leaf.dataset.o), len: leaf.textContent.length }))
     .filter((x) => Number.isFinite(x.start));
 
