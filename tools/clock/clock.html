@@ -152,11 +152,14 @@
         display: none;
       }
 
+      /* Mirror the overflow compensation of .analog-clock: the fullscreen
+         scale is 1.6x the size setting, so the margin must grow with it,
+         otherwise the clock collides with the date at Large/Extra Large. */
       #clock-main.fullscreen .analog-clock {
         width: 300px;
         height: 300px;
         transform: scale(calc(1.6 * var(--clock-scale))) !important;
-        margin: 0 0 80px;
+        margin: calc(150px * (1.6 * var(--clock-scale) - 1)) 0;
         z-index: 0;
       }
 
