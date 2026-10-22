@@ -112,7 +112,7 @@ const RE_FENCE = /^[ \t]*(```|~~~)(.*)$/;
 const RE_HR = /^[ \t]*(?:-[ \t]*){3,}$|^[ \t]*(?:\*[ \t]*){3,}$|^[ \t]*(?:_[ \t]*){3,}$/;
 const RE_QUOTE = /^([ \t]*)(>\s?)(.*)$/;
 const RE_HEADING = /^(#{1,6})([ \t]+)(.*)$/;
-const RE_LIST = /^([ \t]*)([-*+]|\d+[.)])([ \t]+)(\[[ xX]\])?[ \t]*(.*)$/;
+export const RE_LIST = /^([ \t]*)([-*+]|\d+[.)])([ \t]+)(\[[ xX]\])?[ \t]*(.*)$/;
 const RE_SETEXT = /^[ \t]*(?:=+|-+)[ \t]*$/;
 
 /**
@@ -537,6 +537,15 @@ export function getRawText(el) {
   return out;
 }
 
+/** Counts text characters and <br> newlines inside a subtree. */
+function countLeaves(node) {
+  if (node.nodeType === Node.TEXT_NODE) return node.data.length;
+  if (node.tagName === "BR") return 1;
+  let total = 0;
+  for (const child of node.childNodes) total += countLeaves(child);
+  return total;
+}
+
 /**
  * Current caret position as an offset into the markdown source, or null when
  * the selection is not inside `el`.
@@ -546,48 +555,73 @@ export function getCaretOffset(el) {
   if (!sel || !sel.rangeCount) return null;
 
   const range = sel.getRangeAt(0);
-  if (!el.contains(range.startContainer)) return null;
+  const container = range.startContainer;
+  if (container !== el && !el.contains(container)) return null;
 
   // Walk the live DOM up to the caret, counting every character (including
   // hidden markers) so the offset matches the markdown source exactly.
   // cloneContents() would skip display:none elements, losing marker chars.
+  //
+  // The caret frequently rests inside an element node (before a block
+  // marker, at a block boundary...), which is invisible to a text-only walk:
+  // resolve that case by counting the leaves preceding startOffset within
+  // the container. Miss it and the offset degrades to null, which makes
+  // every structured edit fall back to "end of document".
   let count = 0;
   let found = false;
 
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
-    acceptNode(node) {
-      return node.nodeType === Node.TEXT_NODE || node.tagName === "BR" ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
-    },
-  });
-
-  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-    if (node === range.startContainer) {
-      count += range.startOffset;
+  const walk = (node) => {
+    if (found) return;
+    if (node === container) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        count += range.startOffset;
+      } else {
+        const kids = node.childNodes;
+        for (let k = 0; k < range.startOffset && k < kids.length; k++) {
+          count += countLeaves(kids[k]);
+        }
+      }
       found = true;
-      break;
+      return;
     }
-    count += node.nodeType === Node.TEXT_NODE ? node.data.length : 1;
-  }
+    if (node.nodeType === Node.TEXT_NODE) {
+      count += node.data.length;
+      return;
+    }
+    if (node.tagName === "BR") {
+      count += 1;
+      return;
+    }
+    for (const child of node.childNodes) {
+      walk(child);
+      if (found) return;
+    }
+  };
+  walk(el);
 
   return found ? count : null;
 }
 
 /** Places the caret at `offset` (an index into the markdown source). */
 export function setCaretOffset(el, offset) {
-  const leaves = Array.from(el.querySelectorAll("[data-o]"));
-  const info = leaves
+  // Zero-width glyph spans (list bullets) are not caret homes: text typed
+  // inside them has font-size:0 and never shows up. Everything else,
+  // INCLUDING empty runs, is a legitimate target — an empty run is the only
+  // place to rest the caret on a blank line, which is exactly where Enter
+  // leaves the user.
+  const info = Array.from(el.querySelectorAll("[data-o]"))
+    .filter((leaf) => !leaf.classList.contains("md-mark-swap"))
     .map((leaf) => ({ leaf, start: Number(leaf.dataset.o), len: leaf.textContent.length }))
-    .filter((x) => Number.isFinite(x.start) && x.len > 0 && x.leaf.firstChild);
+    .filter((x) => Number.isFinite(x.start));
 
-  // Empty runs matter here: they are the only caret target inside a blank
-  // line, which is exactly where Enter leaves the user.
   if (!info.length) {
     focusEnd(el);
     return;
   }
 
   // A run starting exactly at the offset wins: that is where the browser puts
-  // the caret when you type, and it is the only way to land on a blank line.
+  // the caret when you type, and the empty-run variant is the only way to
+  // land on a blank line.
   let target = info.find((x) => x.start === offset && x.len === 0);
   if (!target) target = info.find((x) => x.start === offset);
   if (!target) {
@@ -604,10 +638,10 @@ export function setCaretOffset(el, offset) {
 }
 
 /**
- * Moves the caret out of any hidden marker and into the nearest visible text.
- * This prevents the caret from being "stuck" inside a display:none element,
- * which causes typed text to disappear into the marker instead of appearing
- * in the visible text flow.
+ * Moves the caret out of any hidden marker or zero-width glyph and into the
+ * nearest visible text. This prevents the caret from being "stuck" inside a
+ * display:none marker — where typed text vanishes into the marker — or inside
+ * a font-size:0 bullet span, where typed text is simply invisible.
  */
 export function moveCaretOutOfHiddenMarkers(el) {
   const sel = window.getSelection();
@@ -616,31 +650,31 @@ export function moveCaretOutOfHiddenMarkers(el) {
   const range = sel.getRangeAt(0);
   const startContainer = range.startContainer;
 
-  // Check if the caret is inside a hidden marker
-  const marker = startContainer.parentElement?.closest(".md-mark:not(.is-active):not(.is-blockmark):not(.is-touched)");
+  // Both "hidden homes" are caret traps: display:none markers and
+  // font-size:0 glyph spans (list bullets).
+  const HIDDEN_HOME =
+    '.md-mark:not(.is-active):not(.is-blockmark):not(.is-touched), .md-mark-swap';
+
+  const marker = startContainer.parentElement?.closest(HIDDEN_HOME) ?? null;
   if (!marker) return;
 
   // Find the nearest visible text node after the marker
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        // Skip text nodes inside hidden markers
-        if (node.parentElement?.closest(".md-mark:not(.is-active):not(.is-blockmark):not(.is-touched)")) {
-          return NodeFilter.FILTER_REJECT;
-        }
-        return NodeFilter.FILTER_ACCEPT;
-      }
-      return NodeFilter.FILTER_SKIP;
+      // Skip text nodes inside hidden markers and glyph spans
+      if (node.parentElement?.closest(HIDDEN_HOME)) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT;
     },
   });
 
-  // Start from the marker position
   walker.currentNode = marker;
 
-  // Look for the next visible text node
+  // Look for the next visible text node, stepping over <br> newlines: a caret
+  // escaping a trailing marker must land on the NEXT line, not before the br.
   let nextNode = walker.nextNode();
+  while (nextNode && nextNode.tagName === "BR") nextNode = walker.nextNode();
+
   if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
-    // Place caret at the start of the visible text
     const newRange = document.createRange();
     newRange.setStart(nextNode, 0);
     newRange.collapse(true);
@@ -650,6 +684,8 @@ export function moveCaretOutOfHiddenMarkers(el) {
     // If no visible text after, look before the marker
     walker.currentNode = marker;
     let prevNode = walker.previousNode();
+    while (prevNode && prevNode.tagName === "BR") prevNode = walker.previousNode();
+
     if (prevNode && prevNode.nodeType === Node.TEXT_NODE) {
       const newRange = document.createRange();
       newRange.setStart(prevNode, prevNode.length);
