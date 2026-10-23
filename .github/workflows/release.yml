@@ -19,6 +19,9 @@ jobs:
 
       - name: Generate release tag
         id: tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
           TODAY=$(date +%Y%m%d)
           echo "=== Debug Info ==="
@@ -54,16 +57,43 @@ jobs:
           fi
           echo "Today tags: $TODAY_TAGS"
 
-          if [ -z "$TODAY_TAGS" ]; then
-            NEXT_NUM="01"
-          else
+          # Releases created before edition tags existed are plain yyyyMMddNN.
+          # Count the ones from today that belong to this edition (matched via
+          # the release name) so the counter continues from them.
+          ED_NUM=""
+          if [ -n "$TAG_EDITION" ] && command -v gh >/dev/null 2>&1; then
+            while IFS=$'\t' read -r RTAG RNAME; do
+              case "$RTAG" in
+                "${TODAY}"[0-9][0-9])
+                  case "$RNAME" in
+                    *"(${EDITION} Edition)"*)
+                      RN="${RTAG#${TODAY}}"
+                      if [ -z "$ED_NUM" ] || [ "$((10#$RN))" -gt "$((10#$ED_NUM))" ]; then
+                        ED_NUM="$RN"
+                      fi
+                      ;;
+                  esac
+                  ;;
+              esac
+            done < <(gh release list --limit 200 --json tagName,name --jq '.[] | .tagName + "\t" + (.name // "")' 2>/dev/null)
+            if [ -n "$ED_NUM" ]; then
+              echo "Legacy ${EDITION} releases today: ${TODAY}${ED_NUM}"
+            fi
+          fi
+
+          MAX_NUM=0
+          if [ -n "$TODAY_TAGS" ]; then
             LAST_TODAY_TAG=$(echo "$TODAY_TAGS" | head -n1)
             LAST_NUM="${LAST_TODAY_TAG#${TODAY}}"
             if [ -n "$TAG_EDITION" ]; then
               LAST_NUM="${LAST_NUM%"-$TAG_EDITION"}"
             fi
-            NEXT_NUM=$(printf "%02d" $((10#$LAST_NUM + 1)))
+            MAX_NUM="$LAST_NUM"
           fi
+          if [ -n "$ED_NUM" ] && [ "$((10#$ED_NUM))" -gt "$((10#$MAX_NUM))" ]; then
+            MAX_NUM="$ED_NUM"
+          fi
+          NEXT_NUM=$(printf "%02d" $((10#$MAX_NUM + 1)))
 
           # Most recent tag overall (by tag date) for commit range
           LAST_TAG=$(git for-each-ref refs/tags --sort=refname --sort=-creatordate --format='%(refname:short)' | head -n1)
