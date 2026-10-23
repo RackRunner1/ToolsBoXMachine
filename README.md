@@ -3,7 +3,7 @@ A project by the ToolsBoXCompany.
 
 ---
 
-<img width="1496" height="890" alt="image" src="https://github.com/user-attachments/assets/08bd584a-009e-4ed2-a23c-aabbdc6419fe" />
+<img width="1505" height="901" alt="image" src="https://github.com/user-attachments/assets/caf5a63c-4f04-4d27-b017-65dd327b106b" />
 
 ---
 
