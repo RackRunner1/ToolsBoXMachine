@@ -295,7 +295,7 @@ function updateWordCount() {
 }
 
 function applyWordCountVisibility() {
-  elements.statusBar.style.display = showWordCount ? "flex" : "none";
+  elements.statusBar.style.display = showWordCount ? "" : "none";
 }
 
 function handleExternalSync() {
