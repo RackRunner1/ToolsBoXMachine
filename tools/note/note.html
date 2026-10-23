@@ -52,6 +52,7 @@
         }
         .notes-main {
           border-radius: 0.875rem;
+          padding-bottom: 2.3rem;
         }
         .sidebar-header {
           padding: 0.85rem;
@@ -81,9 +82,9 @@
           font-size: 0.9rem;
         }
         .editor-status {
-          bottom: 0.75rem;
+          bottom: 0.55rem;
           right: 0.75rem;
-          padding: 0.35rem 0.75rem;
+          padding: 0.3rem 0.7rem;
           font-size: 0.7rem;
         }
       }
@@ -99,6 +100,9 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         width: 100%;
         min-width: 0;
+        position: relative;
+        /* Reserved strip below the editor so the floating word count pill never covers text */
+        padding-bottom: 2.6rem;
       }
 
       .notes-main-header {
@@ -112,7 +116,6 @@
       }
 
       #editor-view {
-        position: relative;
         min-width: 0;
         min-height: 0;
       }
@@ -182,8 +185,9 @@
       /* Floating word count pill */
       .editor-status {
         position: absolute;
-        bottom: 1rem;
-        right: 1.5rem;
+        bottom: 0.7rem;
+        right: 1.25rem;
+        z-index: 5;
         display: inline-flex;
         align-items: center;
         padding: 0.4rem 0.95rem;
@@ -936,8 +940,10 @@
             class="note-content-input"
             placeholder="Start writing..."
           ></textarea>
-          <div class="editor-status" id="editor-status"></div>
         </div>
+
+        <!-- Floating word count pill (anchored to the notes-main card) -->
+        <div class="editor-status" id="editor-status"></div>
       </div>
 
     </div>

@@ -210,6 +210,7 @@ function selectNote(id) {
   elements.titleInput.value = note.title;
   setContent(note.content);
   updateWordCount();
+  applyWordCountVisibility();
   const dateStr = new Date(note.modifiedAt).toLocaleString();
   elements.dateDisplay.textContent = dateStr;
 
@@ -228,6 +229,7 @@ function showEditorEmpty() {
   activeNoteId = null;
   elements.editorEmpty.style.display = "flex";
   elements.editorView.style.display = "none";
+  applyWordCountVisibility();
 }
 
 function createNote() {
@@ -295,7 +297,7 @@ function updateWordCount() {
 }
 
 function applyWordCountVisibility() {
-  elements.statusBar.style.display = showWordCount ? "" : "none";
+  elements.statusBar.style.display = activeNoteId && showWordCount ? "" : "none";
 }
 
 function handleExternalSync() {
