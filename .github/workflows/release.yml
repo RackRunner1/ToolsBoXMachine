@@ -26,24 +26,6 @@ jobs:
           echo "All tags:"
           git tag -l
 
-          # Tags from today for sequential numbering
-          TODAY_TAGS=$(git tag -l "${TODAY}*" | sort -r)
-          echo "Today tags: $TODAY_TAGS"
-
-          if [ -z "$TODAY_TAGS" ]; then
-            NEXT_NUM="01"
-          else
-            LAST_NUM=$(echo "$TODAY_TAGS" | head -n1 | sed "s/^${TODAY}//")
-            NEXT_NUM=$(printf "%02d" $((10#$LAST_NUM + 1)))
-          fi
-
-          # Most recent tag overall for commit range
-          LAST_TAG=$(git tag -l | sort -r | head -n1)
-          echo "Last tag: $LAST_TAG"
-
-          TAG="${TODAY}${NEXT_NUM}"
-          echo "New tag: $TAG"
-
           # Edition name from edition.txt (falls back to empty if missing)
           EDITION=""
           if [ -f edition.txt ]; then
@@ -51,8 +33,53 @@ jobs:
           fi
           echo "Edition: $EDITION"
 
+          # Lowercase, tag-safe copy of the edition, used as unique tag suffix
+          TAG_EDITION=""
           if [ -n "$EDITION" ]; then
-            RELEASE_NAME="${TAG} (${EDITION} Edition)"
+            TAG_EDITION=$(printf '%s' "$EDITION" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^[-.]+//; s/[-.]+$//')
+          fi
+          echo "Tag edition suffix: $TAG_EDITION"
+
+          # With an edition: today's tags of THIS edition (yyyyMMddNN-edition).
+          # The counter restarts at 01 for each edition each day.
+          if [ -n "$TAG_EDITION" ]; then
+            TODAY_TAGS=$(git tag -l | while IFS= read -r t; do
+              case "$t" in
+                "${TODAY}"[0-9][0-9]-"$TAG_EDITION") printf '%s\n' "$t" ;;
+              esac
+            done | sort -r)
+          else
+            # Without an edition: shared counter for the day (legacy yyyyMMddNN)
+            TODAY_TAGS=$(git tag -l "${TODAY}*" | grep -E "^${TODAY}[0-9]{2}$" | sort -r || true)
+          fi
+          echo "Today tags: $TODAY_TAGS"
+
+          if [ -z "$TODAY_TAGS" ]; then
+            NEXT_NUM="01"
+          else
+            LAST_TODAY_TAG=$(echo "$TODAY_TAGS" | head -n1)
+            LAST_NUM="${LAST_TODAY_TAG#${TODAY}}"
+            if [ -n "$TAG_EDITION" ]; then
+              LAST_NUM="${LAST_NUM%"-$TAG_EDITION"}"
+            fi
+            NEXT_NUM=$(printf "%02d" $((10#$LAST_NUM + 1)))
+          fi
+
+          # Most recent tag overall (by tag date) for commit range
+          LAST_TAG=$(git for-each-ref refs/tags --sort=refname --sort=-creatordate --format='%(refname:short)' | head -n1)
+          echo "Last tag: $LAST_TAG"
+
+          TAG_NUM="${TODAY}${NEXT_NUM}"
+          if [ -n "$TAG_EDITION" ]; then
+            TAG="${TAG_NUM}-${TAG_EDITION}"
+          else
+            TAG="$TAG_NUM"
+          fi
+          echo "New tag: $TAG"
+
+          # Release name keeps the yyyyMMddNN + edition styling
+          if [ -n "$EDITION" ]; then
+            RELEASE_NAME="${TAG_NUM} (${EDITION} Edition)"
           else
             RELEASE_NAME="$TAG"
           fi
