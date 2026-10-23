@@ -172,6 +172,19 @@
         color: #475569;
       }
 
+      /* Editor status bar */
+      .editor-status {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 0.6rem 1.5rem 0.9rem;
+        font-size: 0.8rem;
+        color: #475569;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        user-select: none;
+        white-space: nowrap;
+      }
+
       .editor-empty {
         flex: 1;
         display: flex;
@@ -909,6 +922,7 @@
             class="note-content-input"
             placeholder="Start writing..."
           ></textarea>
+          <div class="editor-status" id="editor-status"></div>
         </div>
       </div>
 
@@ -943,6 +957,16 @@
             </div>
             <label class="toggle-switch">
               <input type="checkbox" id="setting-skip-delete-confirm" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-card" style="margin-top: 0.75rem;">
+            <div class="setting-card-info">
+              <div class="setting-card-title">Show word count</div>
+              <div class="setting-card-desc">Display word, character and reading time stats below the editor</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-show-word-count" />
               <span class="toggle-slider"></span>
             </label>
           </div>

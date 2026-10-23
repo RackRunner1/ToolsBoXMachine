@@ -5,6 +5,7 @@ let tooltipResetTimer = null;
 const STORAGE_KEY = "tbxm_notes";
 const MODAL_KEY = "tbxm_notes_modal_dismissed";
 const SKIP_DELETE_KEY = "tbxm_notes_skip_delete_confirm";
+const WORD_COUNT_KEY = "tbxm_notes_show_word_count";
 
 const elements = {
   editorEmpty: document.getElementById("editor-empty"),
@@ -27,6 +28,8 @@ const elements = {
   settingsModal: document.getElementById("settings-modal"),
   settingsCloseBtn: document.getElementById("settings-close-btn"),
   skipDeleteConfirm: document.getElementById("setting-skip-delete-confirm"),
+  statusBar: document.getElementById("editor-status"),
+  wordCountToggle: document.getElementById("setting-show-word-count"),
   deleteModal: document.getElementById("delete-modal"),
   deleteModalCancel: document.getElementById("delete-modal-cancel"),
   deleteModalConfirm: document.getElementById("delete-modal-confirm"),
@@ -37,6 +40,7 @@ let activeNoteId = null;
 let saveTimeout = null;
 let contextTargetNoteId = null;
 let skipDeleteConfirm = localStorage.getItem(SKIP_DELETE_KEY) === "true";
+let showWordCount = localStorage.getItem(WORD_COUNT_KEY) !== "false";
 
 function getContent() {
   return elements.contentInput.value;
@@ -53,6 +57,9 @@ function init() {
   setupEventListeners();
   selectFirstNote();
   elements.skipDeleteConfirm.checked = skipDeleteConfirm;
+  elements.wordCountToggle.checked = showWordCount;
+  applyWordCountVisibility();
+  updateWordCount();
   setupStorageModal();
 }
 
@@ -202,6 +209,7 @@ function selectNote(id) {
 
   elements.titleInput.value = note.title;
   setContent(note.content);
+  updateWordCount();
   const dateStr = new Date(note.modifiedAt).toLocaleString();
   elements.dateDisplay.textContent = dateStr;
 
@@ -277,6 +285,19 @@ function scheduleAutoSave() {
   }, 400);
 }
 
+/** Updates the word/character/reading-time stats shown under the editor. */
+function updateWordCount() {
+  const text = getContent();
+  const words = (text.match(/\S+/g) || []).length;
+  const minutes = words > 0 ? Math.max(1, Math.round(words / 200)) : 0;
+  elements.statusBar.textContent =
+    `${words.toLocaleString()} words · ${text.length.toLocaleString()} characters · ${minutes} min read`;
+}
+
+function applyWordCountVisibility() {
+  elements.statusBar.style.display = showWordCount ? "flex" : "none";
+}
+
 function handleExternalSync() {
   const hadPendingSave = saveTimeout !== null;
 
@@ -299,6 +320,7 @@ function handleExternalSync() {
       ) {
         elements.titleInput.value = activeNote.title;
         setContent(activeNote.content);
+        updateWordCount();
         elements.dateDisplay.textContent = new Date(activeNote.modifiedAt).toLocaleString();
       }
     }
@@ -351,6 +373,7 @@ function setupEventListeners() {
 
   elements.titleInput.addEventListener("input", scheduleAutoSave);
   elements.contentInput.addEventListener("input", scheduleAutoSave);
+  elements.contentInput.addEventListener("input", updateWordCount);
 
   elements.titleInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === "Tab") {
@@ -461,6 +484,12 @@ function setupEventListeners() {
   elements.skipDeleteConfirm.addEventListener("change", () => {
     skipDeleteConfirm = elements.skipDeleteConfirm.checked;
     localStorage.setItem(SKIP_DELETE_KEY, skipDeleteConfirm);
+  });
+
+  elements.wordCountToggle.addEventListener("change", () => {
+    showWordCount = elements.wordCountToggle.checked;
+    localStorage.setItem(WORD_COUNT_KEY, showWordCount);
+    applyWordCountVisibility();
   });
 
   window.addEventListener("storage", (e) => {
