@@ -52,7 +52,6 @@
         }
         .notes-main {
           border-radius: 0.875rem;
-          padding-bottom: 2.3rem;
         }
         .sidebar-header {
           padding: 0.85rem;
@@ -80,6 +79,7 @@
         .note-content-input {
           padding: 1rem;
           font-size: 0.9rem;
+          padding-bottom: 2.6rem;
         }
         .editor-status {
           bottom: 0.55rem;
@@ -101,8 +101,6 @@
         width: 100%;
         min-width: 0;
         position: relative;
-        /* Reserved strip below the editor so the floating word count pill never covers text */
-        padding-bottom: 2.6rem;
       }
 
       .notes-main-header {
@@ -176,6 +174,8 @@
         resize: none;
         font-family: inherit;
         overflow-y: auto;
+        /* Permanent fictional space below content: lets the last line rise above the pill */
+        padding-bottom: 3.25rem;
       }
 
       .note-content-input::placeholder {
