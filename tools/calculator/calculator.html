@@ -83,25 +83,7 @@
       }
 
       .operator:hover {
-        background: #3b82f6;
-      }
-
-      .equals {
-        background: #10b981;
-        color: white;
-      }
-
-      .equals:hover {
-        background: #059669;
-      }
-
-      .clear {
-        background: #ef4444;
-        color: white;
-      }
-
-      .clear:hover {
-        background: #dc2626;
+        background: #4f83e8;
       }
 
       @media (max-width: 480px) {
@@ -173,9 +155,9 @@
       <input type="text" id="display" readonly value="0" />
 
       <div class="buttons-grid">
-        <button class="calc-btn clear" id="clear">AC</button>
-        <button class="calc-btn clear" id="clear-entry">C</button>
         <button class="calc-btn" id="backspace">⌫</button>
+        <button class="calc-btn" id="clear">AC</button>
+        <button class="calc-btn" id="clear-entry">C</button>
         <button class="calc-btn operator" id="divide">÷</button>
 
         <button class="calc-btn" id="seven">7</button>
@@ -193,9 +175,9 @@
         <button class="calc-btn" id="three">3</button>
         <button class="calc-btn operator" id="add">+</button>
 
-        <button class="calc-btn" id="decimal">.</button>
         <button class="calc-btn" id="zero" style="grid-column: span 2">0</button>
-        <button class="calc-btn equals" id="equals">=</button>
+        <button class="calc-btn" id="decimal">.</button>
+        <button class="calc-btn operator" id="equals">=</button>
       </div>
     </div>
 
