@@ -168,11 +168,6 @@ function sortedFolders() {
   );
 }
 
-function getActiveFolderId() {
-  const note = notes.find((n) => n.id === activeNoteId);
-  return note && note.folderId ? note.folderId : null;
-}
-
 function childFolders(parentId) {
   return sortedFolders().filter((f) => (f.parentId || null) === (parentId || null));
 }
@@ -425,10 +420,9 @@ function showEditorEmpty() {
   applyWordCountVisibility();
 }
 
-/** Creates a note. `folderId` undefined means "same folder as the active note". */
-function createNote(folderId) {
-  const requested = folderId === undefined ? getActiveFolderId() : folderId;
-  const targetFolderId = getFolder(requested) ? requested : null;
+/** Creates a note in `folderId`, or at the top level when no folder is given. */
+function createNote(folderId = null) {
+  const targetFolderId = getFolder(folderId) ? folderId : null;
 
   saveCurrentNote();
   const now = Date.now();
