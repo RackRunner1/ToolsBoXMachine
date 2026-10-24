@@ -57,30 +57,6 @@ jobs:
           fi
           echo "Today tags: $TODAY_TAGS"
 
-          # Releases created before edition tags existed are plain yyyyMMddNN.
-          # Count the ones from today that belong to this edition (matched via
-          # the release name) so the counter continues from them.
-          ED_NUM=""
-          if [ -n "$TAG_EDITION" ] && command -v gh >/dev/null 2>&1; then
-            while IFS=$'\t' read -r RTAG RNAME; do
-              case "$RTAG" in
-                "${TODAY}"[0-9][0-9])
-                  case "$RNAME" in
-                    *"(${EDITION} Edition)"*)
-                      RN="${RTAG#${TODAY}}"
-                      if [ -z "$ED_NUM" ] || [ "$((10#$RN))" -gt "$((10#$ED_NUM))" ]; then
-                        ED_NUM="$RN"
-                      fi
-                      ;;
-                  esac
-                  ;;
-              esac
-            done < <(gh release list --limit 200 --json tagName,name --jq '.[] | .tagName + "\t" + (.name // "")' 2>/dev/null)
-            if [ -n "$ED_NUM" ]; then
-              echo "Legacy ${EDITION} releases today: ${TODAY}${ED_NUM}"
-            fi
-          fi
-
           MAX_NUM=0
           if [ -n "$TODAY_TAGS" ]; then
             LAST_TODAY_TAG=$(echo "$TODAY_TAGS" | head -n1)
@@ -89,9 +65,6 @@ jobs:
               LAST_NUM="${LAST_NUM%"-$TAG_EDITION"}"
             fi
             MAX_NUM="$LAST_NUM"
-          fi
-          if [ -n "$ED_NUM" ] && [ "$((10#$ED_NUM))" -gt "$((10#$MAX_NUM))" ]; then
-            MAX_NUM="$ED_NUM"
           fi
           NEXT_NUM=$(printf "%02d" $((10#$MAX_NUM + 1)))
 
