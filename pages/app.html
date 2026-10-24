@@ -65,6 +65,21 @@
           grid-template-columns: 1fr;
         }
       }
+      /* On phones, stack the copy button under the command and let the
+        command wrap, so the block always fits the screen width instead of
+        widening the whole card (and the page). */
+      @media (max-width: 480px) {
+        .code-block {
+          flex-wrap: wrap;
+        }
+        .code-block code {
+          white-space: normal;
+          word-break: break-word;
+        }
+        .code-block button {
+          width: 100%;
+        }
+      }
       .feature-card {
         background: rgba(30, 41, 59, 0.5);
         border: 1px solid var(--card-border);
