@@ -28,6 +28,7 @@ const elements = {
   contextMenu: document.getElementById("context-menu"),
   ctxCreate: document.getElementById("ctx-create"),
   ctxNewFolder: document.getElementById("ctx-new-folder"),
+  ctxNewSubfolder: document.getElementById("ctx-new-subfolder"),
   ctxDuplicate: document.getElementById("ctx-duplicate"),
   ctxMoveSection: document.getElementById("ctx-move-section"),
   ctxRename: document.getElementById("ctx-rename"),
@@ -51,6 +52,7 @@ let activeNoteId = null;
 let saveTimeout = null;
 let contextTarget = null;
 let draggedNoteId = null;
+let draggedFolderId = null;
 let dropTarget = null;
 let renamingFolderId = null;
 let skipDeleteConfirm = localStorage.getItem(SKIP_DELETE_KEY) === "true";
@@ -132,6 +134,20 @@ function loadFolders() {
   }
 
   const folderIds = new Set(folders.map((f) => f.id));
+  folders.forEach((folder) => {
+    if (!folder.parentId || !folderIds.has(folder.parentId)) folder.parentId = null;
+  });
+  folders.forEach((folder) => {
+    let cur = folder;
+    for (let i = 0; cur && cur.parentId && i <= folders.length; i++) {
+      cur = folders.find((f) => f.id === cur.parentId);
+      if (cur === folder) {
+        folder.parentId = null;
+        break;
+      }
+    }
+  });
+
   notes.forEach((note) => {
     if (note.folderId && !folderIds.has(note.folderId)) note.folderId = null;
   });
@@ -157,17 +173,51 @@ function getActiveFolderId() {
   return note && note.folderId ? note.folderId : null;
 }
 
-/** Expands the folder containing the note so it is visible in the sidebar. */
-function revealNote(note) {
-  const folder = getFolder(note.folderId);
-  if (folder && folder.collapsed) {
-    folder.collapsed = false;
-    saveFoldersToStorage();
-  }
+function childFolders(parentId) {
+  return sortedFolders().filter((f) => (f.parentId || null) === (parentId || null));
 }
 
-function uniqueFolderName(base) {
-  const names = new Set(folders.map((f) => f.name));
+/** True when `folderId` is `ancestorId` itself or sits somewhere below it. */
+function isWithin(folderId, ancestorId) {
+  let cur = getFolder(folderId);
+  for (let i = 0; cur && i <= folders.length; i++) {
+    if (cur.id === ancestorId) return true;
+    cur = getFolder(cur.parentId);
+  }
+  return false;
+}
+
+function folderPath(folder) {
+  const parts = [];
+  let cur = folder;
+  for (let i = 0; cur && i <= folders.length; i++) {
+    parts.unshift(cur.name);
+    cur = getFolder(cur.parentId);
+  }
+  return parts.join(" / ");
+}
+
+/** Expands every folder above `folderId` so it is visible in the sidebar. */
+function revealFolderChain(folderId) {
+  let changed = false;
+  let cur = getFolder(folderId);
+  for (let i = 0; cur && i <= folders.length; i++) {
+    if (cur.collapsed) {
+      cur.collapsed = false;
+      changed = true;
+    }
+    cur = getFolder(cur.parentId);
+  }
+  if (changed) saveFoldersToStorage();
+}
+
+/** Expands the folders containing the note so it is visible in the sidebar. */
+function revealNote(note) {
+  revealFolderChain(note.folderId);
+}
+
+function uniqueFolderName(base, parentId) {
+  const names = new Set(childFolders(parentId).map((f) => f.name));
   if (!names.has(base)) return base;
   let i = 2;
   while (names.has(`${base} ${i}`)) i++;
@@ -194,7 +244,7 @@ function renderList() {
     return;
   }
 
-  sortedFolders().forEach((folder) => list.appendChild(createFolderGroup(folder)));
+  childFolders(null).forEach((folder) => list.appendChild(createFolderGroup(folder)));
 
   const rootGroup = document.createElement("div");
   rootGroup.className = "root-group";
@@ -211,18 +261,20 @@ function createFolderGroup(folder) {
   group.className = `folder-group${folder.collapsed ? " collapsed" : ""}`;
   group.dataset.folderId = folder.id;
 
-  const children = notes.filter((n) => n.folderId === folder.id);
+  const directNotes = notes.filter((n) => n.folderId === folder.id);
+  const subfolders = childFolders(folder.id);
 
   const header = document.createElement("div");
   header.className = "folder-header";
   header.setAttribute("role", "button");
   header.setAttribute("aria-expanded", String(!folder.collapsed));
   header.tabIndex = 0;
+  header.draggable = true;
   header.innerHTML = `
     <span class="folder-chevron">${CHEVRON_ICON}</span>
     <span class="folder-icon">${FOLDER_ICON}</span>
     <span class="folder-name">${escapeHTML(folder.name)}</span>
-    <span class="folder-count">${children.length}</span>
+    <span class="folder-count">${directNotes.length}</span>
   `;
 
   header.addEventListener("click", () => toggleFolder(folder.id));
@@ -232,13 +284,21 @@ function createFolderGroup(folder) {
       toggleFolder(folder.id);
     }
   });
+  header.addEventListener("dragstart", (e) => {
+    draggedFolderId = folder.id;
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", folder.id);
+    header.classList.add("dragging");
+  });
+  header.addEventListener("dragend", endDrag);
 
   const body = document.createElement("div");
   body.className = "folder-children";
-  if (children.length === 0) {
+  if (subfolders.length === 0 && directNotes.length === 0) {
     body.innerHTML = `<div class="folder-empty">Empty folder</div>`;
   } else {
-    children.forEach((note) => body.appendChild(createNoteItem(note)));
+    subfolders.forEach((sub) => body.appendChild(createFolderGroup(sub)));
+    directNotes.forEach((note) => body.appendChild(createNoteItem(note)));
   }
 
   group.append(header, body);
@@ -387,14 +447,18 @@ function createNote(folderId) {
   elements.titleInput.focus();
 }
 
-function createFolder() {
+/** Creates a folder at the top level, or inside `parentId` when given. */
+function createFolder(parentId = null) {
+  const parent = getFolder(parentId);
   const folder = {
     id: crypto.randomUUID ? crypto.randomUUID() : `folder_${Date.now()}`,
-    name: uniqueFolderName("New folder"),
+    name: uniqueFolderName("New folder", parent ? parent.id : null),
+    parentId: parent ? parent.id : null,
     collapsed: false,
     createdAt: Date.now(),
   };
   folders.push(folder);
+  if (parent) revealFolderChain(parent.id);
   saveFoldersToStorage();
   renderList();
   startRename(folder.id);
@@ -458,17 +522,21 @@ function startRename(folderId) {
 function requestDeleteFolder(folderId) {
   const folder = getFolder(folderId);
   if (!folder) return;
-  const count = notes.filter((n) => n.folderId === folderId).length;
+  const noteCount = notes.filter((n) => n.folderId === folderId).length;
+  const subCount = folders.filter((f) => f.parentId === folderId).length;
   const doDelete = () => deleteFolder(folderId);
 
-  if (count === 0) {
+  if (noteCount === 0 && subCount === 0) {
     doDelete();
     return;
   }
 
+  const parts = [];
+  if (noteCount > 0) parts.push(`${noteCount} ${noteCount === 1 ? "note" : "notes"}`);
+  if (subCount > 0) parts.push(`${subCount} ${subCount === 1 ? "subfolder" : "subfolders"}`);
   showDeleteModal(doDelete, {
     title: "Delete folder",
-    message: `Delete "${folder.name}"? Its ${count} ${count === 1 ? "note" : "notes"} will be kept and moved out of the folder.`,
+    message: `Delete "${folder.name}"? Its ${parts.join(" and ")} will be kept and moved up one level.`,
   });
 }
 
@@ -483,8 +551,15 @@ function flushPendingSave() {
 function deleteFolder(folderId) {
   flushPendingSave();
 
+  const folder = getFolder(folderId);
+  if (!folder) return;
+  const parentId = folder.parentId || null;
+
   notes.forEach((n) => {
-    if (n.folderId === folderId) n.folderId = null;
+    if (n.folderId === folderId) n.folderId = parentId;
+  });
+  folders.forEach((f) => {
+    if (f.parentId === folderId) f.parentId = parentId;
   });
   folders = folders.filter((f) => f.id !== folderId);
   saveNotesToStorage();
@@ -513,6 +588,31 @@ function moveNoteToFolder(noteId, folderId) {
   showNotification(folder ? `Moved to "${folder.name}"` : "Moved out of folder");
 }
 
+/** Moves a folder under `parentId` (or to the top level when null). */
+function moveFolder(folderId, parentId) {
+  const folder = getFolder(folderId);
+  if (!folder) return;
+  const targetId = getFolder(parentId) ? parentId : null;
+
+  if (targetId && isWithin(targetId, folderId)) {
+    showNotification("A folder can't be moved into itself");
+    renderList();
+    return;
+  }
+  if ((folder.parentId || null) === targetId) {
+    renderList();
+    return;
+  }
+
+  folder.parentId = targetId;
+  revealFolderChain(targetId);
+  saveFoldersToStorage();
+  renderList();
+
+  const target = getFolder(targetId);
+  showNotification(target ? `Moved to "${target.name}"` : "Moved to top level");
+}
+
 function setDropTarget(el) {
   if (dropTarget === el) return;
   if (dropTarget) dropTarget.classList.remove("drop-target");
@@ -522,8 +622,9 @@ function setDropTarget(el) {
 
 function endDrag() {
   draggedNoteId = null;
+  draggedFolderId = null;
   setDropTarget(null);
-  document.querySelectorAll(".note-item.dragging").forEach((el) => el.classList.remove("dragging"));
+  document.querySelectorAll(".dragging").forEach((el) => el.classList.remove("dragging"));
 }
 
 function saveCurrentNote(autoSave = false) {
@@ -641,7 +742,7 @@ function showNotification(message) {
 
 function setupEventListeners() {
   elements.createBtn.addEventListener("click", () => createNote());
-  elements.newFolderBtn.addEventListener("click", createFolder);
+  elements.newFolderBtn.addEventListener("click", () => createFolder());
   elements.deleteBtn.addEventListener("click", deleteActiveNote);
 
   document.addEventListener("keydown", (e) => {
@@ -675,10 +776,15 @@ function setupEventListeners() {
   });
 
   elements.notesList.addEventListener("dragover", (e) => {
-    if (!draggedNoteId) return;
+    if (!draggedNoteId && !draggedFolderId) return;
+    const group = e.target.closest(".folder-group");
+    const groupId = group ? group.dataset.folderId : null;
+    if (draggedFolderId && groupId && isWithin(groupId, draggedFolderId)) {
+      setDropTarget(null);
+      return;
+    }
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    const group = e.target.closest(".folder-group");
     setDropTarget(group || elements.notesList.querySelector(".root-group"));
   });
 
@@ -687,12 +793,18 @@ function setupEventListeners() {
   });
 
   elements.notesList.addEventListener("drop", (e) => {
-    if (!draggedNoteId) return;
+    if (!draggedNoteId && !draggedFolderId) return;
     e.preventDefault();
     const group = e.target.closest(".folder-group");
+    const groupId = group ? group.dataset.folderId : null;
     const noteId = draggedNoteId;
+    const folderId = draggedFolderId;
     endDrag();
-    moveNoteToFolder(noteId, group ? group.dataset.folderId : null);
+    if (folderId) {
+      moveFolder(folderId, groupId);
+    } else {
+      moveNoteToFolder(noteId, groupId);
+    }
   });
 
   elements.notesList.addEventListener("contextmenu", (e) => {
@@ -728,6 +840,12 @@ function setupEventListeners() {
     createFolder();
   });
 
+  elements.ctxNewSubfolder.addEventListener("click", () => {
+    const parentId = contextTarget && contextTarget.type === "folder" ? contextTarget.id : null;
+    hideContextMenu();
+    createFolder(parentId);
+  });
+
   elements.ctxRename.addEventListener("click", () => {
     if (!contextTarget || contextTarget.type !== "folder") return;
     const folderId = contextTarget.id;
@@ -761,10 +879,15 @@ function setupEventListeners() {
 
   elements.ctxMoveSection.addEventListener("click", (e) => {
     const item = e.target.closest("[data-folder-id]");
-    if (!item || !contextTarget || contextTarget.type !== "note") return;
-    const noteId = contextTarget.id;
+    if (!item || !contextTarget) return;
+    const target = contextTarget;
+    const destinationId = item.dataset.folderId || null;
     hideContextMenu();
-    moveNoteToFolder(noteId, item.dataset.folderId || null);
+    if (target.type === "note") {
+      moveNoteToFolder(target.id, destinationId);
+    } else if (target.type === "folder") {
+      moveFolder(target.id, destinationId);
+    }
   });
 
   elements.ctxDelete.addEventListener("click", () => {
@@ -878,21 +1001,33 @@ function hideDeleteModal() {
   deleteModalCallback = null;
 }
 
-function renderMoveSection(noteId) {
+function renderMoveSection(target) {
   const section = elements.ctxMoveSection;
-  const note = noteId ? notes.find((n) => n.id === noteId) : null;
+  const note = target && target.type === "note" ? notes.find((n) => n.id === target.id) : null;
+  const folder = target && target.type === "folder" ? getFolder(target.id) : null;
 
-  if (!note || folders.length === 0) {
+  if ((!note && !folder) || folders.length === 0) {
     section.style.display = "none";
     section.innerHTML = "";
     return;
   }
 
+  const currentParentId = note ? note.folderId || null : folder.parentId || null;
   const options = [];
-  if (note.folderId) options.push({ id: "", label: "No folder" });
-  sortedFolders()
-    .filter((f) => f.id !== note.folderId)
-    .forEach((f) => options.push({ id: f.id, label: f.name }));
+  if (currentParentId) options.push({ id: "", label: folder ? "Top level" : "No folder" });
+  [...folders]
+    .filter((f) => f.id !== currentParentId)
+    .filter((f) => !folder || !isWithin(f.id, folder.id))
+    .sort((a, b) =>
+      folderPath(a).localeCompare(folderPath(b), undefined, { numeric: true, sensitivity: "base" })
+    )
+    .forEach((f) => options.push({ id: f.id, label: folderPath(f) }));
+
+  if (options.length === 0) {
+    section.style.display = "none";
+    section.innerHTML = "";
+    return;
+  }
 
   section.innerHTML =
     `<div class="context-menu-label">Move to</div>` +
@@ -909,10 +1044,11 @@ function showContextMenu(x, y, type) {
 
   elements.ctxCreate.style.display = isNote ? "none" : "flex";
   elements.ctxNewFolder.style.display = isRoot ? "flex" : "none";
+  elements.ctxNewSubfolder.style.display = isFolder ? "flex" : "none";
   elements.ctxDuplicate.style.display = isNote ? "flex" : "none";
   elements.ctxRename.style.display = isFolder ? "flex" : "none";
   elements.ctxDelete.style.display = isNote || isFolder ? "flex" : "none";
-  renderMoveSection(isNote ? contextTarget.id : null);
+  renderMoveSection(isRoot ? null : contextTarget);
 
   const menu = elements.contextMenu;
   menu.classList.add("show");
