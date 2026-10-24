@@ -826,6 +826,10 @@ input[type="range"] {
   padding: 0 2rem;
   line-height: 1.6;
   flex: 1;
+  /* Flex item of body: allow shrinking below its content's min-width so
+     wide children (nowrap code blocks…) clamp to the viewport instead of
+     pushing the whole card wider than the screen on mobile. */
+  min-width: 0;
 }
 
 .content-container h1 {
