@@ -198,12 +198,6 @@ function renderList() {
 
   const rootGroup = document.createElement("div");
   rootGroup.className = "root-group";
-  if (folders.length > 0) {
-    const label = document.createElement("div");
-    label.className = "root-label";
-    label.textContent = "Unfiled";
-    rootGroup.appendChild(label);
-  }
   notes
     .filter((n) => !n.folderId)
     .forEach((note) => rootGroup.appendChild(createNoteItem(note)));
@@ -474,7 +468,7 @@ function requestDeleteFolder(folderId) {
 
   showDeleteModal(doDelete, {
     title: "Delete folder",
-    message: `Delete "${folder.name}"? Its ${count} ${count === 1 ? "note" : "notes"} will be moved to Unfiled. The notes themselves are kept.`,
+    message: `Delete "${folder.name}"? Its ${count} ${count === 1 ? "note" : "notes"} will be kept and moved out of the folder.`,
   });
 }
 
@@ -516,7 +510,7 @@ function moveNoteToFolder(noteId, folderId) {
   renderList();
 
   const folder = getFolder(targetId);
-  showNotification(folder ? `Moved to "${folder.name}"` : "Moved to Unfiled");
+  showNotification(folder ? `Moved to "${folder.name}"` : "Moved out of folder");
 }
 
 function setDropTarget(el) {
@@ -895,7 +889,7 @@ function renderMoveSection(noteId) {
   }
 
   const options = [];
-  if (note.folderId) options.push({ id: "", label: "Unfiled" });
+  if (note.folderId) options.push({ id: "", label: "No folder" });
   sortedFolders()
     .filter((f) => f.id !== note.folderId)
     .forEach((f) => options.push({ id: f.id, label: f.name }));
