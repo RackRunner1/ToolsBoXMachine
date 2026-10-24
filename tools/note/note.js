@@ -7,6 +7,7 @@ const FOLDERS_KEY = "tbxm_note_folders";
 const MODAL_KEY = "tbxm_notes_modal_dismissed";
 const SKIP_DELETE_KEY = "tbxm_notes_skip_delete_confirm";
 const WORD_COUNT_KEY = "tbxm_notes_show_word_count";
+const FOLDERS_ENABLED_KEY = "tbxm_notes_folders_enabled";
 
 const FOLDER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>`;
 const CHEVRON_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
@@ -39,6 +40,7 @@ const elements = {
   skipDeleteConfirm: document.getElementById("setting-skip-delete-confirm"),
   statusBar: document.getElementById("editor-status"),
   wordCountToggle: document.getElementById("setting-show-word-count"),
+  foldersToggle: document.getElementById("setting-enable-folders"),
   deleteModal: document.getElementById("delete-modal"),
   deleteModalTitle: document.getElementById("delete-modal-title"),
   deleteModalMessage: document.getElementById("delete-modal-message"),
@@ -57,6 +59,7 @@ let dropTarget = null;
 let renamingFolderId = null;
 let skipDeleteConfirm = localStorage.getItem(SKIP_DELETE_KEY) === "true";
 let showWordCount = localStorage.getItem(WORD_COUNT_KEY) !== "false";
+let foldersEnabled = localStorage.getItem(FOLDERS_ENABLED_KEY) !== "false";
 
 function getContent() {
   return elements.contentInput.value;
@@ -75,6 +78,8 @@ function init() {
   selectFirstNote();
   elements.skipDeleteConfirm.checked = skipDeleteConfirm;
   elements.wordCountToggle.checked = showWordCount;
+  elements.foldersToggle.checked = foldersEnabled;
+  applyFoldersState();
   applyWordCountVisibility();
   updateWordCount();
   setupStorageModal();
@@ -219,6 +224,13 @@ function uniqueFolderName(base, parentId) {
   return `${base} ${i}`;
 }
 
+/** Shows or hides the folder UI according to the setting, then re-renders the sidebar. */
+function applyFoldersState() {
+  elements.newFolderBtn.style.display = foldersEnabled ? "" : "none";
+  renamingFolderId = null;
+  renderList();
+}
+
 function renderList() {
   if (renamingFolderId) return;
 
@@ -226,7 +238,7 @@ function renderList() {
   const scrollTop = list.scrollTop;
   list.innerHTML = "";
 
-  if (notes.length === 0 && folders.length === 0) {
+  if (notes.length === 0 && (!foldersEnabled || folders.length === 0)) {
     list.innerHTML = `
       <div class="sidebar-empty">
         <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -239,12 +251,14 @@ function renderList() {
     return;
   }
 
-  childFolders(null).forEach((folder) => list.appendChild(createFolderGroup(folder)));
+  if (foldersEnabled) {
+    childFolders(null).forEach((folder) => list.appendChild(createFolderGroup(folder)));
+  }
 
   const rootGroup = document.createElement("div");
   rootGroup.className = "root-group";
   notes
-    .filter((n) => !n.folderId)
+    .filter((n) => !foldersEnabled || !n.folderId)
     .forEach((note) => rootGroup.appendChild(createNoteItem(note)));
   list.appendChild(rootGroup);
 
@@ -443,6 +457,7 @@ function createNote(folderId = null) {
 
 /** Creates a folder at the top level, or inside `parentId` when given. */
 function createFolder(parentId = null) {
+  if (!foldersEnabled) return;
   const parent = getFolder(parentId);
   const folder = {
     id: crypto.randomUUID ? crypto.randomUUID() : `folder_${Date.now()}`,
@@ -770,7 +785,7 @@ function setupEventListeners() {
   });
 
   elements.notesList.addEventListener("dragover", (e) => {
-    if (!draggedNoteId && !draggedFolderId) return;
+    if (!foldersEnabled || (!draggedNoteId && !draggedFolderId)) return;
     const group = e.target.closest(".folder-group");
     const groupId = group ? group.dataset.folderId : null;
     if (draggedFolderId && groupId && isWithin(groupId, draggedFolderId)) {
@@ -787,7 +802,7 @@ function setupEventListeners() {
   });
 
   elements.notesList.addEventListener("drop", (e) => {
-    if (!draggedNoteId && !draggedFolderId) return;
+    if (!foldersEnabled || (!draggedNoteId && !draggedFolderId)) return;
     e.preventDefault();
     const group = e.target.closest(".folder-group");
     const groupId = group ? group.dataset.folderId : null;
@@ -950,6 +965,12 @@ function setupEventListeners() {
     applyWordCountVisibility();
   });
 
+  elements.foldersToggle.addEventListener("change", () => {
+    foldersEnabled = elements.foldersToggle.checked;
+    localStorage.setItem(FOLDERS_ENABLED_KEY, foldersEnabled);
+    applyFoldersState();
+  });
+
   window.addEventListener("storage", (e) => {
     if (e.key !== null && e.key !== STORAGE_KEY && e.key !== FOLDERS_KEY) return;
     handleExternalSync();
@@ -1000,7 +1021,7 @@ function renderMoveSection(target) {
   const note = target && target.type === "note" ? notes.find((n) => n.id === target.id) : null;
   const folder = target && target.type === "folder" ? getFolder(target.id) : null;
 
-  if ((!note && !folder) || folders.length === 0) {
+  if ((!note && !folder) || !foldersEnabled || folders.length === 0) {
     section.style.display = "none";
     section.innerHTML = "";
     return;
@@ -1037,8 +1058,8 @@ function showContextMenu(x, y, type) {
   const isNote = type === "note";
 
   elements.ctxCreate.style.display = isNote ? "none" : "flex";
-  elements.ctxNewFolder.style.display = isRoot ? "flex" : "none";
-  elements.ctxNewSubfolder.style.display = isFolder ? "flex" : "none";
+  elements.ctxNewFolder.style.display = isRoot && foldersEnabled ? "flex" : "none";
+  elements.ctxNewSubfolder.style.display = isFolder && foldersEnabled ? "flex" : "none";
   elements.ctxDuplicate.style.display = isNote ? "flex" : "none";
   elements.ctxRename.style.display = isFolder ? "flex" : "none";
   elements.ctxDelete.style.display = isNote || isFolder ? "flex" : "none";

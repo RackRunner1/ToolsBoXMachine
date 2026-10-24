@@ -729,6 +729,21 @@
         color: #64748b;
       }
 
+      .beta-badge {
+        display: inline-block;
+        vertical-align: 0.1em;
+        margin-left: 0.4rem;
+        padding: 0.05rem 0.45rem;
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #eab308;
+        background: rgba(234, 179, 8, 0.14);
+        border: 1px solid rgba(234, 179, 8, 0.4);
+        border-radius: 999px;
+      }
+
       .toggle-switch {
         position: relative;
         display: inline-block;
@@ -1164,6 +1179,16 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
+          <div class="setting-card" style="margin-top: 0.75rem;">
+            <div class="setting-card-info">
+              <div class="setting-card-title">Enable folders <span class="beta-badge">BETA</span></div>
+              <div class="setting-card-desc">Organize notes into folders in the sidebar (experimental)</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setting-enable-folders" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -1258,7 +1283,7 @@
       </div>
     </div>
 
-    <script type="module" src="./note.js?v=6"></script>
+    <script type="module" src="./note.js?v=7"></script>
     <div id="footer-placeholder"></div>
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>
