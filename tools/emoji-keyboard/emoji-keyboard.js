@@ -571,6 +571,13 @@ const grid = document.getElementById("emoji-grid");
 const tabsContainer = document.getElementById("category-tabs");
 const searchInput = document.getElementById("emoji-search");
 const toast = document.getElementById("toast");
+const pager = document.getElementById("emoji-pager");
+const pagerPrev = document.getElementById("pager-prev");
+const pagerNext = document.getElementById("pager-next");
+const pagerInfo = document.getElementById("pager-info");
+const PAGE_SIZE = 120;
+let currentItems = [];
+let currentPage = 0;
 
 let activeCategory = 0;
 let toastTimeout = null;
@@ -611,14 +618,34 @@ function buildEmojiCell(emoji) {
 }
 
 function renderEmojis(index) {
-  const category = categories[index];
+  setItems(categories[index].emojis);
+}
+
+function setItems(items) {
+  currentItems = items;
+  currentPage = 0;
+  renderPage();
+}
+
+function renderPage() {
+  const totalPages = Math.max(1, Math.ceil(currentItems.length / PAGE_SIZE));
+  currentPage = Math.min(currentPage, totalPages - 1);
+  const start = currentPage * PAGE_SIZE;
+  const end = Math.min(start + PAGE_SIZE, currentItems.length);
   const fragment = document.createDocumentFragment();
-  const emojis = category.emojis;
-  for (let i = 0; i < emojis.length; i++) {
-    fragment.appendChild(buildEmojiCell(emojis[i]));
+  for (let i = start; i < end; i++) {
+    fragment.appendChild(buildEmojiCell(currentItems[i]));
   }
   grid.innerHTML = "";
   grid.appendChild(fragment);
+  renderPager(totalPages);
+}
+
+function renderPager(totalPages) {
+  pager.hidden = totalPages <= 1;
+  pagerInfo.textContent = (currentPage + 1) + " / " + totalPages;
+  pagerPrev.disabled = currentPage === 0;
+  pagerNext.disabled = currentPage >= totalPages - 1;
 }
 
 let activeTabButtons = [];
@@ -695,6 +722,7 @@ function filterEmojis(query) {
   }
 
   if (!emojiNameMap) {
+    pager.hidden = true;
     grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #64748b;">Loading search data...</div>';
     loadEmojiNames().then(() => doFilter(q));
     return;
@@ -717,16 +745,12 @@ function doFilter(q) {
   }
 
   if (filtered.length === 0) {
+    pager.hidden = true;
     grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: #64748b;">No emojis found</div>';
     return;
   }
 
-  const fragment = document.createDocumentFragment();
-  for (let i = 0; i < filtered.length; i++) {
-    fragment.appendChild(buildEmojiCell(filtered[i]));
-  }
-  grid.innerHTML = "";
-  grid.appendChild(fragment);
+  setItems(filtered);
 }
 
 let searchDebounce = null;
@@ -741,6 +765,18 @@ document.getElementById("tab-arrow-left").addEventListener("click", () => {
 
 document.getElementById("tab-arrow-right").addEventListener("click", () => {
   tabsContainer.scrollBy({ left: 200, behavior: "smooth" });
+});
+
+pagerPrev.addEventListener("click", () => {
+  currentPage--;
+  renderPage();
+  grid.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+pagerNext.addEventListener("click", () => {
+  currentPage++;
+  renderPage();
+  grid.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 renderTabs();
