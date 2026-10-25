@@ -204,6 +204,45 @@
         color: #64748b;
       }
 
+      .emoji-pager {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .emoji-pager[hidden] {
+        display: none;
+      }
+
+      .pager-btn {
+        background: #1e293b;
+        border: 1px solid var(--card-border);
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        color: #94a3b8;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .pager-btn:hover:not(:disabled) {
+        border-color: var(--primary-color);
+        color: #e2e8f0;
+      }
+
+      .pager-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .pager-info {
+        color: #94a3b8;
+        font-size: 0.875rem;
+        min-width: 4rem;
+        text-align: center;
+      }
+
       @media (max-width: 768px) {
         .emoji-container {
           padding: 0 0.75rem 2rem;
@@ -319,11 +358,17 @@
       </div>
 
       <div class="emoji-grid" id="emoji-grid"></div>
+
+      <div class="emoji-pager" id="emoji-pager" hidden>
+        <button class="pager-btn" id="pager-prev" aria-label="Previous page">‹ Previous</button>
+        <span class="pager-info" id="pager-info"></span>
+        <button class="pager-btn" id="pager-next" aria-label="Next page">Next ›</button>
+      </div>
     </div>
 
     <div id="toast">Copied!</div>
 
-    <script src="./emoji-keyboard.js?v=4" data-cfasync="false"></script>
+    <script src="./emoji-keyboard.js?v=5" data-cfasync="false"></script>
 
 <div id="footer-placeholder"></div>
     <script src="/ui/include.js"></script>
