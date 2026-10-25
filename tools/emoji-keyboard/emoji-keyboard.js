@@ -628,10 +628,11 @@ function setItems(items) {
 }
 
 function renderPage() {
-  const totalPages = Math.max(1, Math.ceil(currentItems.length / PAGE_SIZE));
+  const pageSize = activeCategory === 0 ? PAGE_SIZE : Math.max(1, currentItems.length);
+  const totalPages = Math.max(1, Math.ceil(currentItems.length / pageSize));
   currentPage = Math.min(currentPage, totalPages - 1);
-  const start = currentPage * PAGE_SIZE;
-  const end = Math.min(start + PAGE_SIZE, currentItems.length);
+  const start = currentPage * pageSize;
+  const end = Math.min(start + pageSize, currentItems.length);
   const fragment = document.createDocumentFragment();
   for (let i = start; i < end; i++) {
     fragment.appendChild(buildEmojiCell(currentItems[i]));
