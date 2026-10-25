@@ -575,7 +575,7 @@ const pager = document.getElementById("emoji-pager");
 const pagerPrev = document.getElementById("pager-prev");
 const pagerNext = document.getElementById("pager-next");
 const pagerInfo = document.getElementById("pager-info");
-const PAGE_SIZE = 120;
+const PAGE_SIZE = 300;
 let currentItems = [];
 let currentPage = 0;
 
