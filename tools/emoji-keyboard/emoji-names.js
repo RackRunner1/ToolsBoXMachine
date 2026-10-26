@@ -1,5 +1,3 @@
-// Emoji name lookup data (loaded lazily, only needed for search).
-// Generated from emoji-keyboard.js. Keep this in sync with the categories.
 window.__emojiNames =
 {
     "😀": "grinning face",

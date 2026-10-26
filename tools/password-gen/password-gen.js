@@ -10,19 +10,16 @@ const lengthLabel = document.getElementById("length-label");
 const strengthBar = document.getElementById("strength-bar");
 const strengthText = document.getElementById("strength-text");
 
-// Mode elements
 const genModeRadios = document.querySelectorAll('input[name="genMode"]');
 const passwordOptions = document.getElementById("password-options");
 const passphraseOptions = document.getElementById("passphrase-options");
 
-// Options
 const includeUppercase = document.getElementById("include-uppercase");
 const includeLowercase = document.getElementById("include-lowercase");
 const includeNumbers = document.getElementById("include-numbers");
 const includeSymbols = document.getElementById("include-symbols");
 const excludeAmbiguous = document.getElementById("exclude-ambiguous");
 
-// Passphrase options
 const includeNumbersPhrase = document.getElementById("include-numbers-phrase");
 const capitalizePhrase = document.getElementById("capitalize-phrase");
 const phraseSeparator = document.getElementById("phrase-separator");
@@ -35,7 +32,6 @@ const chars = {
   ambiguous: "l1Io0O",
 };
 
-// Wordlist for passphrase mode (~2310 words: BIP39 + curated extras)
 const words = [
   "abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract",
   "absurd", "abuse", "access", "accident", "account", "accuse", "achieve", "acid",
@@ -336,6 +332,7 @@ function scheduleStrengthUpdate(password) {
 
 function generatePassword() {
   const mode = document.querySelector('input[name="genMode"]:checked').value;
+  const length = parseInt(lengthInput.value);
   let password = "";
 
   if (mode === "password") {
@@ -357,7 +354,6 @@ function generatePassword() {
       return;
     }
 
-    const length = parseInt(lengthInput.value);
     const randomValues = new Uint32Array(length);
     window.crypto.getRandomValues(randomValues);
 
@@ -365,7 +361,6 @@ function generatePassword() {
       password += charSet.charAt(randomValues[i] % charSet.length);
     }
   } else {
-    const length = parseInt(lengthInput.value);
     const separator = phraseSeparator.value;
     let chosenWords = [];
 
@@ -392,21 +387,15 @@ function generatePassword() {
 }
 
 function updateStrength(password) {
-  if (
-    !password ||
-    password === "Select at least one option" ||
-    password === "Click Generate"
-  ) {
+  if (!password) {
     strengthBar.style.width = "0%";
     strengthText.textContent = "Strength: -";
     return;
   }
 
-  // Analyse via zxcvbn
   const result = zxcvbn(password);
-  const score = result.score; // 0 à 4
+  const score = result.score;
 
-  // Définition des niveaux
   const levels = [
     { text: "Very Weak", color: "#ef4444", percent: 10 },
     { text: "Weak", color: "#f97316", percent: 30 },
@@ -422,7 +411,11 @@ function updateStrength(password) {
   strengthText.textContent = `Strength: ${level.text}`;
 }
 
-// Event Listeners
+function refreshPassword() {
+  lengthVal.textContent = lengthInput.value;
+  generatePassword();
+}
+
 genModeRadios.forEach((radio) => {
   radio.addEventListener("change", (e) => {
     if (e.target.value === "password") {
@@ -440,8 +433,7 @@ genModeRadios.forEach((radio) => {
       lengthInput.value = 4;
       lengthLabel.textContent = "Words";
     }
-    lengthVal.textContent = lengthInput.value;
-    generatePassword();
+    refreshPassword();
   });
 });
 
@@ -455,13 +447,9 @@ genModeRadios.forEach((radio) => {
   includeNumbersPhrase,
   capitalizePhrase,
 ].forEach((input) => {
-  input.addEventListener("input", () => {
-    lengthVal.textContent = lengthInput.value;
-    generatePassword();
-  });
+  input.addEventListener("input", refreshPassword);
 });
 
-// Custom Select Logic
 document.querySelectorAll(".custom-select-container").forEach((container) => {
   const trigger = container.querySelector(".select-trigger");
   const options = container.querySelectorAll(".select-option");
@@ -500,11 +488,7 @@ generateBtn.addEventListener("click", generatePassword);
 
 copyBtn.addEventListener("click", () => {
   const password = passwordOutput.textContent;
-  if (
-    password === "Click Generate" ||
-    password === "Select at least one option"
-  )
-    return;
+  if (password === "Select at least one option") return;
 
   const originalContent = copyBtn.innerHTML;
 
@@ -537,5 +521,4 @@ copyBtn.addEventListener("click", () => {
   }, 2000);
 });
 
-// Initial generation
 generatePassword();

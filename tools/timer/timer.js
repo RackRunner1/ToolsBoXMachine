@@ -16,10 +16,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const fullscreenBtn = document.getElementById("fullscreen-btn");
   const timerMainArea = document.getElementById("timer-main-area");
 
-  // Focus Stats Elements
   const sessionsCountEl = document.getElementById("sessions-count");
   const totalFocusTimeEl = document.getElementById("total-focus-time");
   const clearStatsBtn = document.getElementById("clear-stats-btn");
+
+  const pad = (n) => n.toString().padStart(2, "0");
+
+  const playIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+  const pauseIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
 
   let stats = JSON.parse(localStorage.getItem("tbxm_timer_stats")) || {
     sessions: 0,
@@ -27,29 +31,24 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   function updateStatsUI() {
-    if (sessionsCountEl) sessionsCountEl.textContent = stats.sessions;
-    if (totalFocusTimeEl) {
-      if (stats.totalTime < 60) {
-        totalFocusTimeEl.textContent = `${stats.totalTime}m`;
-      } else {
-        const hrs = Math.floor(stats.totalTime / 60);
-        const mins = stats.totalTime % 60;
-        totalFocusTimeEl.textContent = `${hrs}h ${mins}m`;
-      }
+    sessionsCountEl.textContent = stats.sessions;
+    if (stats.totalTime < 60) {
+      totalFocusTimeEl.textContent = `${stats.totalTime}m`;
+    } else {
+      const hrs = Math.floor(stats.totalTime / 60);
+      const mins = stats.totalTime % 60;
+      totalFocusTimeEl.textContent = `${hrs}h ${mins}m`;
     }
   }
 
-  if (clearStatsBtn) {
-    clearStatsBtn.addEventListener("click", () => {
-      stats = { sessions: 0, totalTime: 0 };
-      localStorage.setItem("tbxm_timer_stats", JSON.stringify(stats));
-      updateStatsUI();
-    });
-  }
+  clearStatsBtn.addEventListener("click", () => {
+    stats = { sessions: 0, totalTime: 0 };
+    localStorage.setItem("tbxm_timer_stats", JSON.stringify(stats));
+    updateStatsUI();
+  });
 
   updateStatsUI();
 
-  // Web Audio API context
   let audioCtx = null;
   let masterVolume = 0.5;
   function getAudioCtx() {
@@ -58,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return audioCtx;
   }
 
-  // Play a beep tone
   function playTone(freq, duration, vol = 0.3, type = "square") {
     const ctx = getAudioCtx();
     const osc = ctx.createOscillator();
@@ -73,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
     osc.stop(ctx.currentTime + duration);
   }
 
-  // Alarm sound generators
   const alarmSounds = {
     digital() {
       [0, 0.2, 0.4].forEach((delay) => {
@@ -100,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let remainingSeconds = totalSeconds;
   let isRunning = false;
 
-  // Total circumference for r=160
   const circumference = 2 * Math.PI * 160;
   progressCircle.style.strokeDasharray = circumference;
 
@@ -108,23 +104,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const volumeVal = document.getElementById("volume-val");
   const soundSelect = document.getElementById("alarm-sound-select");
 
-  if (soundSelect) {
-    soundSelect.addEventListener("change", (e) => {
-      currentAlarm = e.target.value;
-      alarmSounds[currentAlarm]();
-    });
-  }
+  soundSelect.addEventListener("change", (e) => {
+    currentAlarm = e.target.value;
+    alarmSounds[currentAlarm]();
+  });
 
-  if (volumeSlider) {
-    volumeSlider.addEventListener("input", (e) => {
-      const vol = e.target.value;
-      masterVolume = vol / 100;
-      if (volumeVal) volumeVal.textContent = `${vol}%`;
-    });
-    masterVolume = volumeSlider.value / 100;
-  }
+  volumeSlider.addEventListener("input", (e) => {
+    const vol = e.target.value;
+    masterVolume = vol / 100;
+    volumeVal.textContent = `${vol}%`;
+  });
+  masterVolume = volumeSlider.value / 100;
 
-  // Custom Select Logic
   const selectContainers = document.querySelectorAll(
     ".custom-select-container",
   );
@@ -149,50 +140,35 @@ document.addEventListener("DOMContentLoaded", () => {
         if (val === "custom") {
           customInputs.classList.add("active");
           applyCustomBtn.classList.add("active");
-
-          options.forEach((opt) => opt.classList.remove("selected"));
-          option.classList.add("selected");
-          labelSpan.textContent = option.textContent;
-          nativeSelect.value = val;
-          container.classList.remove("active");
-          nativeSelect.dispatchEvent(new Event("change"));
-          return;
-        } else {
-          if (container.dataset.id === "timer-mode") {
-            customInputs.classList.remove("active");
-            applyCustomBtn.classList.remove("active");
-            let seconds = parseInt(val, 10) * 60;
-            changeMode(seconds, false);
-          }
-
-          labelSpan.textContent = option.textContent;
-
-          options.forEach((opt) => opt.classList.remove("selected"));
-          option.classList.add("selected");
-
-          nativeSelect.value = val;
-          container.classList.remove("active");
-          nativeSelect.dispatchEvent(new Event("change"));
+        } else if (container.dataset.id === "timer-mode") {
+          customInputs.classList.remove("active");
+          applyCustomBtn.classList.remove("active");
+          changeMode(parseInt(val, 10) * 60, false);
         }
+
+        labelSpan.textContent = option.textContent;
+        options.forEach((opt) => opt.classList.remove("selected"));
+        option.classList.add("selected");
+        nativeSelect.value = val;
+        container.classList.remove("active");
+        nativeSelect.dispatchEvent(new Event("change"));
       });
     });
   });
 
-  if (applyCustomBtn) {
-    applyCustomBtn.addEventListener("click", () => {
-      const h = parseInt(customH.value) || 0;
-      const m = parseInt(customM.value) || 0;
-      const s = parseInt(customS.value) || 0;
+  applyCustomBtn.addEventListener("click", () => {
+    const h = parseInt(customH.value) || 0;
+    const m = parseInt(customM.value) || 0;
+    const s = parseInt(customS.value) || 0;
 
-      const totalSecs = h * 3600 + m * 60 + s;
-      if (totalSecs <= 0) return;
+    const totalSecs = h * 3600 + m * 60 + s;
+    if (totalSecs <= 0) return;
 
-      const triggerLabel = document.querySelector(".select-trigger span");
-      triggerLabel.textContent = `Custom (${h > 0 ? h + ":" : ""}${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")})`;
+    const triggerLabel = document.querySelector(".select-trigger span");
+    triggerLabel.textContent = `Custom (${h > 0 ? h + ":" : ""}${pad(m)}:${pad(s)})`;
 
-      changeMode(totalSecs, true);
-    });
-  }
+    changeMode(totalSecs, true);
+  });
 
   document.addEventListener("click", () => {
     selectContainers.forEach((c) => c.classList.remove("active"));
@@ -203,14 +179,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const minutes = Math.floor((remainingSeconds % 3600) / 60);
     const seconds = remainingSeconds % 60;
 
-    let timeString = "";
-    if (hours > 0) {
-      timeString = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-      timeDisplay.classList.add("long-format");
-    } else {
-      timeString = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-      timeDisplay.classList.remove("long-format");
-    }
+    const timeString =
+      hours > 0
+        ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+        : `${pad(minutes)}:${pad(seconds)}`;
+    timeDisplay.classList.toggle("long-format", hours > 0);
 
     timeDisplay.textContent = timeString;
     document.title = `${timeString} - Pomodoro Timer`;
@@ -252,9 +225,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     isRunning = true;
     startText.textContent = "Pause Timer";
-    startIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+    startIcon.innerHTML = pauseIcon;
 
-    // Request notification permission
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
@@ -268,7 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
         isRunning = false;
         alarmSounds[currentAlarm]();
 
-        // Show notification
         if ("Notification" in window && Notification.permission === "granted") {
           new Notification("Timer Finished!", {
             body: `${timeLabel.textContent} session has ended!`,
@@ -276,7 +247,6 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
 
-        // Record focus session stats
         if (
           timeLabel.textContent !== "Short Break" &&
           timeLabel.textContent !== "Long Break"
@@ -288,7 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         startText.textContent = "Start Timer";
-        startIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+        startIcon.innerHTML = playIcon;
       }
     }, 1000);
   }
@@ -297,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isRunning = false;
     clearInterval(timerInterval);
     startText.textContent = "Resume Timer";
-    startIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+    startIcon.innerHTML = playIcon;
   }
 
   function resetTimer() {
@@ -310,36 +280,33 @@ document.addEventListener("DOMContentLoaded", () => {
   startBtn.addEventListener("click", toggleTimer);
   resetBtn.addEventListener("click", resetTimer);
 
-  if (fullscreenBtn && timerMainArea) {
-    fullscreenBtn.addEventListener("click", () => {
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        if (timerMainArea.requestFullscreen) {
-          timerMainArea.requestFullscreen().catch((err) => console.error(err));
-        } else if (timerMainArea.webkitRequestFullscreen) {
-          timerMainArea.webkitRequestFullscreen();
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        }
+  fullscreenBtn.addEventListener("click", () => {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (timerMainArea.requestFullscreen) {
+        timerMainArea.requestFullscreen().catch((err) => console.error(err));
+      } else if (timerMainArea.webkitRequestFullscreen) {
+        timerMainArea.webkitRequestFullscreen();
       }
-    });
-
-    const updateFullscreenIcon = () => {
-      if (document.fullscreenElement || document.webkitFullscreenElement) {
-        fullscreenBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>`;
-      } else {
-        fullscreenBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>`;
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
       }
-    };
+    }
+  });
 
-    document.addEventListener("fullscreenchange", updateFullscreenIcon);
-    document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);
-  }
+  const updateFullscreenIcon = () => {
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      fullscreenBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>`;
+    } else {
+      fullscreenBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>`;
+    }
+  };
 
-  // Keyboard Shortcuts
+  document.addEventListener("fullscreenchange", updateFullscreenIcon);
+  document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);
+
   document.addEventListener("keydown", (e) => {
     const activeElement = document.activeElement;
     if (
@@ -356,79 +323,56 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (e.key.toLowerCase() === "r") {
       resetTimer();
     } else if (e.key.toLowerCase() === "f") {
-      if (fullscreenBtn) fullscreenBtn.click();
+      fullscreenBtn.click();
     }
   });
 
-  // Advanced Options Toggle
   const advancedOptionsBtn = document.getElementById("advanced-options-btn");
   const advancedOptionsContent = document.getElementById(
     "advanced-options-content",
   );
   const advancedOptionsIcon = document.getElementById("advanced-options-icon");
 
-  if (advancedOptionsBtn && advancedOptionsContent) {
-    advancedOptionsBtn.addEventListener("click", () => {
-      const isHidden = advancedOptionsContent.style.display === "none";
-      if (isHidden) {
-        advancedOptionsContent.style.display = "flex";
-        if (advancedOptionsIcon)
-          advancedOptionsIcon.style.transform = "rotate(180deg)";
-      } else {
-        advancedOptionsContent.style.display = "none";
-        if (advancedOptionsIcon)
-          advancedOptionsIcon.style.transform = "rotate(0deg)";
-      }
-    });
-  }
+  advancedOptionsBtn.addEventListener("click", () => {
+    const isHidden = advancedOptionsContent.style.display === "none";
+    if (isHidden) {
+      advancedOptionsContent.style.display = "flex";
+      advancedOptionsIcon.style.transform = "rotate(180deg)";
+    } else {
+      advancedOptionsContent.style.display = "none";
+      advancedOptionsIcon.style.transform = "rotate(0deg)";
+    }
+  });
 
-  // Stats Modal Logic
   const viewStatsBtn = document.getElementById("view-stats-btn");
   const statsModal = document.getElementById("stats-modal");
   const closeStatsModal = document.getElementById("close-stats-modal");
   const statsModalContent = document.getElementById("stats-modal-content");
 
   function openModal() {
-    if (statsModal) {
-      statsModal.style.display = "flex";
-      setTimeout(() => {
-        statsModal.style.opacity = "1";
-        if (statsModalContent) {
-          statsModalContent.style.transform = "scale(1)";
-        }
-      }, 10);
-      updateStatsUI();
-    }
+    statsModal.style.display = "flex";
+    setTimeout(() => {
+      statsModal.style.opacity = "1";
+      statsModalContent.style.transform = "scale(1)";
+    }, 10);
+    updateStatsUI();
   }
 
   function closeModal() {
-    if (statsModal) {
-      statsModal.style.opacity = "0";
-      if (statsModalContent) {
-        statsModalContent.style.transform = "scale(0.95)";
-      }
-      setTimeout(() => {
-        statsModal.style.display = "none";
-      }, 300);
+    statsModal.style.opacity = "0";
+    statsModalContent.style.transform = "scale(0.95)";
+    setTimeout(() => {
+      statsModal.style.display = "none";
+    }, 300);
+  }
+
+  viewStatsBtn.addEventListener("click", openModal);
+  closeStatsModal.addEventListener("click", closeModal);
+  statsModal.addEventListener("click", (e) => {
+    if (e.target === statsModal) {
+      closeModal();
     }
-  }
+  });
 
-  if (viewStatsBtn) {
-    viewStatsBtn.addEventListener("click", openModal);
-  }
-
-  if (closeStatsModal) {
-    closeStatsModal.addEventListener("click", closeModal);
-  }
-
-  if (statsModal) {
-    statsModal.addEventListener("click", (e) => {
-      if (e.target === statsModal) {
-        closeModal();
-      }
-    });
-  }
-
-  // Initialize
   updateDisplay();
 });

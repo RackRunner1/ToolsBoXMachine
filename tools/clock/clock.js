@@ -22,23 +22,19 @@
   let format24 = true;
   let timezone = "local";
   let mode = "digital";
+  const cx = 150;
+  const cy = 150;
 
-  // Build tick marks
   function buildTicks() {
     for (let i = 0; i < 60; i++) {
       const tick = document.createElement("div");
-      tick.className = "tick-mark" + (i % 5 === 0 ? " major" : "");
       const angle = i * 6;
       const radius = 136;
       const rad = ((angle - 90) * Math.PI) / 180;
       const isSmall = i % 5 !== 0;
       const len = isSmall ? 6 : 10;
-      const cx = 150;
-      const cy = 150;
       const x1 = cx + (radius - len) * Math.cos(rad);
       const y1 = cy + (radius - len) * Math.sin(rad);
-      const x2 = cx + radius * Math.cos(rad);
-      const y2 = cy + radius * Math.sin(rad);
       tick.style.cssText = `
         position: absolute;
         left: ${x1}px;
@@ -54,11 +50,8 @@
     }
   }
 
-  // Build numbers
   function buildNumbers() {
     const radius = 115;
-    const cx = 150;
-    const cy = 150;
     for (let i = 1; i <= 12; i++) {
       const angle = i * 30 - 90;
       const rad = (angle * Math.PI) / 180;
@@ -74,14 +67,13 @@
     }
   }
 
-   function applyColor(color) {
+  function applyColor(color) {
     handSecond.style.background = color;
     centerDot.style.background = toggleSeconds.checked ? color : "#ffffff";
-    clockMain.style.setProperty("--accent", color);
   }
 
-  function getTimeParts(date) {
-    const now = date || new Date();
+  function getTimeParts() {
+    const now = new Date();
     if (timezone === "local") {
       return { h: now.getHours(), m: now.getMinutes(), s: now.getSeconds(), ms: now.getMilliseconds(), date: now };
     }
@@ -109,7 +101,6 @@
   function updateClock() {
     const { h, m, s, ms, date: now } = getTimeParts();
 
-    // Analog
     if (mode === "analog") {
       analogClock.style.display = "";
       digitalTime.style.display = "none";
@@ -125,7 +116,6 @@
       handSecond.style.display = toggleSeconds.checked ? "" : "none";
     }
 
-    // Digital
     if (mode === "digital") {
       analogClock.style.display = "none";
       digitalTime.style.display = "";
@@ -150,7 +140,6 @@
       }
     }
 
-    // Date
     if (toggleDate.checked) {
       const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
       const tzOpts = timezone !== "local" ? { timeZone: timezone } : {};
@@ -163,7 +152,7 @@
     requestAnimationFrame(updateClock);
   }
 
-   function setMode(newMode) {
+  function setMode(newMode) {
     mode = newMode;
     formatSection.style.display = mode === "digital" ? "" : "none";
     fontSection.style.display = mode === "digital" ? "" : "none";
@@ -178,7 +167,12 @@
     }
   }
 
-  // Sidebar collapse
+  function closeSelects(except) {
+    document.querySelectorAll(".custom-select-container").forEach((c) => {
+      if (c !== except) c.classList.remove("open");
+    });
+  }
+
   function setSidebarCollapsed(collapsed) {
     sidebar.classList.toggle("collapsed", collapsed);
     clockLayout.classList.toggle("sidebar-collapsed", collapsed);
@@ -186,19 +180,14 @@
     const label = collapsed ? "Expand settings" : "Collapse settings";
     sidebarToggle.title = label;
     sidebarToggle.setAttribute("aria-label", label);
-    if (collapsed) {
-      document.querySelectorAll(".custom-select-container").forEach((c) => c.classList.remove("open"));
-    }
+    if (collapsed) closeSelects();
   }
 
-  if (sidebar && sidebarToggle && clockLayout) {
-    sidebarToggle.addEventListener("click", (e) => {
-      e.stopPropagation();
-      setSidebarCollapsed(!sidebar.classList.contains("collapsed"));
-    });
-  }
+  sidebarToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setSidebarCollapsed(!sidebar.classList.contains("collapsed"));
+  });
 
-  // Custom select
   function setupSelect(containerId, onChange) {
     const container = document.getElementById(containerId);
     const trigger = container.querySelector(".select-trigger");
@@ -206,9 +195,7 @@
 
     trigger.addEventListener("click", (e) => {
       e.stopPropagation();
-      document.querySelectorAll(".custom-select-container").forEach((c) => {
-        if (c !== container) c.classList.remove("open");
-      });
+      closeSelects(container);
       container.classList.toggle("open");
     });
 
@@ -223,13 +210,9 @@
     });
   }
 
-  document.addEventListener("click", () => {
-    document.querySelectorAll(".custom-select-container").forEach((c) => c.classList.remove("open"));
-  });
+  document.addEventListener("click", () => closeSelects());
 
-  setupSelect("mode-select", (val) => {
-    setMode(val);
-  });
+  setupSelect("mode-select", setMode);
 
   setupSelect("format-select", (val) => {
     format24 = val === "24";
@@ -264,7 +247,6 @@
     applyColor(accentColor);
   });
 
-  // Color swatches
   document.querySelectorAll(".color-swatch").forEach((swatch) => {
     swatch.addEventListener("click", () => {
       document.querySelectorAll(".color-swatch").forEach((s) => s.classList.remove("active"));
@@ -274,41 +256,39 @@
     });
   });
 
-  // Fullscreen
-  if (fullscreenBtn) {
-    fullscreenBtn.addEventListener("click", () => {
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        clockMain.classList.add("fullscreen");
-        if (clockMain.requestFullscreen) {
-          clockMain.requestFullscreen().catch((err) => console.error(err));
-        } else if (clockMain.webkitRequestFullscreen) {
-          clockMain.webkitRequestFullscreen();
-        }
-      } else {
-        clockMain.classList.remove("fullscreen");
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        }
+  const fullscreenIcon = (d) => `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"></path></svg>`;
+
+  fullscreenBtn.addEventListener("click", () => {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      clockMain.classList.add("fullscreen");
+      if (clockMain.requestFullscreen) {
+        clockMain.requestFullscreen().catch((err) => console.error(err));
+      } else if (clockMain.webkitRequestFullscreen) {
+        clockMain.webkitRequestFullscreen();
       }
-    });
-
-    const updateFullscreenIcon = () => {
-      if (document.fullscreenElement || document.webkitFullscreenElement) {
-        clockMain.classList.add("fullscreen");
-        fullscreenBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>`;
-      } else {
-        clockMain.classList.remove("fullscreen");
-        fullscreenBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>`;
+    } else {
+      clockMain.classList.remove("fullscreen");
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
       }
-    };
+    }
+  });
 
-    document.addEventListener("fullscreenchange", updateFullscreenIcon);
-    document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);
-  }
+  const updateFullscreenIcon = () => {
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+      clockMain.classList.add("fullscreen");
+      fullscreenBtn.innerHTML = fullscreenIcon("M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3");
+    } else {
+      clockMain.classList.remove("fullscreen");
+      fullscreenBtn.innerHTML = fullscreenIcon("M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3");
+    }
+  };
 
-  // Init
+  document.addEventListener("fullscreenchange", updateFullscreenIcon);
+  document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);
+
   buildTicks();
   buildNumbers();
   applyColor(accentColor);

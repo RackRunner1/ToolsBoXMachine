@@ -4,7 +4,6 @@
   --primary-color: #3b82f6;
   --primary-hover: #2563eb;
   --primary-glow: rgba(59, 130, 246, 0.5);
-  --secondary-color: #a78bfa;
   --card-bg: #0f172a;
   --card-border: #1e293b;
   --card-hover-bg: #1e293b;
@@ -36,9 +35,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Decorative top orbs. Painted on a fixed-height layer anchored to the
-   document's top so their radius never depends on the document height
-   (on the body itself they would stretch across every long page). */
 body::before {
   content: "";
   position: absolute;
@@ -66,16 +62,12 @@ h1 {
   text-align: center;
 }
 
-
-/* Navbar */
 .navbar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   display: grid;
-  /* Left and right columns are equal, so the middle column (search) stays
-     perfectly centered regardless of how much content sits on either side. */
   grid-template-columns: 1fr minmax(0, 400px) 1fr;
   align-items: center;
   column-gap: 2rem;
@@ -101,7 +93,7 @@ h1 {
 }
 
 .nav-edition {
-  color: #64748b; /* gray, same tone as the search icon */
+  color: #64748b;
   font-size: 0.65rem;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -127,8 +119,8 @@ h1 {
   color: var(--primary-color);
 }
 
-/* Nav Search */
 .nav-search {
+  position: relative;
   width: 100%;
 }
 
@@ -162,11 +154,6 @@ h1 {
   border-color: var(--primary-color);
   box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
   transform: scale(1.02);
-}
-
-/* Search Dropdown */
-.nav-search {
-  position: relative; /* Container for dropdown */
 }
 
 .search-dropdown {
@@ -207,6 +194,13 @@ h1 {
   background: rgba(255, 255, 255, 0.05);
 }
 
+.search-empty {
+  padding: 1rem;
+  text-align: center;
+  opacity: 0.5;
+  font-size: 0.8rem;
+}
+
 .result-emoji-small {
   font-size: 1.5rem;
   flex-shrink: 0;
@@ -232,7 +226,6 @@ h1 {
   max-width: 250px;
 }
 
-/* Hero Section */
 .hero-section {
   display: flex;
   flex-direction: column;
@@ -273,8 +266,13 @@ h1 {
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .page-title {
@@ -285,11 +283,6 @@ h1 {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-}
-
-@keyframes shimmer {
-  0%, 100% { background-position: 0% center; }
-  50% { background-position: 200% center; }
 }
 
 .subtitle {
@@ -364,7 +357,21 @@ h1 {
   transform: scale(1.2) rotate(5deg);
 }
 
-/* Animations */
+.card-icon {
+  font-size: 3.5rem;
+}
+
+.card-text {
+  text-align: center;
+}
+
+.card-desc {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -376,56 +383,8 @@ h1 {
   }
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 .fade-in {
   animation: fadeIn 0.5s ease-out forwards;
-}
-
-.copy-feedback {
-  position: fixed;
-  bottom: 2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--primary-color);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 2rem;
-  font-weight: 600;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  pointer-events: none;
-  z-index: 10000;
-  transform: translate(-50%, 20px);
-}
-
-.copy-feedback.show {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
-
-/* Tool pages specific */
-.tool-container {
-  background: var(--card-bg);
-  padding: 2rem;
-  border-radius: 1.5rem;
-  border: 1px solid var(--card-border);
-  width: 100%;
-  max-width: 800px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 }
 
 .btn {
@@ -445,29 +404,6 @@ h1 {
   background: var(--primary-hover);
 }
 
-.back-link {
-  color: #94a3b8;
-  text-decoration: none;
-  margin-bottom: 1.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  background: rgba(30, 41, 59, 0.3);
-  border: 1px solid transparent;
-}
-
-.back-link:hover {
-  color: white;
-  background: rgba(30, 41, 59, 0.6);
-  border-color: var(--card-border);
-  transform: translateX(-5px);
-}
-
 .btn-secondary {
   background: #334155;
 }
@@ -476,24 +412,15 @@ h1 {
   background: #475569;
 }
 
-/* Blur Tool Redesign */
 .blur-tool-layout {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
   gap: 2rem;
   width: 100%;
   max-width: 1200px;
-  background: transparent;
   padding: 0 2rem;
-  border: none;
   margin: 1rem auto 4rem;
   flex: 1;
-}
-
-@media (max-width: 768px) {
-  .blur-tool-layout {
-    grid-template-columns: 1fr;
-  }
 }
 
 .blur-sidebar {
@@ -519,7 +446,6 @@ h1 {
   font-weight: 600;
 }
 
-/* Custom File Upload */
 .custom-file-upload {
   display: flex;
   flex-direction: column;
@@ -550,7 +476,6 @@ h1 {
   color: inherit;
 }
 
-/* Custom Radio Group */
 .custom-radio-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -599,7 +524,6 @@ h1 {
   transform: scale(0.95);
 }
 
-/* Custom Sliders */
 .slider-group {
   display: flex;
   flex-direction: column;
@@ -634,6 +558,7 @@ input[type="range"] {
   appearance: none;
   width: 100%;
   background: transparent;
+  accent-color: var(--primary-color);
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -684,7 +609,6 @@ input[type="range"]:focus::-webkit-slider-runnable-track {
   background: #475569;
 }
 
-/* Canvas Area */
 .blur-main {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
@@ -735,7 +659,6 @@ canvas {
   transform-origin: 0 0;
 }
 
-/* Utility */
 .w-full {
   width: 100%;
 }
@@ -764,12 +687,8 @@ canvas {
   color: #cbd5e1;
 }
 
-input[type="range"] {
-  accent-color: var(--primary-color);
-}
-/* Footer */
 .footer {
-  margin-top: auto; /* Push to bottom of flex container */
+  margin-top: auto;
   padding: 1.5rem 3rem;
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
@@ -791,18 +710,6 @@ input[type="range"] {
   font-size: 0.95rem;
 }
 
-.drayko-link {
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.drayko-link:hover {
-  color: white;
-  text-shadow: 0 0 10px var(--primary-glow);
-}
-
 .footer-links {
   display: flex;
   gap: 2rem;
@@ -819,7 +726,6 @@ input[type="range"] {
   color: white;
 }
 
-/* Content Pages (Privacy/Terms) */
 .content-container {
   width: 100%;
   max-width: 800px;
@@ -827,9 +733,6 @@ input[type="range"] {
   padding: 0 2rem;
   line-height: 1.6;
   flex: 1;
-  /* Flex item of body: allow shrinking below its content's min-width so
-     wide children (nowrap code blocks…) clamp to the viewport instead of
-     pushing the whole card wider than the screen on mobile. */
   min-width: 0;
 }
 
@@ -858,6 +761,11 @@ input[type="range"] {
   margin-bottom: 0.5rem;
 }
 
+.page-actions {
+  margin-top: 3rem;
+  text-align: center;
+}
+
 .legal-card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
@@ -866,9 +774,6 @@ input[type="range"] {
   backdrop-filter: blur(12px);
 }
 
-/* In-content text links (philosophy, app, privacy…): use the heading
-   blue instead of the browser default, and keep the same color after
-   being visited so links never flip to purple. */
 .legal-card a:not(.btn),
 .legal-card a:not(.btn):visited {
   color: #60a5fa;
@@ -882,9 +787,6 @@ input[type="range"] {
   text-decoration-color: #93c5fd;
 }
 
-/* ===========================
-   RESPONSIVE: Tablet
-   =========================== */
 @media (max-width: 1024px) {
   .navbar {
     padding: 1rem 1.5rem;
@@ -906,11 +808,6 @@ input[type="range"] {
     padding: 0 1.5rem;
   }
 
-  .tool-container {
-    max-width: 100%;
-    padding: 1.5rem;
-  }
-
   .blur-tool-layout {
     padding: 0 1.5rem;
     gap: 1.5rem;
@@ -925,9 +822,6 @@ input[type="range"] {
   }
 }
 
-/* ===========================
-   RESPONSIVE: Phone (large)
-   =========================== */
 @media (max-width: 768px) {
   .blur-tool-layout {
     grid-template-columns: 1fr;
@@ -935,21 +829,14 @@ input[type="range"] {
 
   .navbar {
     padding: 0.85rem 1rem;
-    /* On phones the links are hidden, so only brand (auto) + search (1fr). */
     grid-template-columns: auto 1fr;
     column-gap: 0.75rem;
-  }
-
-  .nav-search {
-    width: 100%;
-    max-width: none;
   }
 
   .nav-links {
     display: none;
   }
 
-  /* Edition label is desktop-only to save space on phones. */
   .nav-edition {
     display: none;
   }
@@ -959,17 +846,12 @@ input[type="range"] {
     padding: 3px 1rem 0;
   }
 
-  body.tool-page .hero-section {
-    padding-top: 3px;
-  }
-
   .hero-card {
     padding: 1.25rem 1rem 0;
   }
 
   .page-title {
     font-size: 2rem;
-    margin-top: 0;
   }
 
   .hero-badge {
@@ -1080,18 +962,6 @@ input[type="range"] {
     border-radius: 1rem;
   }
 
-  .tool-container {
-    padding: 1.25rem;
-    border-radius: 1rem;
-    margin: 0 1rem;
-  }
-
-  .copy-feedback {
-    bottom: 1.5rem;
-    padding: 0.6rem 1.25rem;
-    font-size: 0.85rem;
-  }
-
   .search-result-item {
     padding: 0.6rem 0.75rem;
   }
@@ -1113,11 +983,12 @@ input[type="range"] {
     padding: 0.85rem;
     border-radius: 0.65rem;
   }
+
+  body.tool-page .subtitle {
+    display: none;
+  }
 }
 
-/* ===========================
-   RESPONSIVE: Phone (small)
-   =========================== */
 @media (max-width: 480px) {
   .navbar {
     padding: 0.75rem 0.75rem;
@@ -1245,7 +1116,6 @@ input[type="range"] {
   }
 
   .custom-radio-group {
-    grid-template-columns: 1fr 1fr;
     gap: 0.4rem;
   }
 
@@ -1289,7 +1159,6 @@ input[type="range"] {
   }
 
   .content-container {
-    margin-top: 5rem;
     padding: 0 0.75rem;
   }
 
@@ -1312,18 +1181,6 @@ input[type="range"] {
     border-radius: 0.875rem;
   }
 
-  .tool-container {
-    padding: 1rem;
-    border-radius: 0.875rem;
-    margin: 0 0.75rem;
-  }
-
-  .back-link {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.8rem;
-    margin-bottom: 1rem;
-  }
-
   .footer {
     padding: 1rem 0.75rem;
   }
@@ -1338,18 +1195,5 @@ input[type="range"] {
 
   .footer-copyright {
     font-size: 0.8rem;
-  }
-
-  .copy-feedback {
-    bottom: 1rem;
-    padding: 0.5rem 1rem;
-    font-size: 0.8rem;
-    border-radius: 1.5rem;
-  }
-}
-
-@media (max-width: 768px) {
-  body.tool-page .subtitle {
-    display: none;
   }
 }

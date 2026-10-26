@@ -48,7 +48,6 @@
         transition: padding 0.25s ease;
       }
 
-      /* Sidebar collapse toggle */
       .sidebar-header {
         display: flex;
         align-items: center;
@@ -56,12 +55,16 @@
         gap: 0.5rem;
       }
 
-      .sidebar-title {
+      .sidebar-title,
+      .sidebar-section h3 {
         font-size: 0.875rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         color: #94a3b8;
         font-weight: 600;
+      }
+
+      .sidebar-title {
         white-space: nowrap;
       }
 
@@ -76,7 +79,6 @@
         gap: 2rem;
       }
 
-      /* Collapsed sidebar -> fully hidden (no empty rectangle) */
       .clock-sidebar.collapsed {
         display: none;
       }
@@ -86,12 +88,7 @@
       }
 
       .sidebar-section h3 {
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #94a3b8;
         margin-bottom: 0.5rem;
-        font-weight: 600;
       }
 
       .clock-main {
@@ -152,12 +149,7 @@
         display: none;
       }
 
-      /* Mirror the overflow compensation of .analog-clock: the fullscreen
-         scale is 1.6x the size setting, so the margin must grow with it,
-         otherwise the clock collides with the date at Large/Extra Large. */
       #clock-main.fullscreen .analog-clock {
-        width: 300px;
-        height: 300px;
         transform: scale(calc(1.6 * var(--clock-scale))) !important;
         margin: calc(150px * (1.6 * var(--clock-scale) - 1)) 0;
         z-index: 0;
@@ -167,15 +159,11 @@
         --digital-base: 8rem;
       }
 
-      /* 4rem removed: the scale-aware analog margin already provides the
-         clearance, so the date keeps the standard 1.5rem flex gap. */
       #clock-main.fullscreen .date-display {
         --date-base: 1.4rem;
-        position: relative;
         z-index: 100;
       }
 
-      /* Analog Clock */
       .analog-clock {
         position: relative;
         width: 300px;
@@ -244,24 +232,6 @@
         z-index: 6;
       }
 
-      .tick-mark {
-        position: absolute;
-        top: 8px;
-        left: 50%;
-        width: 2px;
-        height: 10px;
-        background: #475569;
-        transform-origin: bottom center;
-        transform: translateX(-50%);
-      }
-
-      .tick-mark.major {
-        height: 14px;
-        width: 2.5px;
-        background: #64748b;
-      }
-
-      /* Digital Clock */
       .digital-clock {
         font-family: var(--clock-font);
         font-size: calc(var(--digital-base) * var(--clock-scale));
@@ -278,34 +248,15 @@
         vertical-align: super;
       }
 
-      .digital-clock .blink {
-        animation: blink 1s step-end infinite;
+      .date-display {
+        font-size: calc(var(--date-base) * var(--clock-scale));
+        color: #94a3b8;
+        text-align: center;
+        position: relative;
+        z-index: 10;
+        transition: font-size 0.3s ease;
       }
 
-      @keyframes blink {
-        50% { opacity: 0; }
-      }
-
-       /* Date display */
-       .date-display {
-         font-size: calc(var(--date-base) * var(--clock-scale));
-         color: #94a3b8;
-         text-align: center;
-         position: relative;
-         z-index: 10;
-         transition: font-size 0.3s ease;
-       }
-
-      /* Analog hidden */
-      .clock-main.analog-hidden .analog-clock {
-        display: none;
-      }
-
-      .clock-main.digital-hidden .digital-clock {
-        display: none;
-      }
-
-      /* Toggle switches */
       .toggle-row {
         display: flex;
         align-items: center;
@@ -359,7 +310,6 @@
         transform: translateX(20px);
       }
 
-      /* Color picker */
       .color-options {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -385,7 +335,6 @@
         box-shadow: 0 0 12px var(--primary-glow);
       }
 
-      /* Select */
       .custom-select-container {
         position: relative;
         width: 100%;
@@ -469,11 +418,6 @@
 
         .clock-sidebar {
           padding: 1.25rem;
-          gap: 1.25rem;
-        }
-
-        .clock-sidebar.collapsed {
-          display: none;
         }
 
         .clock-main {
@@ -506,7 +450,6 @@
   "creator": { "@type": "Person", "name": "RackRunner" }
 }
 </script>
-    <meta name="description" content="A customizable online clock with analog and digital display, 12/24h format, and multiple timezones." />
     <meta name="content-signal" content="ai-train, ai-input, search" />
     <link rel="canonical" href="https://www.tbxm.org/tools/clock/clock.html" />
     <meta property="og:type" content="website" />
@@ -650,7 +593,7 @@
 
           <div class="sidebar-section" id="color-section">
             <h3>Color</h3>
-            <div class="color-options" id="color-options">
+            <div class="color-options">
               <div class="color-swatch active" data-color="#3b82f6" style="background: #3b82f6;"></div>
               <div class="color-swatch" data-color="#a78bfa" style="background: #a78bfa;"></div>
               <div class="color-swatch" data-color="#10b981" style="background: #10b981;"></div>
@@ -718,7 +661,7 @@
           <div class="hand hand-second" id="hand-second"></div>
           <div class="center-dot" id="center-dot"></div>
         </div>
-        <div class="digital-clock" id="digital-clock">
+        <div class="digital-clock">
           <span id="digital-time"></span>
         </div>
         <div class="date-display" id="date-display"></div>
