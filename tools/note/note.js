@@ -1,4 +1,3 @@
-
 let tooltipRecentlyActive = false;
 let tooltipResetTimer = null;
 
@@ -65,7 +64,6 @@ function getContent() {
   return elements.contentInput.value;
 }
 
-/** Writes the note body to the plain text editor. */
 function setContent(text) {
   elements.contentInput.value = text;
 }
@@ -177,7 +175,6 @@ function childFolders(parentId) {
   return sortedFolders().filter((f) => (f.parentId || null) === (parentId || null));
 }
 
-/** True when `folderId` is `ancestorId` itself or sits somewhere below it. */
 function isWithin(folderId, ancestorId) {
   let cur = getFolder(folderId);
   for (let i = 0; cur && i <= folders.length; i++) {
@@ -197,7 +194,6 @@ function folderPath(folder) {
   return parts.join(" / ");
 }
 
-/** Expands every folder above `folderId` so it is visible in the sidebar. */
 function revealFolderChain(folderId) {
   let changed = false;
   let cur = getFolder(folderId);
@@ -211,7 +207,6 @@ function revealFolderChain(folderId) {
   if (changed) saveFoldersToStorage();
 }
 
-/** Expands the folders containing the note so it is visible in the sidebar. */
 function revealNote(note) {
   revealFolderChain(note.folderId);
 }
@@ -224,7 +219,6 @@ function uniqueFolderName(base, parentId) {
   return `${base} ${i}`;
 }
 
-/** Shows or hides the folder UI according to the setting, then re-renders the sidebar. */
 function applyFoldersState() {
   elements.newFolderBtn.style.display = foldersEnabled ? "" : "none";
   renamingFolderId = null;
@@ -412,8 +406,7 @@ function selectNote(id) {
   setContent(note.content);
   updateWordCount();
   applyWordCountVisibility();
-  const dateStr = new Date(note.modifiedAt).toLocaleString();
-  elements.dateDisplay.textContent = dateStr;
+  elements.dateDisplay.textContent = new Date(note.modifiedAt).toLocaleString();
 
   revealNote(note);
   renderList();
@@ -434,7 +427,6 @@ function showEditorEmpty() {
   applyWordCountVisibility();
 }
 
-/** Creates a note in `folderId`, or at the top level when no folder is given. */
 function createNote(folderId = null) {
   const targetFolderId = getFolder(folderId) ? folderId : null;
 
@@ -455,7 +447,6 @@ function createNote(folderId = null) {
   elements.titleInput.focus();
 }
 
-/** Creates a folder at the top level, or inside `parentId` when given. */
 function createFolder(parentId = null) {
   if (!foldersEnabled) return;
   const parent = getFolder(parentId);
@@ -482,7 +473,6 @@ function toggleFolder(id) {
   renderList();
 }
 
-/** Replaces the folder name with an inline input. Enter/blur saves, Escape cancels. */
 function startRename(folderId) {
   const folder = getFolder(folderId);
   const group = elements.notesList.querySelector(`.folder-group[data-folder-id="${CSS.escape(folderId)}"]`);
@@ -549,7 +539,6 @@ function requestDeleteFolder(folderId) {
   });
 }
 
-/** Writes the active note's pending edits only, without touching untouched notes. */
 function flushPendingSave() {
   if (saveTimeout === null) return;
   clearTimeout(saveTimeout);
@@ -597,7 +586,6 @@ function moveNoteToFolder(noteId, folderId) {
   showNotification(folder ? `Moved to "${folder.name}"` : "Moved out of folder");
 }
 
-/** Moves a folder under `parentId` (or to the top level when null). */
 function moveFolder(folderId, parentId) {
   const folder = getFolder(folderId);
   if (!folder) return;
@@ -674,7 +662,6 @@ function scheduleAutoSave() {
   }, 400);
 }
 
-/** Updates the word/character/reading-time stats shown under the editor. */
 function updateWordCount() {
   const text = getContent();
   const words = (text.match(/\S+/g) || []).length;
@@ -698,11 +685,7 @@ function handleExternalSync() {
     if (!activeNote) {
       clearTimeout(saveTimeout);
       saveTimeout = null;
-      if (notes.length > 0) {
-        selectNote(notes[0].id);
-      } else {
-        showEditorEmpty();
-      }
+      selectFirstNote();
     } else if (!hadPendingSave) {
       if (
         elements.titleInput.value !== activeNote.title ||
@@ -721,19 +704,19 @@ function handleExternalSync() {
   renderList();
 }
 
+function deleteNoteById(noteId) {
+  notes = notes.filter((n) => n.id !== noteId);
+  saveNotesToStorage();
+  if (activeNoteId === noteId) {
+    selectFirstNote();
+  }
+  renderList();
+  showNotification("Note deleted");
+}
+
 function deleteActiveNote() {
   if (!activeNoteId) return;
-  const doDelete = () => {
-    notes = notes.filter((n) => n.id !== activeNoteId);
-    saveNotesToStorage();
-    if (notes.length > 0) {
-      selectNote(notes[0].id);
-    } else {
-      showEditorEmpty();
-    }
-    renderList();
-    showNotification("Note deleted");
-  };
+  const doDelete = () => deleteNoteById(activeNoteId);
   if (skipDeleteConfirm) {
     doDelete();
   } else {
@@ -911,19 +894,7 @@ function setupEventListeners() {
     if (target.type !== "note") return;
 
     const targetId = target.id;
-    const doDelete = () => {
-      notes = notes.filter((n) => n.id !== targetId);
-      saveNotesToStorage();
-      if (activeNoteId === targetId) {
-        if (notes.length > 0) {
-          selectNote(notes[0].id);
-        } else {
-          showEditorEmpty();
-        }
-      }
-      renderList();
-      showNotification("Note deleted");
-    };
+    const doDelete = () => deleteNoteById(targetId);
     if (skipDeleteConfirm) {
       doDelete();
     } else {
@@ -979,21 +950,13 @@ function setupEventListeners() {
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState !== "visible") return;
     if (saveTimeout !== null) {
-      clearTimeout(saveTimeout);
-      saveTimeout = null;
-      saveCurrentNote(true);
+      flushPendingSave();
       renderList();
     }
     handleExternalSync();
   });
 
-  window.addEventListener("pagehide", () => {
-    if (saveTimeout !== null) {
-      clearTimeout(saveTimeout);
-      saveTimeout = null;
-      saveCurrentNote(true);
-    }
-  });
+  window.addEventListener("pagehide", flushPendingSave);
 }
 
 let deleteModalCallback = null;

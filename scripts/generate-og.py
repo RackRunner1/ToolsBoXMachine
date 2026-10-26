@@ -1,13 +1,4 @@
 #!/usr/bin/env python3
-"""
-Generate branded OG images for all HTML pages and inject OG/Twitter meta tags.
-
-Scans the project for HTML files, generates a personalized 1200x630 banner
-for each page (Twemoji + tool name + description + ToolsBoXMachine brand),
-saves them to og/, and updates the HTML files with the appropriate og:title,
-og:url, og:image, og:site_name, twitter:card, and related meta tags.
-"""
-
 import glob
 import json
 import os
@@ -19,8 +10,6 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 BASE_URL = "https://www.tbxm.org"
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# Cloudflare Pages serves the repo root as the web root, so images placed
-# in "og/" at the repo root are served at /og/<name>.png.
 OG_DIR = os.path.join(PROJECT_ROOT, "og")
 ASSETS_DIR = os.path.join(PROJECT_ROOT, ".og-assets")
 MANIFEST_PATH = os.path.join(PROJECT_ROOT, "public", "tools", "index.json")
@@ -29,33 +18,25 @@ EXCLUDE_PATTERNS = ["ui/navbar.html", "ui/footer.html"]
 
 W, H = 1200, 630
 
-# Brand palette (matches style.css)
-COLOR_BG_TOP = (2, 6, 23)        # #020617
-COLOR_BG_BOTTOM = (15, 23, 42)   # #0f172a
-COLOR_GLOW_BLUE = (59, 130, 246) # #3b82f6
-COLOR_GLOW_VIOLET = (167, 139, 250)  # #a78bfa
-COLOR_GRAD_A = (96, 165, 250)    # #60a5fa
-COLOR_GRAD_B = (167, 139, 250)   # #a78bfa
-COLOR_TITLE = (248, 250, 252)    # #f8fafc
-COLOR_DESC = (148, 163, 184)     # #94a3b8
+COLOR_BG_TOP = (2, 6, 23)
+COLOR_BG_BOTTOM = (15, 23, 42)
+COLOR_GLOW_BLUE = (59, 130, 246)
+COLOR_GLOW_VIOLET = (167, 139, 250)
+COLOR_GRAD_A = (96, 165, 250)
+COLOR_GRAD_B = (167, 139, 250)
+COLOR_TITLE = (248, 250, 252)
+COLOR_DESC = (148, 163, 184)
 
-# macOS system emoji font (Apple Color Emoji), present on macOS runners/dev machines.
-# The sbix color font only has fixed bitmap strikes; 160 gives the sharpest result.
 APPLE_EMOJI_FONT = "/System/Library/Fonts/Apple Color Emoji.ttc"
 APPLE_EMOJI_NATIVE = 160
 EMOJI_SIZE = 118
 
-# Brand logo, shown at the bottom of each banner.
 LOGO_PATH = os.path.join(PROJECT_ROOT, ".assets", "logo", "logo.png")
 LOGO_HEIGHT = 48
 
-# The homepage banner is hand-made, so it is copied as-is instead of being
-# generated. It must be committed: CI runs this script on a fresh checkout.
 HOMEPAGE_OG_NAME = "homepage"
 HOMEPAGE_OG_SOURCE = os.path.join(PROJECT_ROOT, ".assets", "homepage.png")
 
-# Dedicated data for pages that are not in the tools manifest.
-# Format: (name, emoji, description)
 PAGE_META = {
     "homepage": ("ToolsBoXMachine", "🔨", "A collection of free, privacy-first browser tools for everyday tasks."),
     "about": ("About", "ℹ️", "Learn about ToolsBoXMachine, a free and open-source collection of browser tools."),
@@ -68,7 +49,6 @@ FONT_BASE = "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-{weigh
 
 
 def get_og_name(html_path):
-    """Determine the OG image name from an HTML file path."""
     rel = os.path.relpath(html_path, PROJECT_ROOT)
 
     if rel == "index.html":
@@ -80,12 +60,10 @@ def get_og_name(html_path):
     if rel.startswith("pages/"):
         return rel.split("/")[1].replace(".html", "")
 
-    # Fallback: use filename without extension
     return os.path.splitext(os.path.basename(html_path))[0]
 
 
 def download_asset(url, dest):
-    """Download a file and cache it locally; no-op if already present."""
     if os.path.exists(dest):
         return True
     os.makedirs(os.path.dirname(dest), exist_ok=True)
@@ -103,7 +81,6 @@ def download_asset(url, dest):
 
 
 def load_emoji(emoji, size):
-    """Render an emoji with the macOS Apple Color Emoji font, or None."""
     if not emoji or not os.path.exists(APPLE_EMOJI_FONT):
         return None
     try:
@@ -125,7 +102,6 @@ def load_emoji(emoji, size):
 
 
 def load_logo():
-    """Load the brand logo resized to a fixed height, or None on failure."""
     if not os.path.exists(LOGO_PATH):
         return None
     try:
@@ -139,11 +115,6 @@ def load_logo():
 
 
 def export_og_source(source_path, output_path):
-    """Copy a hand-made banner to og/, normalized to 1200x630.
-
-    Returns False when the source is missing or unreadable, so the caller
-    can fall back to generating a banner.
-    """
     if not os.path.exists(source_path):
         print(f"  Warning: {os.path.relpath(source_path, PROJECT_ROOT)} not found")
         return False
@@ -151,10 +122,9 @@ def export_og_source(source_path, output_path):
     try:
         img = Image.open(source_path)
         if img.mode in ("RGBA", "LA", "P"):
-            # Composite on the brand background so social previews never
-            # render the transparent pixels as black.
+            rgba = img.convert("RGBA")
             flat = Image.new("RGB", img.size, COLOR_BG_BOTTOM)
-            flat.paste(img.convert("RGBA"), mask=img.convert("RGBA").getchannel("A"))
+            flat.paste(rgba, mask=rgba.getchannel("A"))
             img = flat
         else:
             img = img.convert("RGB")
@@ -174,7 +144,6 @@ def export_og_source(source_path, output_path):
 
 
 def load_font(size, weight=600):
-    """Load Inter from local cache; fall back to a system DejaVu font."""
     weight = str(weight)
     dest = os.path.join(ASSETS_DIR, "fonts", f"inter-{weight}.ttf")
     if download_asset(FONT_BASE.format(weight=weight), dest):
@@ -198,7 +167,6 @@ def load_font(size, weight=600):
 
 
 def wrap_text(text, font, max_width):
-    """Wrap text into lines fitting a max pixel width."""
     measure = ImageDraw.Draw(Image.new("RGB", (1, 1)))
     words = text.split()
     lines, current = [], ""
@@ -215,8 +183,11 @@ def wrap_text(text, font, max_width):
     return lines or [text]
 
 
+def lerp_color(color_a, color_b, t):
+    return tuple(int(a + (b - a) * t) for a, b in zip(color_a, color_b))
+
+
 def draw_gradient_text(img, xy, text, font, color_a, color_b, center=False):
-    """Draw text with a vertical gradient fill."""
     draw = ImageDraw.Draw(img)
     bbox = draw.textbbox((0, 0), text, font=font)
     tw = bbox[2] - bbox[0]
@@ -225,8 +196,7 @@ def draw_gradient_text(img, xy, text, font, color_a, color_b, center=False):
     grad = Image.new("RGB", (1, max(th, 1)))
     for i in range(th):
         t = i / max(th - 1, 1)
-        col = tuple(int(a + (b - a) * t) for a, b in zip(color_a, color_b))
-        grad.putpixel((0, i), col)
+        grad.putpixel((0, i), lerp_color(color_a, color_b, t))
     grad = grad.resize((tw, th))
 
     mask = Image.new("L", (tw, th), 0)
@@ -238,14 +208,10 @@ def draw_gradient_text(img, xy, text, font, color_a, color_b, center=False):
 
 
 def build_background():
-    """Full-bleed 1200x630 background: vertical gradient + brand glows."""
     grad = Image.new("RGB", (1, H))
     for row in range(H):
         t = row / (H - 1)
-        grad.putpixel(
-            (0, row),
-            tuple(int(a + (b - a) * t) for a, b in zip(COLOR_BG_TOP, COLOR_BG_BOTTOM)),
-        )
+        grad.putpixel((0, row), lerp_color(COLOR_BG_TOP, COLOR_BG_BOTTOM, t))
     img = grad.resize((W, H))
 
     glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -258,16 +224,12 @@ def build_background():
 
 
 def generate_og_banner(output_path, name, emoji, description):
-    """Generate a branded 1200x630 banner for a page."""
     img = build_background()
     draw = ImageDraw.Draw(img)
 
-    # Vertical layout: the emoji + title + description block is centered
-    # as a whole in the 630px-tall canvas (with the logo free in the corner).
     GAP_EMOJI_TITLE = 32
     GAP_TITLE_DESC = 26
     LINE_SPACING = 42
-    # Small nudge to keep the block slightly above the true vertical center.
     CONTENT_SHIFT_Y = -18
 
     emoji_img = load_emoji(emoji, EMOJI_SIZE)
@@ -290,17 +252,13 @@ def generate_og_banner(output_path, name, emoji, description):
     content_h = eh + GAP_EMOJI_TITLE + title_h + GAP_TITLE_DESC + desc_block_h
     top = max(20, (H - content_h) // 2 + CONTENT_SHIFT_Y)
 
-    # --- Emoji ---
-    emoji_top = top
     if emoji_img is not None:
-        # Centered horizontally by the ink bounding box, same axis as the text.
-        img.paste(emoji_img, (W // 2 - ew // 2, emoji_top), emoji_img)
+        img.paste(emoji_img, (W // 2 - ew // 2, top), emoji_img)
     else:
-        # Fallback: first letter monogram
         letter_font = load_font(72, 800)
         draw_gradient_text(
             img,
-            (W // 2, emoji_top),
+            (W // 2, top),
             name[0].upper(),
             letter_font,
             COLOR_GRAD_A,
@@ -308,24 +266,18 @@ def generate_og_banner(output_path, name, emoji, description):
             center=True,
         )
 
-    # --- Tool name ---
-    title_top = emoji_top + eh + GAP_EMOJI_TITLE
+    title_top = top + eh + GAP_EMOJI_TITLE
     draw_gradient_text(
         img, (W // 2, title_top), name, name_font, COLOR_TITLE, COLOR_GRAD_B, center=True
     )
 
-    # --- Description (wrapped, below the name) ---
     desc_top = title_top + title_h + GAP_TITLE_DESC
     for i, line in enumerate(desc_lines):
-        # Center the INK (textbbox), not the advance (textlength): `draw.text`
-        # anchors on the left-ascender pen point, and the ink can extend
-        # asymmetrically past the advance on either side.
         l, t, r, b = draw.textbbox((0, 0), line, font=desc_font)
         x = W // 2 - (l + r) // 2
         y = desc_top + i * LINE_SPACING - t
         draw.text((x, y), line, font=desc_font, fill=COLOR_DESC)
 
-    # --- Brand logo (bottom-right) ---
     logo_img = load_logo()
     if logo_img is not None:
         lw, lh = logo_img.size
@@ -336,7 +288,6 @@ def generate_og_banner(output_path, name, emoji, description):
 
 
 def load_manifest():
-    """Load tool metadata (name, emoji, description) keyed by page path."""
     try:
         with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
@@ -351,7 +302,6 @@ def load_manifest():
 
 
 def page_meta(rel_path, og_name, manifest):
-    """Return (name, emoji, description) for a page."""
     if rel_path in manifest:
         tool = manifest[rel_path]
         return (
@@ -365,7 +315,6 @@ def page_meta(rel_path, og_name, manifest):
 
 
 def upsert_meta(content, name, tag_str):
-    """Replace an existing single or multi-line meta tag, or insert it before </head>."""
     pattern = re.compile(
         rf'<meta\s+(?:property|name)="{re.escape(name)}"\s+content="[^"]*"\s*/>',
         re.IGNORECASE | re.DOTALL,
@@ -382,7 +331,6 @@ def upsert_meta(content, name, tag_str):
 
 
 def inject_og_meta(html_path, og_name, page_url):
-    """Upsert the full set of Open Graph and Twitter Card meta tags."""
     with open(html_path, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -433,7 +381,6 @@ def inject_og_meta(html_path, og_name, page_url):
 
 
 def find_html_files():
-    """Find all HTML files to process."""
     patterns = [
         os.path.join(PROJECT_ROOT, "index.html"),
         os.path.join(PROJECT_ROOT, "tools", "**", "*.html"),
@@ -485,7 +432,6 @@ def main():
         inject_og_meta(html_path, og_name, page_url)
         print()
 
-    # Remove stale images for pages that no longer exist
     expected = {f"{name}.png" for name in og_names}
     for existing in sorted(os.listdir(OG_DIR)):
         if existing.endswith(".png") and existing not in expected:

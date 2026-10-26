@@ -4,10 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
-      name="description"
-      content="Browse and copy emojis with a single click. A fast emoji picker for everyday use."
-    />
-    <meta
       name="keywords"
       content="emoji, emoji keyboard, emoji picker, copy emoji, smiley, emoticon, symbols, tbxm, toolsboxmachine"
     />
@@ -114,6 +110,13 @@
         border-radius: 1rem;
         padding: 1.25rem;
         min-height: 200px;
+      }
+
+      .emoji-grid-message {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 2rem;
+        color: #64748b;
       }
 
       .emoji-cell {
@@ -353,9 +356,9 @@
       </div>
 
       <div class="tabs-slider-wrapper">
-        <button class="tab-arrow tab-arrow-left" id="tab-arrow-left">‹</button>
+        <button class="tab-arrow" id="tab-arrow-left">‹</button>
         <div class="category-tabs" id="category-tabs"></div>
-        <button class="tab-arrow tab-arrow-right" id="tab-arrow-right">›</button>
+        <button class="tab-arrow" id="tab-arrow-right">›</button>
       </div>
 
       <div class="emoji-grid" id="emoji-grid"></div>

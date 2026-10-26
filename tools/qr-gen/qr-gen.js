@@ -8,6 +8,10 @@ const qrContainer = document.getElementById("qr-container");
 const qrPlaceholder = document.getElementById("qr-placeholder");
 const downloadBtn = document.getElementById("download-qr");
 const copyBtn = document.getElementById("copy-btn");
+const swatchDark = document.getElementById("swatch-dark");
+const swatchLight = document.getElementById("swatch-light");
+const textDark = document.getElementById("text-dark");
+const textLight = document.getElementById("text-light");
 
 const qrDotStyle = document.getElementById("qr-dot-style");
 const qrEyeStyle = document.getElementById("qr-eye-style");
@@ -18,7 +22,6 @@ let debounceTimer;
 let qr = null;
 let logoDataUrl = null;
 
-// Convert uploaded logo to base64
 qrLogo.addEventListener("change", () => {
   const file = qrLogo.files[0];
   if (!file) {
@@ -94,18 +97,20 @@ function handleInput() {
   debounceTimer = setTimeout(generateQR, 300);
 }
 
+function updateColorDisplay(swatch, label, color) {
+  swatch.style.backgroundColor = color;
+  label.textContent = color.toUpperCase();
+}
+
 qrInput.addEventListener("input", handleInput);
 qrColorDark.addEventListener("input", () => {
-  const color = qrColorDark.value;
-  document.getElementById("swatch-dark").style.backgroundColor = color;
-  document.getElementById("text-dark").textContent = color.toUpperCase();
+  updateColorDisplay(swatchDark, textDark, qrColorDark.value);
   generateQR();
 });
 
 qrColorLight.addEventListener("input", () => {
   const color = qrColorLight.value;
-  document.getElementById("swatch-light").style.backgroundColor = color;
-  document.getElementById("text-light").textContent = color.toUpperCase();
+  updateColorDisplay(swatchLight, textLight, color);
   generateQR();
   qrContainer.style.backgroundColor = color;
 });
@@ -113,11 +118,7 @@ qrSize.addEventListener("input", () => {
   sizeValue.textContent = `${qrSize.value}px`;
   generateQR();
 });
-qrDotStyle.addEventListener("change", generateQR);
-qrEyeStyle.addEventListener("change", generateQR);
-qrBorderStyle.addEventListener("change", generateQR);
 
-// DOWNLOAD PNG
 downloadBtn.addEventListener("click", async () => {
   if (!qr) return;
 
@@ -128,7 +129,6 @@ downloadBtn.addEventListener("click", async () => {
   link.click();
 });
 
-// COPY IMAGE
 copyBtn.addEventListener("click", async () => {
   if (!qr) return;
 
@@ -168,58 +168,41 @@ copyBtn.addEventListener("click", async () => {
   }, 2000);
 });
 
-// Initial state
 sizeValue.textContent = `${qrSize.value}px`;
 qrContainer.style.backgroundColor = qrColorLight.value;
 
-// Init custom color pickers
-document.getElementById("swatch-dark").style.backgroundColor =
-  qrColorDark.value;
-document.getElementById("text-dark").textContent =
-  qrColorDark.value.toUpperCase();
-document.getElementById("swatch-light").style.backgroundColor =
-  qrColorLight.value;
-document.getElementById("text-light").textContent =
-  qrColorLight.value.toUpperCase();
+updateColorDisplay(swatchDark, textDark, qrColorDark.value);
+updateColorDisplay(swatchLight, textLight, qrColorLight.value);
 
-// CUSTOM SELECT LOGIC
 document.querySelectorAll(".custom-select-container").forEach((container) => {
   const trigger = container.querySelector(".select-trigger");
   const options = container.querySelectorAll(".select-option");
   const nativeSelect = container.querySelector(".native-select");
   const labelText = trigger.querySelector("span");
 
-  // Toggle dropdown
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
-    // Close other dropdowns
     document.querySelectorAll(".custom-select-container").forEach((other) => {
       if (other !== container) other.classList.remove("active");
     });
     container.classList.toggle("active");
   });
 
-  // Handle option selection
   options.forEach((option) => {
     option.addEventListener("click", () => {
       const value = option.dataset.value;
       const text = option.textContent.trim();
 
-      // Update UI
       labelText.textContent = text;
       options.forEach((opt) => opt.classList.remove("selected"));
       option.classList.add("selected");
 
-      // Update native select and trigger change
       nativeSelect.value = value;
       generateQR();
-
-      container.classList.remove("active");
     });
   });
 });
 
-// Close dropdowns when clicking outside
 document.addEventListener("click", () => {
   document.querySelectorAll(".custom-select-container").forEach((container) => {
     container.classList.remove("active");

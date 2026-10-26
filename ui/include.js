@@ -1,6 +1,3 @@
-// Reads the edition name from /edition.txt and displays it next to the logo
-// in the navbar (e.g. "Kepler Edition"). The label is hidden if the file is
-// missing or empty, so the navbar still looks fine without it.
 async function loadEditionLabel() {
   const label = document.querySelector(".nav-edition");
   if (!label) return;
@@ -53,8 +50,7 @@ async function includeHTML() {
 
   await Promise.all(promises);
 
-  const event = new Event("components-loaded");
-  document.dispatchEvent(event);
+  document.dispatchEvent(new Event("components-loaded"));
 }
 
 includeHTML();

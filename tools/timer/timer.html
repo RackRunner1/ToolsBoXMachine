@@ -62,7 +62,6 @@
         stroke: var(--primary-color, #3b82f6);
         stroke-width: 8;
         stroke-linecap: round;
-        /* r=160, 2*pi*r = 1005.3 */
         stroke-dasharray: 1005.3;
         stroke-dashoffset: 0;
         transition:
@@ -72,7 +71,7 @@
       }
 
       .timer-circle-progress.break-mode {
-        stroke: #10b981; /* Emerald green for breaks */
+        stroke: #10b981;
         filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.6));
       }
 
@@ -107,7 +106,6 @@
         font-weight: 600;
       }
 
-      /* Custom Premium Select */
       .custom-select-container {
         position: relative;
         width: 100%;
@@ -366,6 +364,132 @@
         }
       }
 
+      .btn.advanced-toggle {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+        margin-top: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(15, 23, 42, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .stats-action {
+        padding: 0.75rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .stats-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .stats-modal-panel {
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        padding: 2rem;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        position: relative;
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+      }
+
+      .stats-modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        color: #94a3b8;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.2s,
+          color 0.2s;
+      }
+
+      .stats-modal-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+
+      .stats-modal-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .stats-modal-icon {
+        background: rgba(59, 130, 246, 0.2);
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        color: var(--primary-color);
+      }
+
+      .stats-modal-title {
+        margin: 0;
+        font-size: 1.5rem;
+        color: white;
+      }
+
+      .stats-card {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .stats-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .stats-row:first-child {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .stats-label {
+        color: #cbd5e1;
+        font-size: 0.95rem;
+      }
+
+      .stats-value {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 1.25rem;
+        font-family: var(--font-mono, monospace);
+      }
+
+      .stats-value-alt {
+        color: #10b981;
+      }
     </style>
     <script type="application/ld+json">
 {
@@ -380,7 +504,6 @@
   "creator": { "@type": "Person", "name": "RackRunner" }
 }
 </script>
-    <meta name="description" content="Pomodoro timer for focused work sessions. Customizable durations, break intervals, and notifications. Free, private." />
     <meta name="content-signal" content="ai-train, ai-input, search" />
     <link rel="canonical" href="https://www.tbxm.org/tools/timer/timer.html" />
     <meta property="og:type" content="website" />
@@ -413,7 +536,7 @@
           <label>Select Duration</label>
           <div class="custom-select-container" data-id="timer-mode">
             <div class="select-trigger">
-              <span id="mode-label">Pomodoro (25:00)</span>
+              <span>Pomodoro (25:00)</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -482,7 +605,7 @@
             >
             <div class="custom-select-container" data-id="alarm-sound-select">
               <div class="select-trigger">
-                <span id="sound-label">Classic Digital</span>
+                <span>Classic Digital</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -512,18 +635,8 @@
             </div>
           </div>
           <button
-            class="btn btn-secondary w-full"
+            class="btn btn-secondary w-full advanced-toggle"
             id="advanced-options-btn"
-            style="
-              padding: 0.5rem;
-              font-size: 0.85rem;
-              margin-top: 0.75rem;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              background: rgba(15, 23, 42, 0.4);
-              border: 1px solid rgba(255, 255, 255, 0.1);
-            "
           >
             <span>View Advanced Options</span>
             <svg
@@ -556,15 +669,8 @@
             "
           >
             <div>
-              <div
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  margin-bottom: 0.25rem;
-                "
-              >
-                <label style="font-size: 0.85rem; color: #cbd5e1">Volume</label>
+              <div class="slider-header" style="margin-bottom: 0.25rem">
+                <label style="font-size: 0.85rem">Volume</label>
                 <span id="volume-val" class="val-badge">80%</span>
               </div>
               <input
@@ -627,19 +733,12 @@
           </button>
         </div>
 
-        <div class="sidebar-section" id="stats-section">
+        <div class="sidebar-section">
           <h3>4. Focus Stats</h3>
           <button
-            class="btn btn-primary w-full"
+            class="btn btn-primary w-full stats-action"
             id="view-stats-btn"
-            style="
-              padding: 0.75rem;
-              font-size: 0.9rem;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              gap: 0.5rem;
-            "
+            style="font-size: 0.9rem"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -708,68 +807,9 @@
       </div>
     </div>
 
-    <!-- Stats Modal -->
-    <div
-      id="stats-modal"
-      style="
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 9999;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(5px);
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      "
-    >
-      <div
-        style="
-          background: rgba(15, 23, 42, 0.9);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 1rem;
-          padding: 2rem;
-          width: 90%;
-          max-width: 400px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-          position: relative;
-          transform: scale(0.95);
-          transition: transform 0.3s ease;
-        "
-        id="stats-modal-content"
-      >
-        <button
-          id="close-stats-modal"
-          style="
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: none;
-            border: none;
-            color: #94a3b8;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition:
-              background 0.2s,
-              color 0.2s;
-          "
-          onmouseover="
-            this.style.background = 'rgba(255,255,255,0.1)';
-            this.style.color = 'white';
-          "
-          onmouseout="
-            this.style.background = 'none';
-            this.style.color = '#94a3b8';
-          "
-        >
+    <div id="stats-modal" class="stats-modal">
+      <div id="stats-modal-content" class="stats-modal-panel">
+        <button id="close-stats-modal" class="stats-modal-close">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="20"
@@ -785,22 +825,8 @@
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-          "
-        >
-          <div
-            style="
-              background: rgba(59, 130, 246, 0.2);
-              padding: 0.75rem;
-              border-radius: 0.75rem;
-              color: var(--primary-color);
-            "
-          >
+        <div class="stats-modal-header">
+          <div class="stats-modal-icon">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -816,77 +842,25 @@
               <path d="m19 9-5 5-4-4-3 3" />
             </svg>
           </div>
-          <h2 style="margin: 0; font-size: 1.5rem; color: white">
-            Focus Stats
-          </h2>
+          <h2 class="stats-modal-title">Focus Stats</h2>
         </div>
 
-        <div
-          style="
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 0.75rem;
-            padding: 1.25rem;
-            margin-bottom: 1.5rem;
-          "
-        >
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 1rem;
-              border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-              padding-bottom: 1rem;
-            "
-          >
-            <span style="color: #cbd5e1; font-size: 0.95rem"
-              >Completed Sessions</span
-            >
-            <span
-              id="sessions-count"
-              style="
-                font-weight: 700;
-                color: var(--primary-color);
-                font-size: 1.25rem;
-                font-family: var(--font-mono, monospace);
-              "
-              >0</span
-            >
+        <div class="stats-card">
+          <div class="stats-row">
+            <span class="stats-label">Completed Sessions</span>
+            <span id="sessions-count" class="stats-value">0</span>
           </div>
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            "
-          >
-            <span style="color: #cbd5e1; font-size: 0.95rem"
-              >Total Focus Time</span
-            >
-            <span
-              id="total-focus-time"
-              style="
-                font-weight: 700;
-                color: #10b981;
-                font-size: 1.25rem;
-                font-family: var(--font-mono, monospace);
-              "
+          <div class="stats-row">
+            <span class="stats-label">Total Focus Time</span>
+            <span id="total-focus-time" class="stats-value stats-value-alt"
               >0m</span
             >
           </div>
         </div>
 
         <button
-          class="btn btn-secondary w-full"
+          class="btn btn-secondary w-full stats-action"
           id="clear-stats-btn"
-          style="
-            padding: 0.75rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-          "
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

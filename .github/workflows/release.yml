@@ -19,9 +19,6 @@ jobs:
 
       - name: Generate release tag
         id: tag
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
         run: |
           TODAY=$(date +%Y%m%d)
           echo "=== Debug Info ==="
@@ -29,22 +26,18 @@ jobs:
           echo "All tags:"
           git tag -l
 
-          # Edition name from edition.txt (falls back to empty if missing)
           EDITION=""
           if [ -f edition.txt ]; then
             EDITION=$(head -n1 edition.txt | tr -d '\r' | xargs)
           fi
           echo "Edition: $EDITION"
 
-          # Lowercase, tag-safe copy of the edition, used as unique tag suffix
           TAG_EDITION=""
           if [ -n "$EDITION" ]; then
             TAG_EDITION=$(printf '%s' "$EDITION" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^[-.]+//; s/[-.]+$//')
           fi
           echo "Tag edition suffix: $TAG_EDITION"
 
-          # With an edition: today's tags of THIS edition (yyyyMMddNN-edition).
-          # The counter restarts at 01 for each edition each day.
           if [ -n "$TAG_EDITION" ]; then
             TODAY_TAGS=$(git tag -l | while IFS= read -r t; do
               case "$t" in
@@ -52,7 +45,6 @@ jobs:
               esac
             done | sort -r)
           else
-            # Without an edition: shared counter for the day (legacy yyyyMMddNN)
             TODAY_TAGS=$(git tag -l "${TODAY}*" | grep -E "^${TODAY}[0-9]{2}$" | sort -r || true)
           fi
           echo "Today tags: $TODAY_TAGS"
@@ -68,7 +60,6 @@ jobs:
           fi
           NEXT_NUM=$(printf "%02d" $((10#$MAX_NUM + 1)))
 
-          # Most recent tag overall (by tag date) for commit range
           LAST_TAG=$(git for-each-ref refs/tags --sort=refname --sort=-creatordate --format='%(refname:short)' | head -n1)
           echo "Last tag: $LAST_TAG"
 
@@ -80,7 +71,6 @@ jobs:
           fi
           echo "New tag: $TAG"
 
-          # Release name keeps the yyyyMMddNN + edition styling
           if [ -n "$EDITION" ]; then
             RELEASE_NAME="${TAG_NUM} (${EDITION} Edition)"
           else
@@ -88,7 +78,6 @@ jobs:
           fi
           echo "Release name: $RELEASE_NAME"
 
-          # Set outputs
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "release_name=$RELEASE_NAME" >> "$GITHUB_OUTPUT"
           echo "last_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
@@ -117,7 +106,6 @@ jobs:
           TEST_FILE=$(mktemp)
           OTHER_FILE=$(mktemp)
 
-          # Write header
           {
             echo "# 🪟 Build Name: ${RELEASE_NAME}"
             echo ""
@@ -125,7 +113,6 @@ jobs:
             echo ""
           } > "$OUTPUT_FILE"
 
-          # Get commits since last tag
           COMMIT_REGEX='^([a-zA-Z]+)(\(([^)]+)\))?!?:\ (.+)$'
 
           if [ -n "$LAST_TAG" ]; then
@@ -172,7 +159,6 @@ jobs:
             git log --pretty=tformat:"%H|%s" --no-merges
           fi)
 
-          # Append sections in order
           append_section() {
             local file="$1"
             local title="$2"
@@ -195,10 +181,8 @@ jobs:
           append_section "$TEST_FILE" "✅ Tests"
           append_section "$OTHER_FILE" "📦 Other"
 
-          # Cleanup temp files
           rm -f "$FIX_FILE" "$FEAT_FILE" "$REFACTOR_FILE" "$PERF_FILE" "$STYLE_FILE" "$CHORE_FILE" "$DOCS_FILE" "$CI_FILE" "$TEST_FILE" "$OTHER_FILE"
 
-          # Output using delimiter
           {
             echo "body<<RELEASEEOF"
             cat "$OUTPUT_FILE"

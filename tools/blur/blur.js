@@ -11,22 +11,23 @@ const brushSizeContainer = document.getElementById("brush-size-container");
 const blurIntensityContainer = document.getElementById(
   "blur-intensity-container",
 );
+const canvasPlaceholder = document.getElementById("canvas-placeholder");
+const pasteHint = document.getElementById("paste-hint");
 
-const mobileNotice = document.getElementById('mobile-notice');
-if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-  mobileNotice.classList.add('visible');
+const mobileNotice = document.getElementById("mobile-notice");
+if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+  mobileNotice.classList.add("visible");
 }
 
 let imageObjects = null;
 let isDrawing = false;
 let isTouchEvent = false;
-let offscreenCanvas = document.createElement("canvas");
-let offscreenCtx = offscreenCanvas.getContext("2d");
+const offscreenCanvas = document.createElement("canvas");
+const offscreenCtx = offscreenCanvas.getContext("2d");
 const modeRadios = document.querySelectorAll('input[name="blurMode"]');
 
-// A secondary canvas to keep track of painted strokes
-let paintCanvas = document.createElement("canvas");
-let paintCtx = paintCanvas.getContext("2d");
+const paintCanvas = document.createElement("canvas");
+const paintCtx = paintCanvas.getContext("2d");
 let blurHistory = [];
 const maxHistory = 20;
 
@@ -35,8 +36,6 @@ const supportsCtxFilter = (() => {
     const testCanvas = document.createElement("canvas");
     const testCtx = testCanvas.getContext("2d");
     if (typeof testCtx.filter === "undefined") return false;
-    // WebKit may expose the property but silently ignore assignments,
-    // so verify the value actually sticks.
     testCtx.filter = "blur(2px)";
     return testCtx.filter === "blur(2px)";
   } catch (e) {
@@ -44,14 +43,8 @@ const supportsCtxFilter = (() => {
   }
 })();
 
-// Fallback for engines without CanvasRenderingContext2D.filter
-// (WebKit / Safari / WebKitGTK: assignment is silently ignored, so all
-// blur() calls below would draw sharp pixels). True gaussian-approximated
-// box blur (3 stacked passes) at full resolution: smooth everywhere, no
-// pixelation, cached per image/radius so brush dabs stay cheap.
 let _blurCache = { src: null, radius: -1, canvas: null };
 
-// Box sizes whose stacked result approximates gaussian(sigma) (Kutskir).
 function boxesForGauss(sigma, n) {
   const wIdeal = Math.sqrt((12 * sigma * sigma) / n + 1);
   let wl = Math.floor(wIdeal);
@@ -127,9 +120,16 @@ function boxBlurV(src, dst, w, h, r) {
   }
 }
 
-// Last-resort blur when pixel reads are blocked (tainted canvas from a
-// cross-origin image): stepwise-halve downscale then one upscale. Smooth,
-// no readback needed.
+function createSmoothContext(w, h) {
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const cctx = c.getContext("2d");
+  cctx.imageSmoothingEnabled = true;
+  cctx.imageSmoothingQuality = "high";
+  return cctx;
+}
+
 function smoothDownscaleBlur(src, w, h, sigma) {
   const target = Math.max(1, sigma / 2);
   const sw = Math.max(1, Math.round(w / target));
@@ -140,67 +140,40 @@ function smoothDownscaleBlur(src, w, h, sigma) {
   while (curW / 2 >= sw && curH / 2 >= sh && Math.min(curW, curH) > 16) {
     curW = Math.round(curW / 2);
     curH = Math.round(curH / 2);
-    const step = document.createElement("canvas");
-    step.width = curW;
-    step.height = curH;
-    const sctx = step.getContext("2d");
-    sctx.imageSmoothingEnabled = true;
-    sctx.imageSmoothingQuality = "high";
-    sctx.drawImage(cur, 0, 0, curW, curH);
-    cur = step;
+    const step = createSmoothContext(curW, curH);
+    step.drawImage(cur, 0, 0, curW, curH);
+    cur = step.canvas;
   }
   if (cur.width !== sw || cur.height !== sh) {
-    const small = document.createElement("canvas");
-    small.width = sw;
-    small.height = sh;
-    const sctx = small.getContext("2d");
-    sctx.imageSmoothingEnabled = true;
-    sctx.imageSmoothingQuality = "high";
-    sctx.drawImage(cur, 0, 0, sw, sh);
-    cur = small;
+    const small = createSmoothContext(sw, sh);
+    small.drawImage(cur, 0, 0, sw, sh);
+    cur = small.canvas;
   }
-  const out = document.createElement("canvas");
-  out.width = w;
-  out.height = h;
-  const octx = out.getContext("2d");
-  octx.imageSmoothingEnabled = true;
-  octx.imageSmoothingQuality = "high";
-  octx.drawImage(cur, 0, 0, w, h);
-  return out;
+  const out = createSmoothContext(w, h);
+  out.drawImage(cur, 0, 0, w, h);
+  return out.canvas;
 }
 
 function manualBlurCanvas(src, radius) {
   const sigma = Math.round(radius);
   const w = src.naturalWidth || src.width;
   const h = src.naturalHeight || src.height;
-  const out = document.createElement("canvas");
-  out.width = w;
-  out.height = h;
-  const octx = out.getContext("2d");
-  octx.imageSmoothingEnabled = true;
-  octx.imageSmoothingQuality = "high";
+  const out = createSmoothContext(w, h);
   if (!(sigma > 0)) {
-    octx.drawImage(src, 0, 0);
-    return out;
+    out.drawImage(src, 0, 0);
+    return out.canvas;
   }
 
-  // Cap the working resolution so huge photos stay fast; the blur itself
-  // is still computed with real box passes, then upscaled smoothly.
   const MAX_PIXELS = 2000000;
   const scale = Math.min(1, Math.sqrt(MAX_PIXELS / (w * h)));
   const ww = Math.max(1, Math.round(w * scale));
   const hh = Math.max(1, Math.round(h * scale));
-  const work = document.createElement("canvas");
-  work.width = ww;
-  work.height = hh;
-  const wctx = work.getContext("2d");
-  wctx.imageSmoothingEnabled = true;
-  wctx.imageSmoothingQuality = "high";
-  wctx.drawImage(src, 0, 0, ww, hh);
+  const work = createSmoothContext(ww, hh);
+  work.drawImage(src, 0, 0, ww, hh);
 
   let imgData = null;
   try {
-    imgData = wctx.getImageData(0, 0, ww, hh);
+    imgData = work.getImageData(0, 0, ww, hh);
   } catch (e) {
     imgData = null;
   }
@@ -217,9 +190,9 @@ function manualBlurCanvas(src, radius) {
     boxBlurV(bufB, bufA, ww, hh, r);
   }
   imgData.data.set(bufA);
-  wctx.putImageData(imgData, 0, 0);
-  octx.drawImage(work, 0, 0, w, h);
-  return out;
+  work.putImageData(imgData, 0, 0);
+  out.drawImage(work.canvas, 0, 0, w, h);
+  return out.canvas;
 }
 
 function getBlurredSource(radius) {
@@ -232,11 +205,26 @@ function getBlurredSource(radius) {
   return blurred;
 }
 
-// Preview Brush state
-let showBrushPreview = false;
-let previewTimeout = null;
+function getBlurMode() {
+  return document.querySelector('input[name="blurMode"]:checked').value;
+}
 
-// Selector state
+function getBlurRadius() {
+  return parseInt(blurIntensityInput.value, 10) || 0;
+}
+
+function drawBlurredImage(target, radius) {
+  if (supportsCtxFilter) {
+    target.filter = `blur(${radius}px)`;
+    target.drawImage(imageObjects, 0, 0);
+    target.filter = "none";
+  } else {
+    target.drawImage(getBlurredSource(radius), 0, 0);
+  }
+}
+
+let showBrushPreview = false;
+
 let selectionStart = null;
 let selectionEnd = null;
 let isSelecting = false;
@@ -252,16 +240,13 @@ function saveState() {
 
 function undo() {
   if (blurHistory.length > 0) {
-    const previousState = blurHistory.pop();
-    paintCtx.putImageData(previousState, 0, 0);
-    updateCanvas();
+    paintCtx.putImageData(blurHistory.pop(), 0, 0);
   } else {
     paintCtx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-    updateCanvas();
   }
+  updateCanvas();
 }
 
-// Undo is bound to the Ctrl/Cmd + Z shortcut
 document.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "z") {
     e.preventDefault();
@@ -269,16 +254,13 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// Transform state for zooming and panning
 let currentTransform = { x: 0, y: 0, scale: 1 };
 let isPanning = false;
 let startPan = { x: 0, y: 0 };
 const canvasContainer = document.querySelector(".canvas-container");
 
-// Prevent context menu on right click
 canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
-// Compute the natural CSS-displayed size of the canvas (as if no JS transform applied)
 function getNaturalDisplaySize() {
   const containerW = canvasContainer.getBoundingClientRect().width;
   const naturalW = Math.min(canvas.width, containerW);
@@ -295,7 +277,6 @@ function applyTransform() {
   const scaledW = naturalW * currentTransform.scale;
   const scaledH = naturalH * currentTransform.scale;
 
-  // Constrain X: image must stay within container width
   if (scaledW > containerW) {
     currentTransform.x = Math.min(
       0,
@@ -305,7 +286,6 @@ function applyTransform() {
     currentTransform.x = (containerW - scaledW) / 2;
   }
 
-  // Constrain Y: image must stay within its natural displayed height
   if (scaledH > naturalH) {
     currentTransform.y = Math.min(
       0,
@@ -331,7 +311,7 @@ canvasContainer.addEventListener(
       let newScale = currentTransform.scale * zoom;
 
       if (newScale > 50) return;
-      if (newScale < 1) newScale = 1; // 1 = CSS natural fit size
+      if (newScale < 1) newScale = 1;
 
       const rect = canvas.getBoundingClientRect();
       const dx = e.clientX - rect.left;
@@ -348,16 +328,12 @@ canvasContainer.addEventListener(
   { passive: false },
 );
 
-// Brush size applies to brush/eraser; intensity to everything but eraser
 function updateSettingsVisibility() {
-  const mode = document.querySelector('input[name="blurMode"]:checked').value;
+  const mode = getBlurMode();
   const showBrush = mode !== "full" && mode !== "selector";
   const showIntensity = mode !== "eraser";
   brushSizeContainer.style.display = showBrush ? "block" : "none";
   blurIntensityContainer.style.display = showIntensity ? "block" : "none";
-  // The inter-slider gap lives on the brush container, but only when the
-  // intensity slider below it is visible (:last-child ignores display:none,
-  // so CSS alone would keep a 1.5rem gap under a lone brush slider).
   brushSizeContainer.style.marginBottom = showIntensity ? "" : "0";
 }
 
@@ -365,19 +341,10 @@ function updateCanvas() {
   updateSettingsVisibility();
 
   if (!imageObjects) return;
-  const mode = document.querySelector('input[name="blurMode"]:checked').value;
+  const mode = getBlurMode();
 
   if (mode === "full") {
-    // Always use ctx.filter instead of CSS filter so toDataURL() captures the blur.
-    // WebKit fallback: stamp a pre-blurred copy instead.
-    const blurPx = parseInt(blurIntensityInput.value, 10) || 0;
-    if (supportsCtxFilter) {
-      ctx.filter = `blur(${blurPx}px)`;
-      ctx.drawImage(imageObjects, 0, 0);
-      ctx.filter = "none";
-    } else {
-      ctx.drawImage(getBlurredSource(blurPx), 0, 0);
-    }
+    drawBlurredImage(ctx, getBlurRadius());
   } else {
     canvas.style.filter = "none";
     ctx.drawImage(imageObjects, 0, 0);
@@ -393,11 +360,17 @@ function updateCanvas() {
   }
 }
 
+function getSelectionRect() {
+  return {
+    x: Math.min(selectionStart.x, selectionEnd.x),
+    y: Math.min(selectionStart.y, selectionEnd.y),
+    w: Math.abs(selectionEnd.x - selectionStart.x),
+    h: Math.abs(selectionEnd.y - selectionStart.y),
+  };
+}
+
 function drawSelectorOverlay() {
-  const x = Math.min(selectionStart.x, selectionEnd.x);
-  const y = Math.min(selectionStart.y, selectionEnd.y);
-  const w = Math.abs(selectionEnd.x - selectionStart.x);
-  const h = Math.abs(selectionEnd.y - selectionStart.y);
+  const { x, y, w, h } = getSelectionRect();
 
   ctx.save();
   ctx.beginPath();
@@ -423,10 +396,10 @@ function drawBrushPreview() {
 
   const containerRect = canvasContainer.getBoundingClientRect();
   const canvasRect = canvas.getBoundingClientRect();
+  const scale = canvas.width / canvasRect.width;
 
   const centerX =
-    (containerRect.width / 2 + containerRect.left - canvasRect.left) *
-    (canvas.width / canvasRect.width);
+    (containerRect.width / 2 + containerRect.left - canvasRect.left) * scale;
   const centerY =
     (containerRect.height / 2 + containerRect.top - canvasRect.top) *
     (canvas.height / canvasRect.height);
@@ -435,17 +408,14 @@ function drawBrushPreview() {
   ctx.beginPath();
   ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
   ctx.strokeStyle = "rgba(0, 0, 0, 0.5)";
-  ctx.lineWidth = 3 * (canvas.width / canvasRect.width);
+  ctx.lineWidth = 3 * scale;
   ctx.stroke();
 
   ctx.beginPath();
   ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
-  ctx.setLineDash([
-    5 * (canvas.width / canvasRect.width),
-    5 * (canvas.width / canvasRect.width),
-  ]);
+  ctx.setLineDash([5 * scale, 5 * scale]);
   ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.lineWidth = 1.5 * (canvas.width / canvasRect.width);
+  ctx.lineWidth = 1.5 * scale;
   ctx.stroke();
   ctx.restore();
 }
@@ -479,6 +449,7 @@ brushSizeInput.addEventListener("change", () => {
   showBrushPreview = false;
   updateCanvas();
 });
+
 blurIntensityInput.addEventListener("input", (e) => {
   blurVal.textContent = e.target.value;
   if (imageObjects) {
@@ -503,8 +474,7 @@ function loadImage(src) {
     imageObjects = img;
     _blurCache = { src: null, radius: -1, canvas: null };
 
-    const placeholder = document.getElementById("canvas-placeholder");
-    if (placeholder) placeholder.style.display = "none";
+    canvasPlaceholder.style.display = "none";
     canvas.style.display = "block";
 
     currentTransform = { x: 0, y: 0, scale: 1 };
@@ -516,34 +486,33 @@ function loadImage(src) {
   img.src = src;
 }
 
+function readImageFile(file) {
+  const reader = new FileReader();
+  reader.onload = (event) => loadImage(event.target.result);
+  reader.readAsDataURL(file);
+}
+
 upload.addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
   hidePasteHint();
-  const reader = new FileReader();
-  reader.onload = (event) => loadImage(event.target.result);
-  reader.readAsDataURL(file);
+  readImageFile(file);
 });
 
-// Clipboard Logic
 function loadFile(file) {
   if (!file || !file.type || !file.type.startsWith("image/")) return false;
-  const reader = new FileReader();
-  reader.onload = (event) => loadImage(event.target.result);
-  reader.readAsDataURL(file);
+  readImageFile(file);
   return true;
 }
 
 function handlePaste(e) {
   const clipboardData = e.clipboardData;
   if (!clipboardData) {
-    // WebKit may provide no clipboardData at all: try the async API.
     pasteFromClipboardAPI(e);
     return;
   }
 
-  // Files pasted directly (screenshot tool, file from explorer, ...)
   if (clipboardData.files && clipboardData.files.length > 0) {
     for (const file of clipboardData.files) {
       if (loadFile(file)) {
@@ -554,10 +523,6 @@ function handlePaste(e) {
     }
   }
 
-  // Image items ("Copy image" from another page, screenshot, ...)
-  // NOTE: WebKit/Safari leaves files *and* items empty for pasted images,
-  // so falling through to the navigator.clipboard.read() fallback below
-  // is the expected path there, not an error.
   const items = clipboardData.items;
   if (items) {
     for (const item of items) {
@@ -572,9 +537,6 @@ function handlePaste(e) {
     }
   }
 
-  // A text paste (string items) is not a failed image paste: leave it
-  // alone so ordinary text pastes never trigger a clipboard-read
-  // permission prompt or a misleading hint.
   if (items) {
     for (const item of items) {
       if (item.kind === "string") return;
@@ -589,15 +551,9 @@ function handlePaste(e) {
     return;
   }
 
-  // Neither files nor items yielded an image (WebKit behavior):
-  // fall back to the async Clipboard API while still in the paste gesture.
   pasteFromClipboardAPI(e);
 }
 
-// WebKit fallback: Safari/Epiphany/WebKitGTK do not expose pasted images
-// via clipboardData.files/items. navigator.clipboard.read() is invoked
-// synchronously inside the paste (user-gesture) handler so the transient
-// activation still applies; only the blob decoding continues async.
 function pasteFromClipboardAPI(e) {
   try {
     if (
@@ -607,9 +563,6 @@ function pasteFromClipboardAPI(e) {
       showPasteHint();
       return;
     }
-    // Suppress any default paste behavior while the async read is pending.
-    // Harmless on pages without an editable target; prevents inline
-    // insertion if one ever exists.
     if (e && typeof e.preventDefault === "function") e.preventDefault();
     navigator.clipboard
       .read()
@@ -642,46 +595,34 @@ function pasteFromClipboardAPI(e) {
   }
 }
 
-function getPasteHintEl() {
-  return document.getElementById("paste-hint");
-}
-
 function showPasteHint() {
-  const el = getPasteHintEl();
-  if (el) el.hidden = false;
+  pasteHint.hidden = false;
 }
 
 function hidePasteHint() {
-  const el = getPasteHintEl();
-  if (el) el.hidden = true;
+  pasteHint.hidden = true;
 }
 
-// Ctrl/Cmd + V paste support
 window.addEventListener("paste", handlePaste);
 
-// Pad offscreen canvas to avoid edge transparency with blur
 function renderBlurredOffscreen() {
   if (!imageObjects) return;
-  const blurValue = parseInt(blurIntensityInput.value, 10) || 0;
+  const blurValue = getBlurRadius();
   if (!supportsCtxFilter) {
-    // Manual blur clamps edges (no transparency), so no padding needed
-    // and 1:1 geometry keeps the selector preview aligned.
-    _blurCache.src = null; // intensity may have changed; force recompute
+    _blurCache.src = null;
     offscreenCanvas.width = imageObjects.width;
     offscreenCanvas.height = imageObjects.height;
-    offscreenCanvas.getContext("2d").drawImage(getBlurredSource(blurValue), 0, 0);
+    offscreenCtx.drawImage(getBlurredSource(blurValue), 0, 0);
     return;
   }
-  const pad = blurValue;
 
-  offscreenCanvas.width = imageObjects.width + pad * 2;
-  offscreenCanvas.height = imageObjects.height + pad * 2;
+  offscreenCanvas.width = imageObjects.width + blurValue * 2;
+  offscreenCanvas.height = imageObjects.height + blurValue * 2;
   offscreenCtx.filter = `blur(${blurValue}px)`;
-  offscreenCtx.drawImage(imageObjects, pad, pad);
+  offscreenCtx.drawImage(imageObjects, blurValue, blurValue);
   offscreenCtx.filter = "none";
 }
 
-// Map canvas coordinates from pointer/touch events, accounting for CSS transforms
 function getPosFromEvent(evt) {
   const rect = canvas.getBoundingClientRect();
   const scaleX = canvas.width / rect.width;
@@ -697,7 +638,22 @@ function getPosFromEvent(evt) {
   };
 }
 
-// --- Selector handlers ---
+function startSelection(e) {
+  saveState();
+  selectionStart = getPosFromEvent(e);
+  selectionEnd = getPosFromEvent(e);
+  isSelecting = true;
+  updateCanvas();
+}
+
+function finishSelection() {
+  isSelecting = false;
+  applySelectorBlur();
+  selectionStart = null;
+  selectionEnd = null;
+  updateCanvas();
+}
+
 function onSelectorMouseMove(e) {
   if (!isSelecting) return;
   selectionEnd = getPosFromEvent(e);
@@ -706,11 +662,7 @@ function onSelectorMouseMove(e) {
 
 function onSelectorMouseUp() {
   if (!isSelecting) return;
-  isSelecting = false;
-  applySelectorBlur();
-  selectionStart = null;
-  selectionEnd = null;
-  updateCanvas();
+  finishSelection();
   document.removeEventListener("mousemove", onSelectorMouseMove);
   document.removeEventListener("mouseup", onSelectorMouseUp);
 }
@@ -724,16 +676,11 @@ function onSelectorTouchMove(e) {
 
 function onSelectorTouchEnd() {
   if (!isSelecting) return;
-  isSelecting = false;
-  applySelectorBlur();
-  selectionStart = null;
-  selectionEnd = null;
-  updateCanvas();
+  finishSelection();
   document.removeEventListener("touchmove", onSelectorTouchMove);
   document.removeEventListener("touchend", onSelectorTouchEnd);
 }
 
-// --- mousedown ---
 canvas.addEventListener("mousedown", (e) => {
   if (!imageObjects) return;
   if (isTouchEvent) { isTouchEvent = false; return; }
@@ -748,15 +695,11 @@ canvas.addEventListener("mousedown", (e) => {
     return;
   }
 
-  const mode = document.querySelector('input[name="blurMode"]:checked').value;
+  const mode = getBlurMode();
   if (mode === "full") return;
 
   if (mode === "selector") {
-    saveState();
-    selectionStart = getPosFromEvent(e);
-    selectionEnd = getPosFromEvent(e);
-    isSelecting = true;
-    updateCanvas();
+    startSelection(e);
     document.addEventListener("mousemove", onSelectorMouseMove);
     document.addEventListener("mouseup", onSelectorMouseUp);
     return;
@@ -779,16 +722,14 @@ canvas.addEventListener("mousemove", (e) => {
   }
 });
 
-canvas.addEventListener("mouseup", () => {
+function stopCanvasInteraction() {
   isPanning = false;
   isDrawing = false;
-});
-canvas.addEventListener("mouseleave", () => {
-  isPanning = false;
-  isDrawing = false;
-});
+}
 
-// --- Touch handlers ---
+canvas.addEventListener("mouseup", stopCanvasInteraction);
+canvas.addEventListener("mouseleave", stopCanvasInteraction);
+
 canvas.addEventListener("touchstart", (e) => {
   e.preventDefault();
   isTouchEvent = true;
@@ -804,15 +745,11 @@ canvas.addEventListener("touchstart", (e) => {
     return;
   }
 
-  const mode = document.querySelector('input[name="blurMode"]:checked').value;
+  const mode = getBlurMode();
   if (mode === "full") return;
 
   if (mode === "selector") {
-    saveState();
-    selectionStart = getPosFromEvent(e);
-    selectionEnd = getPosFromEvent(e);
-    isSelecting = true;
-    updateCanvas();
+    startSelection(e);
     document.addEventListener("touchmove", onSelectorTouchMove, { passive: false });
     document.addEventListener("touchend", onSelectorTouchEnd);
     return;
@@ -847,28 +784,18 @@ canvas.addEventListener("touchend", (e) => {
 function drawBlur(e) {
   const pos = getPosFromEvent(e);
   const size = parseInt(brushSizeInput.value, 10);
-  const mode = document.querySelector('input[name="blurMode"]:checked').value;
-  const blurValue = blurIntensityInput.value;
+  const mode = getBlurMode();
 
   paintCtx.save();
-  if (mode === "eraser") {
-    paintCtx.globalCompositeOperation = "destination-out";
-  } else {
-    paintCtx.globalCompositeOperation = "source-over";
-  }
+  paintCtx.globalCompositeOperation =
+    mode === "eraser" ? "destination-out" : "source-over";
 
   paintCtx.beginPath();
   paintCtx.arc(pos.x, pos.y, size, 0, Math.PI * 2, false);
   paintCtx.clip();
 
   if (mode === "brush") {
-    if (supportsCtxFilter) {
-      paintCtx.filter = `blur(${blurValue}px)`;
-      paintCtx.drawImage(imageObjects, 0, 0);
-      paintCtx.filter = "none";
-    } else {
-      paintCtx.drawImage(getBlurredSource(blurValue), 0, 0);
-    }
+    drawBlurredImage(paintCtx, getBlurRadius());
   } else if (mode === "eraser") {
     paintCtx.fill();
   }
@@ -880,10 +807,7 @@ function drawBlur(e) {
 function applySelectorBlur() {
   if (!selectionStart || !selectionEnd) return;
 
-  const x = Math.min(selectionStart.x, selectionEnd.x);
-  const y = Math.min(selectionStart.y, selectionEnd.y);
-  const w = Math.abs(selectionEnd.x - selectionStart.x);
-  const h = Math.abs(selectionEnd.y - selectionStart.y);
+  const { x, y, w, h } = getSelectionRect();
 
   if (w < 2 || h < 2) return;
 
@@ -891,39 +815,24 @@ function applySelectorBlur() {
   paintCtx.beginPath();
   paintCtx.rect(x, y, w, h);
   paintCtx.clip();
-  if (supportsCtxFilter) {
-    paintCtx.filter = `blur(${blurIntensityInput.value}px)`;
-    paintCtx.drawImage(imageObjects, 0, 0);
-    paintCtx.filter = "none";
-  } else {
-    paintCtx.drawImage(getBlurredSource(blurIntensityInput.value), 0, 0);
-  }
+  drawBlurredImage(paintCtx, getBlurRadius());
   paintCtx.restore();
+}
+
+function getExportCanvas() {
+  if (getBlurMode() !== "full") return canvas;
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+  drawBlurredImage(tempCanvas.getContext("2d"), getBlurRadius());
+  return tempCanvas;
 }
 
 downloadBtn.addEventListener("click", () => {
   if (!imageObjects) return;
   const link = document.createElement("a");
   link.download = "blurred_image.png";
-  // Always render with blur applied on a fresh canvas so toDataURL captures it
-  const mode = document.querySelector('input[name="blurMode"]:checked').value;
-  if (mode === "full") {
-    const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    const tempCtx = tempCanvas.getContext("2d");
-    const blurValue = parseInt(blurIntensityInput.value, 10) || 0;
-    if (supportsCtxFilter) {
-      tempCtx.filter = `blur(${blurValue}px)`;
-      tempCtx.drawImage(imageObjects, 0, 0);
-      tempCtx.filter = "none";
-    } else {
-      tempCtx.drawImage(getBlurredSource(blurValue), 0, 0);
-    }
-    link.href = tempCanvas.toDataURL("image/png");
-  } else {
-    link.href = canvas.toDataURL("image/png");
-  }
+  link.href = getExportCanvas().toDataURL("image/png");
   link.click();
 });
 
@@ -956,32 +865,11 @@ copyBtn.addEventListener("click", () => {
     <span>Copied!</span>
   `;
 
-  const mode = document.querySelector('input[name="blurMode"]:checked').value;
-  if (mode === "full") {
-    const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    const tempCtx = tempCanvas.getContext("2d");
-    const blurValue = parseInt(blurIntensityInput.value, 10) || 0;
-    if (supportsCtxFilter) {
-      tempCtx.filter = `blur(${blurValue}px)`;
-      tempCtx.drawImage(imageObjects, 0, 0);
-      tempCtx.filter = "none";
-    } else {
-      tempCtx.drawImage(getBlurredSource(blurValue), 0, 0);
-    }
-    tempCanvas.toBlob((blob) => {
-      if (!blob) return;
-      const item = new ClipboardItem({ "image/png": blob });
-      navigator.clipboard.write([item]);
-    });
-  } else {
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const item = new ClipboardItem({ "image/png": blob });
-      navigator.clipboard.write([item]);
-    });
-  }
+  getExportCanvas().toBlob((blob) => {
+    if (!blob) return;
+    const item = new ClipboardItem({ "image/png": blob });
+    navigator.clipboard.write([item]);
+  });
 
   setTimeout(() => {
     copyBtn.innerHTML = originalContent;

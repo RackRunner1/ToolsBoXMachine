@@ -55,6 +55,9 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        background: #1e293b;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #e2e8f0;
       }
 
       .copy-icon-original {
@@ -68,7 +71,6 @@
         height: 20px;
       }
 
-      /* Icône fade-out */
       .copy-icon-original.fade {
         animation: fadeInOut 2s ease-in-out;
       }
@@ -97,9 +99,7 @@
         pointer-events: none;
       }
 
-      /* Animation du checkmark */
       .checkmark polyline {
-        /* stroke: #10b981; */
         stroke-dasharray: 30;
         stroke-dashoffset: -30;
         animation: drawCheck 0.8s ease-in-out forwards;
@@ -109,12 +109,6 @@
         to {
           stroke-dashoffset: 0;
         }
-      }
-
-      #copy-btn {
-        background: #1e293b;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: #e2e8f0;
       }
 
       #copy-btn:hover {
@@ -133,10 +127,6 @@
           min-height: 80vh;
           padding-top: 2rem;
         }
-        .mobile-notice-icon {
-          font-size: 4rem;
-          margin-bottom: 1.5rem;
-        }
         .mobile-notice-title {
           font-size: 2rem;
           font-weight: 800;
@@ -153,16 +143,6 @@
           max-width: 600px;
           line-height: 1.8;
           margin-bottom: 1.5rem;
-        }
-        .mobile-notice-badge {
-          display: inline-block;
-          background: rgba(59, 130, 246, 0.15);
-          border: 1px solid rgba(59, 130, 246, 0.3);
-          color: #60a5fa;
-          padding: 0.5rem 1.5rem;
-          border-radius: 9999px;
-          font-size: 0.9rem;
-          font-weight: 600;
         }
       }
 
@@ -184,10 +164,6 @@
         .custom-file-upload span {
           font-size: 0.85rem;
         }
-        .canvas-placeholder svg {
-          width: 36px;
-          height: 36px;
-        }
         .canvas-placeholder p {
           font-size: 0.8rem;
         }
@@ -206,7 +182,6 @@
   "creator": { "@type": "Person", "name": "RackRunner" }
 }
 </script>
-    <meta name="description" content="Blur sensitive parts of images online. Protect privacy with one click. Free, no upload, runs in your browser." />
     <meta name="content-signal" content="ai-train, ai-input, search" />
     <link rel="canonical" href="https://www.tbxm.org/tools/blur/blur.html" />
     <meta property="og:site_name" content="ToolsBoXMachine" />
@@ -220,7 +195,7 @@
   </head>
 
   <body class="tool-page">
-<div id="navbar-placeholder"></div>
+    <div id="navbar-placeholder"></div>
     <div class="hero-section">
       <h1 class="page-title">Blur an Image</h1>
       <p class="subtitle">Protect privacy by blurring sensitive parts of your images.</p>
@@ -269,7 +244,7 @@
 
         <div class="sidebar-section">
           <h3>2. Blur Mode</h3>
-          <div class="custom-radio-group mode-selector">
+          <div class="custom-radio-group">
             <label class="radio-card">
               <input type="radio" name="blurMode" value="brush" checked />
               <div class="radio-content">
@@ -458,19 +433,17 @@
     </div>
 
     <div class="mobile-notice-container" id="mobile-notice">
-
       <div class="card">
         <h1 class="mobile-notice-title">Not Available on Mobile</h1>
         <p class="mobile-notice-message">
           This tool is not yet available on mobile because it works very badly, but we are working on a new version that is 100% mobile compatible.
         </p>
       </div>
-
     </div>
 
     <script type="module" src="./blur.js?v=6"></script>
 
-<div id="footer-placeholder"></div>
+    <div id="footer-placeholder"></div>
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>
 </body>

@@ -33,26 +33,8 @@
     <meta property="og:description" content="ToolsBoXApp (TBXA) is ToolsBoXMachine as an app installed on your Linux PC. Everything runs locally, with no requests to Cloudflare. Works offline." />
     <meta name="twitter:description" content="ToolsBoXApp (TBXA) is ToolsBoXMachine as an app installed on your Linux PC. Everything runs locally, with no requests to Cloudflare. Works offline." />
     <style>
-      .app-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.35rem 1rem;
-        margin-bottom: 1rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #94a3b8;
-        background: rgba(30, 41, 59, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 2rem;
-        letter-spacing: 0.02em;
-      }
-      .app-badge-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #22c55e;
-        box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+      .center {
+        text-align: center;
       }
       .feature-grid {
         display: grid;
@@ -119,10 +101,6 @@
       .code-block button:hover {
         background: #334155;
       }
-      /* On phones, stack the copy button under the command and let the
-        command wrap, so the block always fits the screen width instead of
-        widening the whole card (and the page). Must come after the base
-        .code-block rules above, which would otherwise override it. */
       @media (max-width: 480px) {
         .code-block {
           flex-wrap: wrap;
@@ -144,7 +122,6 @@
         width: 20px;
         height: 20px;
       }
-      /* Icône fade-out */
       .copy-icon-original.fade {
         animation: fadeInOut 2s ease-in-out;
       }
@@ -170,7 +147,6 @@
         justify-content: center;
         pointer-events: none;
       }
-      /* Animation du checkmark (identique à Blur Image) */
       .checkmark polyline {
         stroke-dasharray: 30;
         stroke-dashoffset: -30;
@@ -192,12 +168,6 @@
         margin-bottom: 0;
         font-size: 0.925rem;
       }
-      .legal-card a:not(.btn) {
-        color: var(--primary-color);
-      }
-      .legal-card a.btn {
-        color: white;
-      }
       .app-title {
         margin-bottom: 0.25rem !important;
       }
@@ -213,8 +183,8 @@
 
     <div class="content-container">
       <div class="legal-card fade-in">
-        <div style="text-align: center">
-          <span class="app-badge"><span class="app-badge-dot"></span>New &middot; Linux &middot; 100% Local</span>
+        <div class="center">
+          <span class="hero-badge"><span class="hero-badge-dot"></span>New &middot; Linux &middot; 100% Local</span>
         </div>
         <h1 class="app-title">ToolsBoXApp (TBXA)</h1>
         <p class="app-subtitle" style="text-align: center; color: #94a3b8">
@@ -227,7 +197,7 @@
             <strong>ToolsBoXApp (TBXA)</strong> is our new project: the full
             ToolsBoXMachine experience, packaged as an app installed directly
             on your Linux PC. Same tools, same speed, same simplicity, but running
-            but running entirely from your own machine.
+            entirely from your own machine.
           </p>
           <div class="feature-grid">
             <div class="feature-card">
@@ -369,7 +339,7 @@
           </div>
         </section>
 
-        <div style="margin-top: 3rem; text-align: center">
+        <div class="page-actions">
           <a href="/" class="btn btn-primary">Back to Home</a>
         </div>
       </div>
