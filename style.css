@@ -852,7 +852,7 @@ canvas {
 
   .navbar {
     padding: 0.85rem 1rem;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 4.5rem minmax(0, 1fr) 4.5rem;
     column-gap: 0.75rem;
   }
 
@@ -1015,6 +1015,7 @@ canvas {
 @media (max-width: 480px) {
   .navbar {
     padding: 0.75rem 0.75rem;
+    grid-template-columns: 3.75rem minmax(0, 1fr) 3.75rem;
     column-gap: 0.5rem;
   }
 
