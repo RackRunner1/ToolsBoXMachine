@@ -1040,10 +1040,11 @@ canvas {
   .hero-section {
     margin-top: 4.3rem;
     margin-bottom: 0;
+    padding: 3px 0.75rem 0;
   }
 
   .hero-card {
-    padding: 1rem 0.75rem 0;
+    padding: 1rem 0 0;
   }
 
   .page-title {
