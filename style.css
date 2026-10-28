@@ -864,6 +864,12 @@ canvas {
     display: none;
   }
 
+  .search-dropdown {
+    left: calc(1rem + 71px + 0.75rem) !important;
+    right: 1rem !important;
+    width: auto !important;
+  }
+
   .hero-section {
     margin: 4.8rem auto 0.5rem;
     padding: 3px 1rem 0;
@@ -1020,6 +1026,11 @@ canvas {
 
   .nav-logo {
     height: 26px;
+  }
+
+  .search-dropdown {
+    left: calc(0.75rem + 58px + 0.5rem) !important;
+    right: 0.75rem !important;
   }
 
   .nav-brand {
