@@ -73,7 +73,7 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 ## Technical Details
 
 - **Rendering:** Static HTML + vanilla JavaScript
-- **Hosting:** Cloudflare Pages (static site)
+- **Hosting:** Self-hosted on our own server (static site, no logs)
 - **No frameworks:** Pure HTML, CSS, JS with no React and no build step
 - **Privacy:** All data processed in-browser via localStorage
 - **Accessibility:** Responsive design, keyboard navigable

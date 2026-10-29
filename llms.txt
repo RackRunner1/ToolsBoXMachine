@@ -34,7 +34,7 @@ TBXM is an open-source toolbox running entirely client-side. All processing happ
 ## About
 
 - [About Us](/pages/about.html): Learn more about TBXM
-- [ToolsBoXApp](/pages/app.html): TBXM as a local Linux app, no Cloudflare, works offline
+- [ToolsBoXApp](/pages/app.html): TBXM as a local Linux app, works offline
 - Maintained by RackRunner
 - Source: https://github.com/RackRunner1/ToolsBoXMachine
 - Open source under Unlicense
