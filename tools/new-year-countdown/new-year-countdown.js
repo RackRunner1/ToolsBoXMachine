@@ -112,30 +112,37 @@
   var ICON_EXPAND = fullscreenBtn.innerHTML;
   var ICON_COMPRESS = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>';
 
-  function isFullscreen() {
+  function isNativeFullscreen() {
     return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
   }
 
+  function setFullscreen(on) {
+    card.classList.toggle("ny-fullscreen", on);
+    fullscreenBtn.innerHTML = on ? ICON_COMPRESS : ICON_EXPAND;
+  }
+
   fullscreenBtn.addEventListener("click", function () {
-    if (!isFullscreen()) {
+    if (!card.classList.contains("ny-fullscreen")) {
+      setFullscreen(true);
       if (card.requestFullscreen) {
         card.requestFullscreen().catch(function (err) { console.error(err); });
       } else if (card.webkitRequestFullscreen) {
         card.webkitRequestFullscreen();
       }
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
+      setFullscreen(false);
+      if (isNativeFullscreen()) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
       }
     }
   });
 
   var syncFullscreen = function () {
-    var on = isFullscreen();
-    card.classList.toggle("ny-fullscreen", on);
-    fullscreenBtn.innerHTML = on ? ICON_COMPRESS : ICON_EXPAND;
+    setFullscreen(isNativeFullscreen());
   };
 
   document.addEventListener("fullscreenchange", syncFullscreen);
