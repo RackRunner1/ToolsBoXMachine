@@ -14,11 +14,6 @@ const blurIntensityContainer = document.getElementById(
 const canvasPlaceholder = document.getElementById("canvas-placeholder");
 const pasteHint = document.getElementById("paste-hint");
 
-const mobileNotice = document.getElementById("mobile-notice");
-if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
-  mobileNotice.classList.add("visible");
-}
-
 let imageObjects = null;
 let isDrawing = false;
 let isTouchEvent = false;
