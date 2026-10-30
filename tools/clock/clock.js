@@ -258,32 +258,37 @@
 
   const fullscreenIcon = (d) => `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"></path></svg>`;
 
+  const isNativeFullscreen = () => Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+
+  const setFullscreen = (on) => {
+    clockMain.classList.toggle("fullscreen", on);
+    fullscreenBtn.innerHTML = on
+      ? fullscreenIcon("M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3")
+      : fullscreenIcon("M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3");
+  };
+
   fullscreenBtn.addEventListener("click", () => {
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      clockMain.classList.add("fullscreen");
+    if (!clockMain.classList.contains("fullscreen")) {
+      setFullscreen(true);
       if (clockMain.requestFullscreen) {
         clockMain.requestFullscreen().catch((err) => console.error(err));
       } else if (clockMain.webkitRequestFullscreen) {
         clockMain.webkitRequestFullscreen();
       }
     } else {
-      clockMain.classList.remove("fullscreen");
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
+      setFullscreen(false);
+      if (isNativeFullscreen()) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
       }
     }
   });
 
   const updateFullscreenIcon = () => {
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-      clockMain.classList.add("fullscreen");
-      fullscreenBtn.innerHTML = fullscreenIcon("M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3");
-    } else {
-      clockMain.classList.remove("fullscreen");
-      fullscreenBtn.innerHTML = fullscreenIcon("M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3");
-    }
+    setFullscreen(isNativeFullscreen());
   };
 
   document.addEventListener("fullscreenchange", updateFullscreenIcon);
