@@ -280,28 +280,37 @@ document.addEventListener("DOMContentLoaded", () => {
   startBtn.addEventListener("click", toggleTimer);
   resetBtn.addEventListener("click", resetTimer);
 
+  const isNativeFullscreen = () => Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+
+  const setFullscreen = (on) => {
+    timerMainArea.classList.toggle("fullscreen", on);
+    fullscreenBtn.innerHTML = on
+      ? `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>`
+      : `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>`;
+  };
+
   fullscreenBtn.addEventListener("click", () => {
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    if (!timerMainArea.classList.contains("fullscreen")) {
+      setFullscreen(true);
       if (timerMainArea.requestFullscreen) {
         timerMainArea.requestFullscreen().catch((err) => console.error(err));
       } else if (timerMainArea.webkitRequestFullscreen) {
         timerMainArea.webkitRequestFullscreen();
       }
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
+      setFullscreen(false);
+      if (isNativeFullscreen()) {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
       }
     }
   });
 
   const updateFullscreenIcon = () => {
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-      fullscreenBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>`;
-    } else {
-      fullscreenBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>`;
-    }
+    setFullscreen(isNativeFullscreen());
   };
 
   document.addEventListener("fullscreenchange", updateFullscreenIcon);

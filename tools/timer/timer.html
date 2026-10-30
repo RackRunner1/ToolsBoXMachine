@@ -275,7 +275,12 @@
         position: relative;
       }
 
-      #timer-main-area:fullscreen {
+      #timer-main-area.fullscreen {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9998;
         background: #020617;
         border: none;
         border-radius: 0;
@@ -284,30 +289,12 @@
         align-items: center;
       }
 
-      #timer-main-area:fullscreen .timer-layout {
-        height: 100vh;
+      #timer-main-area.fullscreen .timer-layout {
+        height: 100%;
         margin: 0;
       }
 
-      #timer-main-area:fullscreen .timer-container {
-        transform: scale(1.6);
-      }
-
-      #timer-main-area:-webkit-full-screen {
-        background: #020617;
-        border: none;
-        border-radius: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      #timer-main-area:-webkit-full-screen .timer-layout {
-        height: 100vh;
-        margin: 0;
-      }
-
-      #timer-main-area:-webkit-full-screen .timer-container {
+      #timer-main-area.fullscreen .timer-container {
         transform: scale(1.6);
       }
 
