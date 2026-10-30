@@ -30,26 +30,6 @@
         margin-bottom: 0.75rem !important;
       }
 
-      .mobile-notice-container {
-        display: none;
-      }
-      .mobile-notice-container.visible {
-        display: flex;
-      }
-
-      .mobile-notice-container .card {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 12px;
-        padding: 0.75rem;
-        margin-top: -1rem;
-        margin-left: auto;
-        margin-right: auto;
-        max-width: 600px;
-        width: 90%;
-        text-align: center;
-      }
-
       #copy-btn {
         position: relative;
         display: inline-flex;
@@ -113,37 +93,6 @@
 
       #copy-btn:hover {
         background: #334155;
-      }
-
-      @media (max-width: 768px) {
-        .blur-tool-layout {
-          display: none !important;
-        }
-        .mobile-notice-container {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: flex-start;
-          min-height: 80vh;
-          padding-top: 2rem;
-        }
-        .mobile-notice-title {
-          font-size: 2rem;
-          font-weight: 800;
-          background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          margin-bottom: 1rem;
-          margin-top: 0;
-        }
-        .mobile-notice-message {
-          font-size: 1.25rem;
-          color: #94a3b8;
-          max-width: 600px;
-          line-height: 1.8;
-          margin-bottom: 1.5rem;
-        }
       }
 
       @media (max-width: 480px) {
@@ -429,15 +378,6 @@
           </div>
           <canvas id="blurry-canvas" style="display: none; touch-action: none"></canvas>
         </div>
-      </div>
-    </div>
-
-    <div class="mobile-notice-container" id="mobile-notice">
-      <div class="card">
-        <h1 class="mobile-notice-title">Not Available on Mobile</h1>
-        <p class="mobile-notice-message">
-          This tool is not yet available on mobile because it works very badly, but we are working on a new version that is 100% mobile compatible.
-        </p>
       </div>
     </div>
 
