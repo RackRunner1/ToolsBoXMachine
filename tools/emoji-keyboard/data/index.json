@@ -1,0 +1,41 @@
+{
+  "totalPages": 13,
+  "categories": [
+    {
+      "name": "Smileys & Emotion",
+      "file": "categories/smileys-emotion.json"
+    },
+    {
+      "name": "People & Body",
+      "file": "categories/people-body.json"
+    },
+    {
+      "name": "Animals & Nature",
+      "file": "categories/animals-nature.json"
+    },
+    {
+      "name": "Food & Drink",
+      "file": "categories/food-drink.json"
+    },
+    {
+      "name": "Travel & Places",
+      "file": "categories/travel-places.json"
+    },
+    {
+      "name": "Activities",
+      "file": "categories/activities.json"
+    },
+    {
+      "name": "Objects",
+      "file": "categories/objects.json"
+    },
+    {
+      "name": "Symbols",
+      "file": "categories/symbols.json"
+    },
+    {
+      "name": "Flags",
+      "file": "categories/flags.json"
+    }
+  ]
+}
