@@ -647,12 +647,31 @@
         color: white;
       }
 
+      .settings-nav-item.danger,
+      .settings-nav-item.danger:hover,
+      .settings-nav-item.danger.active {
+        color: #ef4444;
+      }
+
       .settings-content {
         flex: 1;
         padding: 1.5rem;
         overflow-y: auto;
         color: #94a3b8;
         font-size: 0.95rem;
+      }
+
+      .settings-pane {
+        display: none;
+      }
+
+      .settings-pane.active {
+        display: block;
+      }
+
+      .incognito-modal-icon {
+        color: #ef4444;
+        margin-bottom: 0.75rem;
       }
 
       .settings-content-title {
@@ -1070,46 +1089,92 @@
           </svg>
         </button>
         <div class="settings-nav">
-          <div class="settings-nav-item active">
+          <div class="settings-nav-item active" data-tab="general">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
               <circle cx="12" cy="12" r="3"/>
             </svg>
             General
           </div>
+          <div class="settings-nav-item danger" data-tab="destructive">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
+              <path d="M12 9v4"/>
+              <path d="M12 17h.01"/>
+            </svg>
+            Destructive
+          </div>
         </div>
         <div class="settings-content">
-          <div class="settings-content-title">General</div>
-          <div class="setting-card">
-            <div class="setting-card-info">
-              <div class="setting-card-title">Do not ask for confirmation of deletion</div>
-              <div class="setting-card-desc">Skip the confirmation dialog when deleting notes</div>
+          <div class="settings-pane active" data-pane="general">
+            <div class="settings-content-title">General</div>
+            <div class="setting-card">
+              <div class="setting-card-info">
+                <div class="setting-card-title">Do not ask for confirmation of deletion</div>
+                <div class="setting-card-desc">Skip the confirmation dialog when deleting notes</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-skip-delete-confirm" />
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-skip-delete-confirm" />
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="setting-card">
-            <div class="setting-card-info">
-              <div class="setting-card-title">Show word count</div>
-              <div class="setting-card-desc">Display word, character and reading time stats below the editor</div>
+            <div class="setting-card">
+              <div class="setting-card-info">
+                <div class="setting-card-title">Show word count</div>
+                <div class="setting-card-desc">Display word, character and reading time stats below the editor</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-show-word-count" />
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-show-word-count" />
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          <div class="setting-card">
-            <div class="setting-card-info">
-              <div class="setting-card-title">Enable folders <span class="beta-badge">BETA</span></div>
-              <div class="setting-card-desc">Organize notes into folders in the sidebar (experimental)</div>
+            <div class="setting-card">
+              <div class="setting-card-info">
+                <div class="setting-card-title">Enable folders <span class="beta-badge">BETA</span></div>
+                <div class="setting-card-desc">Organize notes into folders in the sidebar (experimental)</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-enable-folders" />
+                <span class="toggle-slider"></span>
+              </label>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="setting-enable-folders" />
-              <span class="toggle-slider"></span>
-            </label>
           </div>
+          <div class="settings-pane" data-pane="destructive">
+            <div class="settings-content-title">Destructive</div>
+            <div class="setting-card">
+              <div class="setting-card-info">
+                <div class="setting-card-title">Incognito Mode</div>
+                <div class="setting-card-desc">Delete all notes and note settings when your browser session ends</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" id="setting-incognito-mode" />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="incognito-modal" role="dialog" aria-modal="true" aria-labelledby="incognito-modal-title">
+      <div class="modal-box">
+        <svg class="incognito-modal-icon" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
+          <path d="M12 9v4"/>
+          <path d="M12 17h.01"/>
+        </svg>
+        <h2 id="incognito-modal-title">Enable Incognito Mode?</h2>
+        <p>
+          When your browser session ends, <strong>all your notes and all note settings will be permanently deleted</strong>.
+        </p>
+        <ul class="modal-list">
+          <li>Closing the browser erases every note</li>
+          <li>Folders, word count and delete confirmation preferences are reset</li>
+          <li>Nothing can be recovered afterwards</li>
+        </ul>
+        <div class="modal-actions">
+          <button class="modal-btn" id="incognito-modal-cancel">Cancel</button>
+          <button class="modal-btn danger" id="incognito-modal-confirm">Enable</button>
         </div>
       </div>
     </div>
@@ -1201,7 +1266,7 @@
       </div>
     </div>
 
-    <script type="module" src="./note.js?v=7"></script>
+    <script type="module" src="./note.js?v=8"></script>
     <div id="footer-placeholder"></div>
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>
