@@ -7,6 +7,8 @@ const MODAL_KEY = "tbxm_notes_modal_dismissed";
 const SKIP_DELETE_KEY = "tbxm_notes_skip_delete_confirm";
 const WORD_COUNT_KEY = "tbxm_notes_show_word_count";
 const FOLDERS_ENABLED_KEY = "tbxm_notes_folders_enabled";
+const INCOGNITO_KEY = "tbxm_notes_incognito";
+const INCOGNITO_SESSION_COOKIE = "tbxm_notes_session";
 
 const FOLDER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>`;
 const CHEVRON_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
@@ -45,6 +47,10 @@ const elements = {
   deleteModalMessage: document.getElementById("delete-modal-message"),
   deleteModalCancel: document.getElementById("delete-modal-cancel"),
   deleteModalConfirm: document.getElementById("delete-modal-confirm"),
+  incognitoToggle: document.getElementById("setting-incognito-mode"),
+  incognitoModal: document.getElementById("incognito-modal"),
+  incognitoModalCancel: document.getElementById("incognito-modal-cancel"),
+  incognitoModalConfirm: document.getElementById("incognito-modal-confirm"),
 };
 
 let notes = [];
@@ -59,6 +65,7 @@ let renamingFolderId = null;
 let skipDeleteConfirm = localStorage.getItem(SKIP_DELETE_KEY) === "true";
 let showWordCount = localStorage.getItem(WORD_COUNT_KEY) !== "false";
 let foldersEnabled = localStorage.getItem(FOLDERS_ENABLED_KEY) !== "false";
+let incognitoMode = localStorage.getItem(INCOGNITO_KEY) === "true";
 
 function getContent() {
   return elements.contentInput.value;
@@ -69,14 +76,17 @@ function setContent(text) {
 }
 
 function init() {
+  handleIncognitoSession();
   loadNotes();
   loadFolders();
   renderList();
   setupEventListeners();
+  setupSettingsTabs();
   selectFirstNote();
   elements.skipDeleteConfirm.checked = skipDeleteConfirm;
   elements.wordCountToggle.checked = showWordCount;
   elements.foldersToggle.checked = foldersEnabled;
+  elements.incognitoToggle.checked = incognitoMode;
   applyFoldersState();
   applyWordCountVisibility();
   updateWordCount();
@@ -942,6 +952,25 @@ function setupEventListeners() {
     applyFoldersState();
   });
 
+  elements.incognitoToggle.addEventListener("change", () => {
+    if (elements.incognitoToggle.checked) {
+      elements.incognitoToggle.checked = false;
+      showIncognitoModal();
+    } else {
+      setIncognitoMode(false);
+    }
+  });
+
+  elements.incognitoModalCancel.addEventListener("click", hideIncognitoModal);
+  elements.incognitoModalConfirm.addEventListener("click", () => {
+    setIncognitoMode(true);
+    hideIncognitoModal();
+    showNotification("Incognito Mode enabled");
+  });
+  elements.incognitoModal.addEventListener("click", (e) => {
+    if (e.target === elements.incognitoModal) hideIncognitoModal();
+  });
+
   window.addEventListener("storage", (e) => {
     if (e.key !== null && e.key !== STORAGE_KEY && e.key !== FOLDERS_KEY) return;
     handleExternalSync();
@@ -977,6 +1006,58 @@ function showDeleteModal(
 function hideDeleteModal() {
   elements.deleteModal.classList.remove("show");
   deleteModalCallback = null;
+}
+
+function setupSettingsTabs() {
+  const items = document.querySelectorAll(".settings-nav-item");
+  items.forEach((item) => {
+    item.addEventListener("click", () => {
+      items.forEach((i) => i.classList.toggle("active", i === item));
+      document.querySelectorAll(".settings-pane").forEach((pane) => {
+        pane.classList.toggle("active", pane.dataset.pane === item.dataset.tab);
+      });
+    });
+  });
+}
+
+function hasIncognitoSessionCookie() {
+  return document.cookie
+    .split(";")
+    .some((c) => c.trim().startsWith(`${INCOGNITO_SESSION_COOKIE}=`));
+}
+
+function startIncognitoSession() {
+  document.cookie = `${INCOGNITO_SESSION_COOKIE}=1; path=/; SameSite=Lax`;
+}
+
+function handleIncognitoSession() {
+  if (!incognitoMode) return;
+  if (!hasIncognitoSessionCookie()) purgeNotesData();
+  startIncognitoSession();
+}
+
+function purgeNotesData() {
+  [STORAGE_KEY, FOLDERS_KEY, MODAL_KEY, SKIP_DELETE_KEY, WORD_COUNT_KEY, FOLDERS_ENABLED_KEY].forEach(
+    (key) => localStorage.removeItem(key)
+  );
+  skipDeleteConfirm = false;
+  showWordCount = true;
+  foldersEnabled = true;
+}
+
+function setIncognitoMode(enabled) {
+  incognitoMode = enabled;
+  localStorage.setItem(INCOGNITO_KEY, enabled);
+  elements.incognitoToggle.checked = enabled;
+  if (enabled) startIncognitoSession();
+}
+
+function showIncognitoModal() {
+  elements.incognitoModal.classList.add("show");
+}
+
+function hideIncognitoModal() {
+  elements.incognitoModal.classList.remove("show");
 }
 
 function renderMoveSection(target) {
