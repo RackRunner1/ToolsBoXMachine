@@ -47,10 +47,15 @@ jobs:
           else
             ADDED=$(git diff --name-only --diff-filter=A "$BEFORE" "$AFTER" -- index.html tools/ pages/ 2>/dev/null || true)
             DELETED=$(git diff --name-only --diff-filter=D "$BEFORE" "$AFTER" -- index.html tools/ pages/ 2>/dev/null || true)
+            SCRIPTS=$(git diff --name-only "$BEFORE" "$AFTER" -- scripts/ 2>/dev/null || true)
             if [ -n "$ADDED" ] || [ -n "$DELETED" ]; then
               CHANGED="true"
               echo "Pages added/removed:"
               echo "$ADDED$DELETED" | sed 's/^/  /'
+            elif [ -n "$SCRIPTS" ]; then
+              CHANGED="true"
+              echo "OG generator changed:"
+              echo "$SCRIPTS" | sed 's/^/  /'
             else
               echo "No pages added or removed, skipping generation"
             fi

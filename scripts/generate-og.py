@@ -43,6 +43,7 @@ PAGE_META = {
     "privacy": ("Privacy Policy", "🛡️", "Your data stays in your browser. Nothing is ever sent to servers."),
     "terms": ("Terms of Service", "📜", "Free, open source tools for everyone, no strings attached."),
     "philosophy": ("Philosophy", "💡", "Privacy-first, open source, no trackers and no accounts."),
+    "legal": ("Legal Notice", "⚖️", "Publisher and hosting information for ToolsBoXMachine."),
 }
 
 FONT_BASE = "https://cdn.jsdelivr.net/fontsource/fonts/inter@latest/latin-{weight}-normal.ttf"
