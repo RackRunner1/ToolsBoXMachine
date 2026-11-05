@@ -713,6 +713,31 @@
         color: #64748b;
       }
 
+      .setting-danger-btn {
+        flex-shrink: 0;
+        padding: 0.5rem 0.9rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        font-family: inherit;
+        white-space: nowrap;
+        cursor: pointer;
+        border: none;
+        background: #ef4444;
+        color: white;
+        transition: background 0.2s;
+      }
+
+      .setting-danger-btn:hover:not(:disabled) {
+        background: #dc2626;
+      }
+
+      .setting-danger-btn:disabled {
+        background: #475569;
+        color: #94a3b8;
+        cursor: not-allowed;
+      }
+
       .beta-badge {
         display: inline-block;
         vertical-align: 0.1em;
@@ -1150,6 +1175,13 @@
                 <input type="checkbox" id="setting-incognito-mode" />
                 <span class="toggle-slider"></span>
               </label>
+            </div>
+            <div class="setting-card">
+              <div class="setting-card-info">
+                <div class="setting-card-title">Delete All Notes</div>
+                <div class="setting-card-desc">Permanently delete every note. Your settings will be kept</div>
+              </div>
+              <button class="setting-danger-btn" id="delete-all-notes-btn">Delete All Notes</button>
             </div>
           </div>
         </div>

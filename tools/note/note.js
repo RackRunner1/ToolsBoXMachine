@@ -51,6 +51,7 @@ const elements = {
   incognitoModal: document.getElementById("incognito-modal"),
   incognitoModalCancel: document.getElementById("incognito-modal-cancel"),
   incognitoModalConfirm: document.getElementById("incognito-modal-confirm"),
+  deleteAllNotesBtn: document.getElementById("delete-all-notes-btn"),
 };
 
 let notes = [];
@@ -734,6 +735,29 @@ function deleteActiveNote() {
   }
 }
 
+let deleteAllNotesTimer = null;
+
+function armDeleteAllNotesButton() {
+  const btn = elements.deleteAllNotesBtn;
+  clearTimeout(deleteAllNotesTimer);
+  btn.disabled = true;
+  deleteAllNotesTimer = setTimeout(() => {
+    btn.disabled = false;
+    deleteAllNotesTimer = null;
+  }, 3000);
+}
+
+function deleteAllNotes() {
+  clearTimeout(saveTimeout);
+  saveTimeout = null;
+  notes = [];
+  activeNoteId = null;
+  saveNotesToStorage();
+  showEditorEmpty();
+  renderList();
+  showNotification("All notes deleted");
+}
+
 function showNotification(message) {
   elements.notification.textContent = message;
   elements.notification.classList.add("show");
@@ -923,6 +947,7 @@ function setupEventListeners() {
 
   elements.settingsBtn.addEventListener("click", () => {
     elements.settingsModal.classList.add("show");
+    armDeleteAllNotesButton();
   });
 
   elements.settingsCloseBtn.addEventListener("click", () => {
@@ -971,6 +996,13 @@ function setupEventListeners() {
     if (e.target === elements.incognitoModal) hideIncognitoModal();
   });
 
+  elements.deleteAllNotesBtn.addEventListener("click", () => {
+    showDeleteModal(deleteAllNotes, {
+      title: "Delete all notes",
+      message: "Delete every note? Your settings will be kept. This action cannot be undone.",
+    });
+  });
+
   window.addEventListener("storage", (e) => {
     if (e.key !== null && e.key !== STORAGE_KEY && e.key !== FOLDERS_KEY) return;
     handleExternalSync();
@@ -1016,6 +1048,7 @@ function setupSettingsTabs() {
       document.querySelectorAll(".settings-pane").forEach((pane) => {
         pane.classList.toggle("active", pane.dataset.pane === item.dataset.tab);
       });
+      if (item.dataset.tab === "destructive") armDeleteAllNotesButton();
     });
   });
 }
