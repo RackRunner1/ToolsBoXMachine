@@ -735,18 +735,6 @@ function deleteActiveNote() {
   }
 }
 
-let deleteAllNotesTimer = null;
-
-function armDeleteAllNotesButton() {
-  const btn = elements.deleteAllNotesBtn;
-  clearTimeout(deleteAllNotesTimer);
-  btn.disabled = true;
-  deleteAllNotesTimer = setTimeout(() => {
-    btn.disabled = false;
-    deleteAllNotesTimer = null;
-  }, 3000);
-}
-
 function deleteAllNotes() {
   clearTimeout(saveTimeout);
   saveTimeout = null;
@@ -947,7 +935,6 @@ function setupEventListeners() {
 
   elements.settingsBtn.addEventListener("click", () => {
     elements.settingsModal.classList.add("show");
-    armDeleteAllNotesButton();
   });
 
   elements.settingsCloseBtn.addEventListener("click", () => {
@@ -1000,6 +987,7 @@ function setupEventListeners() {
     showDeleteModal(deleteAllNotes, {
       title: "Delete all notes",
       message: "Delete every note? Your settings will be kept. This action cannot be undone.",
+      confirmDelay: 3000,
     });
   });
 
@@ -1022,16 +1010,27 @@ function setupEventListeners() {
 
 let deleteModalCallback = null;
 
+let deleteModalConfirmTimer = null;
+
 function showDeleteModal(
   callback,
   {
     title = "Delete note",
     message = "Are you sure you want to delete this note? This action cannot be undone.",
+    confirmDelay = 0,
   } = {}
 ) {
   deleteModalCallback = callback;
   elements.deleteModalTitle.textContent = title;
   elements.deleteModalMessage.textContent = message;
+  clearTimeout(deleteModalConfirmTimer);
+  elements.deleteModalConfirm.disabled = confirmDelay > 0;
+  if (confirmDelay > 0) {
+    deleteModalConfirmTimer = setTimeout(() => {
+      elements.deleteModalConfirm.disabled = false;
+      deleteModalConfirmTimer = null;
+    }, confirmDelay);
+  }
   elements.deleteModal.classList.add("show");
 }
 
@@ -1048,7 +1047,6 @@ function setupSettingsTabs() {
       document.querySelectorAll(".settings-pane").forEach((pane) => {
         pane.classList.toggle("active", pane.dataset.pane === item.dataset.tab);
       });
-      if (item.dataset.tab === "destructive") armDeleteAllNotesButton();
     });
   });
 }
