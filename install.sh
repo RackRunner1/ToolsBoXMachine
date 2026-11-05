@@ -16,7 +16,7 @@ BANNER='████████╗ ██████╗  ██████╗
    ██║   ╚██████╔╝╚██████╔╝███████╗███████║██████╔╝╚██████╔╝██╔╝ ██╗██║  ██║██║     ██║
    ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝'
 
-print_banner() { printf '\n\n%s\n\n' "$BANNER"; }
+print_banner() { printf '\n\n%s\n\n' "$(printf '%s' "$BANNER" | sed 's/^/    /')"; }
 
 BAR_W=30
 BAR_ACTIVE=0
@@ -70,6 +70,19 @@ if [ -n "$PINNED_VERSION" ]; then
   API_URL="https://api.github.com/repos/$REPO/releases/tags/$PINNED_VERSION"
 else
   API_URL="https://api.github.com/repos/$REPO/releases/latest"
+fi
+
+print_banner
+
+if [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ] && { : </dev/tty; } 2>/dev/null; then
+  warn "no graphical environment detected; ToolsBoXApp is a GUI application."
+  printf 'Are you sure you want to install ToolsBoXApp? [y/N] ' >/dev/tty
+  answer=""
+  read -r answer </dev/tty || answer=""
+  case "$answer" in
+    y | Y | yes | YES | Yes) ;;
+    *) echo "Installation cancelled."; exit 0 ;;
+  esac
 fi
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -250,8 +263,6 @@ verify_sha256() {
   fi
 }
 
-print_banner
-
 DOC="$(fetch "$API_URL")" || die "could not reach the GitHub API (network, rate limit, or bad tag '$PINNED_VERSION'?)."
 bar_draw 10
 set +e
@@ -316,4 +327,4 @@ fi
 bar_draw 100
 
 bar_done
-echo "Welcome to ToolsBoXApp!"
+echo "    Welcome to ToolsBoXApp!"
