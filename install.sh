@@ -72,9 +72,42 @@ else
   API_URL="https://api.github.com/repos/$REPO/releases/latest"
 fi
 
+manage_existing() {
+  if ! { : </dev/tty; } 2>/dev/null; then
+    exec tbxa update
+  fi
+  printf 'ToolsBoXApp %s is already installed. What do you want to do?\n' "${INSTALLED_VERSION:-unknown version}"
+  printf '    1) Update to the latest version\n'
+  printf '    2) Reinstall the current version (%s)\n' "${INSTALLED_VERSION:-unknown}"
+  printf '    3) Reinstall the latest version\n'
+  printf '    4) Uninstall\n'
+  printf 'Choice [1-4]: ' >/dev/tty
+  local choice=""
+  read -r choice </dev/tty || choice=""
+  case "$choice" in
+    1) exec tbxa update ;;
+    2)
+      [ -n "$INSTALLED_VERSION" ] || die "cannot read the installed version (tbxa -v failed)."
+      local y m d
+      IFS=. read -r y m d <<<"$INSTALLED_VERSION"
+      API_URL="https://api.github.com/repos/$REPO/releases/tags/$(printf '%s%02d%02d' "$y" "${m:-0}" "${d:-0}")"
+      REINSTALL=1
+      ;;
+    3) REINSTALL=1 ;;
+    4) exec tbxa uninstall ;;
+    *) echo "Cancelled."; exit 0 ;;
+  esac
+}
+
+INSTALLED_VERSION=""
+if command -v tbxa >/dev/null 2>&1; then
+  INSTALLED_VERSION="$(tbxa -v 2>/dev/null | sed -n 's/.*ToolsBoXApp \([^)]*\))$/\1/p' || true)"
+  manage_existing
+fi
+
 print_banner
 
-if [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ] && { : </dev/tty; } 2>/dev/null; then
+if [ -z "${REINSTALL:-}" ] && [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ] && { : </dev/tty; } 2>/dev/null; then
   warn "no graphical environment detected; ToolsBoXApp is a GUI application."
   printf 'Are you sure you want to install ToolsBoXApp? [y/N] ' >/dev/tty
   answer=""
@@ -307,7 +340,7 @@ install_pkg() {
   "$@" >"$LOG" 2>&1 || { tail -n 20 "$LOG" >&2; die "$label install failed (see above)."; }
 }
 if [ "$EXT" = ".deb" ]; then
-  install_pkg apt-get $SUDO apt-get install -y "$FILE"
+  install_pkg apt-get $SUDO apt-get install -y ${REINSTALL:+--reinstall} "$FILE"
 elif [ "$EXT" = ".rpm" ]; then
   if command -v dnf >/dev/null 2>&1; then
     MANAGER="dnf"
@@ -317,7 +350,9 @@ elif [ "$EXT" = ".rpm" ]; then
     MANAGER="zypper"
   fi
   if [ "$MANAGER" = "zypper" ]; then
-    install_pkg zypper $SUDO "$MANAGER" --non-interactive install --allow-unsigned-rpm "$FILE"
+    install_pkg zypper $SUDO "$MANAGER" --non-interactive install ${REINSTALL:+--force} --allow-unsigned-rpm "$FILE"
+  elif [ -n "${REINSTALL:-}" ]; then
+    install_pkg "$MANAGER" $SUDO "$MANAGER" reinstall -y "$FILE"
   else
     install_pkg "$MANAGER" $SUDO "$MANAGER" install -y "$FILE"
   fi
