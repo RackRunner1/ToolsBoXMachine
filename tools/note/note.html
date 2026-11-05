@@ -505,6 +505,12 @@
         background: #dc2626;
       }
 
+      .modal-btn.danger:disabled {
+        background: #475569;
+        color: #94a3b8;
+        cursor: not-allowed;
+      }
+
       .modal-check {
         display: flex;
         align-items: center;
@@ -728,14 +734,8 @@
         transition: background 0.2s;
       }
 
-      .setting-danger-btn:hover:not(:disabled) {
+      .setting-danger-btn:hover {
         background: #dc2626;
-      }
-
-      .setting-danger-btn:disabled {
-        background: #475569;
-        color: #94a3b8;
-        cursor: not-allowed;
       }
 
       .beta-badge {
