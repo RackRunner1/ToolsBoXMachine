@@ -22,6 +22,124 @@
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <style>
+      .btn-danger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        background: #ef4444;
+      }
+
+      .btn-danger:hover {
+        background: #dc2626;
+      }
+
+      #delete-data-status {
+        color: #4ade80;
+        font-size: 0.9rem;
+        margin: 0 0 1rem;
+      }
+
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        z-index: 100000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+
+      .modal-overlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal-box {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1.25rem;
+        width: 100%;
+        max-width: 480px;
+        padding: 2rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        transform: translateY(20px) scale(0.97);
+        transition: transform 0.3s ease;
+      }
+
+      .modal-overlay.show .modal-box {
+        transform: translateY(0) scale(1);
+      }
+
+      .modal-box h2 {
+        color: white;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+      }
+
+      .modal-box p {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+      }
+
+      .modal-box p strong {
+        color: #eab308;
+      }
+
+      .modal-box .modal-list {
+        margin: 0 0 1.5rem 1.1rem;
+        padding: 0;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        line-height: 1.8;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .modal-btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-family: inherit;
+        border: none;
+        background: rgba(255, 255, 255, 0.08);
+        color: #cbd5e1;
+      }
+
+      .modal-btn:hover {
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      .modal-btn.danger {
+        background: #ef4444;
+        color: white;
+      }
+
+      .modal-btn.danger:hover {
+        background: #dc2626;
+      }
+    </style>
   </head>
 
   <body>
@@ -210,7 +328,48 @@
         </section>
 
         <div class="page-actions">
+          <button class="btn btn-danger" id="delete-all-data-btn" type="button">Delete All Data</button>
+          <p id="delete-data-status" role="status" hidden></p>
           <a href="/" class="btn btn-primary">Back to Home</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="delete-data-modal-1" role="dialog" aria-modal="true" aria-labelledby="delete-data-title-1">
+      <div class="modal-box">
+        <h2 id="delete-data-title-1">Delete all data?</h2>
+        <p>The following data stored by TBXM in this browser will be <strong>permanently deleted</strong>:</p>
+        <ul class="modal-list">
+          <li>All tool settings you changed in every tool (for example Notes preferences: incognito mode, word count, folders, delete confirmation).</li>
+          <li>All your notes and folders.</li>
+          <li>All Pomodoro timer statistics (session count and total focus time).</li>
+        </ul>
+        <p>This does <strong>not</strong> delete everything. TBXM cannot remove your browser history or other browser data, such as the history of pages you visited. To remove those, use your browser's settings.</p>
+        <div class="modal-actions">
+          <button class="modal-btn" id="delete-data-cancel-1" type="button">Cancel</button>
+          <button class="modal-btn danger" id="delete-data-continue-1" type="button">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="delete-data-modal-2" role="dialog" aria-modal="true" aria-labelledby="delete-data-title-2">
+      <div class="modal-box">
+        <h2 id="delete-data-title-2">Are you sure?</h2>
+        <p>Deleted notes and timer statistics <strong>cannot be recovered</strong>. Do you really want to delete them?</p>
+        <div class="modal-actions">
+          <button class="modal-btn" id="delete-data-cancel-2" type="button">Cancel</button>
+          <button class="modal-btn danger" id="delete-data-continue-2" type="button">Yes, continue</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="delete-data-modal-3" role="dialog" aria-modal="true" aria-labelledby="delete-data-title-3">
+      <div class="modal-box">
+        <h2 id="delete-data-title-3">Final confirmation</h2>
+        <p>This is the last step. Press the button to delete all TBXM data stored in this browser.</p>
+        <div class="modal-actions">
+          <button class="modal-btn" id="delete-data-cancel-3" type="button">Cancel</button>
+          <button class="modal-btn danger" id="delete-data-final-confirm" type="button">Delete All Data</button>
         </div>
       </div>
     </div>
@@ -219,5 +378,59 @@
 
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>
+    <script>
+      (() => {
+        const deleteBtn = document.getElementById("delete-all-data-btn");
+        const deleteStatus = document.getElementById("delete-data-status");
+        const finalConfirmBtn = document.getElementById("delete-data-final-confirm");
+        const modals = document.querySelectorAll(".modal-overlay");
+
+        function hideAll() {
+          modals.forEach((modal) => modal.classList.remove("show"));
+        }
+
+        function showModal(id) {
+          hideAll();
+          document.getElementById(id).classList.add("show");
+        }
+
+        function deleteAllData() {
+          Object.keys(localStorage)
+            .filter((key) => key.startsWith("tbxm_"))
+            .forEach((key) => localStorage.removeItem(key));
+          document.cookie.split(";")
+            .map((cookie) => cookie.split("=")[0].trim())
+            .filter((name) => name.startsWith("tbxm_"))
+            .forEach((name) => {
+              document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+            });
+        }
+
+        deleteBtn.addEventListener("click", () => showModal("delete-data-modal-1"));
+
+        document.getElementById("delete-data-cancel-1").addEventListener("click", hideAll);
+        document.getElementById("delete-data-cancel-2").addEventListener("click", hideAll);
+        document.getElementById("delete-data-cancel-3").addEventListener("click", hideAll);
+        document.getElementById("delete-data-continue-1").addEventListener("click", () => showModal("delete-data-modal-2"));
+        document.getElementById("delete-data-continue-2").addEventListener("click", () => showModal("delete-data-modal-3"));
+
+        finalConfirmBtn.addEventListener("click", () => {
+          deleteAllData();
+          hideAll();
+          deleteStatus.textContent = "All TBXM data stored in this browser has been deleted.";
+          deleteStatus.hidden = false;
+        });
+
+        modals.forEach((modal) => {
+          modal.addEventListener("click", (e) => {
+            if (e.target === modal) hideAll();
+          });
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") hideAll();
+        });
+      })();
+    </script>
   </body>
 </html>
