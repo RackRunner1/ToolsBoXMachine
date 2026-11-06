@@ -16,7 +16,11 @@ BANNER='████████╗ ██████╗  ██████╗
    ██║   ╚██████╔╝╚██████╔╝███████╗███████║██████╔╝╚██████╔╝██╔╝ ██╗██║  ██║██║     ██║
    ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝'
 
-print_banner() { printf '\n\n%s\n\n' "$(printf '%s' "$BANNER" | sed 's/^/    /')"; }
+print_banner() {
+  if [ "${BANNER_PRINTED:-0}" -eq 1 ]; then return; fi
+  BANNER_PRINTED=1
+  printf '\n\n%s\n\n' "$(printf '%s' "$BANNER" | sed 's/^/    /')"
+}
 
 BAR_W=30
 BAR_ACTIVE=0
@@ -76,14 +80,16 @@ manage_existing() {
   if ! { : </dev/tty; } 2>/dev/null; then
     exec tbxa update
   fi
-  printf 'ToolsBoXApp %s is already installed. What do you want to do?\n' "${INSTALLED_VERSION:-unknown version}"
-  printf '    1) Update to the latest version\n'
-  printf '    2) Reinstall the current version (%s)\n' "${INSTALLED_VERSION:-unknown}"
-  printf '    3) Reinstall the latest version\n'
-  printf '    4) Uninstall\n'
-  printf 'Choice [1-4]: ' >/dev/tty
+  print_banner
+  printf '    ToolsBoXApp %s is already installed. What do you want to do?\n' "${INSTALLED_VERSION:-unknown version}"
+  printf '        1) Update to the latest version\n'
+  printf '        2) Reinstall the current version (%s)\n' "${INSTALLED_VERSION:-unknown}"
+  printf '        3) Reinstall the latest version\n'
+  printf '        4) Uninstall\n'
+  printf '    Choice [1-4]: ' >/dev/tty
   local choice=""
   read -r choice </dev/tty || choice=""
+  if [ "$TTY_OUT" -eq 1 ]; then printf '\033[6A\033[J' >/dev/tty; fi
   case "$choice" in
     1) exec tbxa update ;;
     2)
