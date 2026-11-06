@@ -81,12 +81,12 @@ manage_existing() {
     exec tbxa update
   fi
   print_banner
-  printf '    ToolsBoXApp %s is already installed. What do you want to do?\n' "${INSTALLED_VERSION:-unknown version}"
-  printf '        1) Update to the latest version\n'
-  printf '        2) Reinstall the current version (%s)\n' "${INSTALLED_VERSION:-unknown}"
-  printf '        3) Reinstall the latest version\n'
-  printf '        4) Uninstall\n'
-  printf '    Choice [1-4]: ' >/dev/tty
+  printf '        ToolsBoXApp %s is already installed. What do you want to do?\n' "${INSTALLED_VERSION:-unknown version}"
+  printf '            1) Update to the latest version\n'
+  printf '            2) Reinstall the current version (%s)\n' "${INSTALLED_VERSION:-unknown}"
+  printf '            3) Reinstall the latest version\n'
+  printf '            4) Uninstall\n'
+  printf '        Choice [1-4]: ' >/dev/tty
   local choice=""
   read -r choice </dev/tty || choice=""
   if [ "$TTY_OUT" -eq 1 ]; then
