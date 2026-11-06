@@ -89,7 +89,12 @@ manage_existing() {
   printf '    Choice [1-4]: ' >/dev/tty
   local choice=""
   read -r choice </dev/tty || choice=""
-  if [ "$TTY_OUT" -eq 1 ]; then printf '\033[6A\033[J' >/dev/tty; fi
+  if [ "$TTY_OUT" -eq 1 ]; then
+    case "$choice" in
+      1 | 4) printf '\033[15A\033[J' >/dev/tty ;;
+      *) printf '\033[6A\033[J' >/dev/tty ;;
+    esac
+  fi
   case "$choice" in
     1) exec tbxa update ;;
     2)
