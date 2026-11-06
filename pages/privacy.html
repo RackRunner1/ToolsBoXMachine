@@ -40,12 +40,6 @@
         background: #dc2626;
       }
 
-      #delete-data-status {
-        color: #4ade80;
-        font-size: 0.9rem;
-        margin: 0 0 1rem;
-      }
-
       .modal-overlay {
         position: fixed;
         inset: 0;
@@ -130,6 +124,15 @@
 
       .modal-btn:hover {
         background: rgba(255, 255, 255, 0.14);
+      }
+
+      .modal-btn.primary {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .modal-btn.primary:hover {
+        background: var(--primary-hover);
       }
 
       .modal-btn.danger {
@@ -330,7 +333,6 @@
 
         <div class="page-actions">
           <button class="btn btn-danger" id="delete-all-data-btn" type="button">Delete All Data</button>
-          <p id="delete-data-status" role="status" hidden></p>
           <a href="/" class="btn btn-primary">Back to Home</a>
         </div>
       </div>
@@ -375,6 +377,16 @@
       </div>
     </div>
 
+    <div class="modal-overlay" id="delete-data-modal-done" role="dialog" aria-modal="true" aria-labelledby="delete-data-title-done">
+      <div class="modal-box">
+        <h2 id="delete-data-title-done">Data deleted</h2>
+        <p>All TBXM data stored in this browser has been deleted.</p>
+        <div class="modal-actions">
+          <button class="modal-btn primary" id="delete-data-done" type="button">OK</button>
+        </div>
+      </div>
+    </div>
+
     <div id="footer-placeholder"></div>
 
     <script src="/ui/include.js"></script>
@@ -382,7 +394,6 @@
     <script>
       (() => {
         const deleteBtn = document.getElementById("delete-all-data-btn");
-        const deleteStatus = document.getElementById("delete-data-status");
         const finalConfirmBtn = document.getElementById("delete-data-final-confirm");
         const modals = document.querySelectorAll(".modal-overlay");
 
@@ -417,10 +428,10 @@
 
         finalConfirmBtn.addEventListener("click", () => {
           deleteAllData();
-          hideAll();
-          deleteStatus.textContent = "All TBXM data stored in this browser has been deleted.";
-          deleteStatus.hidden = false;
+          showModal("delete-data-modal-done");
         });
+
+        document.getElementById("delete-data-done").addEventListener("click", hideAll);
 
         modals.forEach((modal) => {
           modal.addEventListener("click", (e) => {
