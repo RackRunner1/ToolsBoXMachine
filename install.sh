@@ -59,7 +59,7 @@ GitHub release:
   - Arch Linux and derivatives    -> .pkg.tar.zst via pacman
 
 Usage:
-  curl -fsSL https://tbxm.org/install.sh | bash
+  curl -fsSL https://get.tbxm.org | bash
   or:
   curl -fsSL https://raw.githubusercontent.com/RackRunner1/ToolsBoXMachine/main/install.sh | bash
   or:
