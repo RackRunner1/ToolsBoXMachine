@@ -212,21 +212,28 @@ function scrollActiveTabIntoView() {
 let emojiNameMap = null;
 let emojiNamesPromise = null;
 
+function loadScript(src) {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = resolve;
+    document.head.appendChild(script);
+  });
+}
+
 function loadEmojiNames() {
   if (!emojiNamesPromise) {
-    emojiNamesPromise = new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = "./emoji-names.js?v=1";
-      script.onload = () => {
-        emojiNameMap = new Map(Object.entries(window.__emojiNames || {}));
-        resolve();
-      };
-      script.onerror = () => {
-        emojiNamesPromise = null;
-        emojiNameMap = new Map();
-        resolve();
-      };
-      document.head.appendChild(script);
+    emojiNamesPromise = Promise.all([
+      loadScript("./emoji-names.js?v=1"),
+      loadScript("./emoji-keywords.js?v=1"),
+    ]).then(() => {
+      const names = window.__emojiNames || {};
+      const keywords = window.__emojiKeywords || {};
+      emojiNameMap = new Map();
+      for (const emoji of new Set([...Object.keys(names), ...Object.keys(keywords)])) {
+        emojiNameMap.set(emoji, [names[emoji], keywords[emoji]].filter(Boolean).join(" "));
+      }
     });
   }
   return emojiNamesPromise;
