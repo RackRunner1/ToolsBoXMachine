@@ -1136,8 +1136,8 @@ window.__emojiKeywords =
 };
 
 const slangKeywords = {
-    "😂": "lol lmao lmfao haha laughing crying dead",
-    "🤣": "lol lmao lmfao rofl haha dying dead",
+    "😂": "lol lmao lmfao haha laughing crying",
+    "🤣": "lol lmao lmfao rofl haha",
     "😆": "lol haha laughing hard",
     "😄": "haha lol happy laugh",
     "😀": "haha hello hi happy",
@@ -1157,14 +1157,14 @@ const slangKeywords = {
     "😢": "crying sad tear",
     "🥹": "crying sad touched emotional",
     "🥲": "touched sad smile",
-    "😩": "tired dying dead wtf",
+    "😩": "tired dying wtf",
     "😫": "tired dying exhausted",
     "💀": "dead skull dying lmao funny",
     "☠️": "dead skull dying",
     "🤡": "clown joke",
     "🤔": "idk thinking hmm",
     "🤷": "idk shrug whatever",
-    "🫠": "melting dying sweat dead meh",
+    "🫠": "melting dying sweat meh",
     "😳": "shocked embarrassed blush wtf",
     "😬": "awkward cringe yikes oops",
     "😅": "awkward nervous sweat phew",
