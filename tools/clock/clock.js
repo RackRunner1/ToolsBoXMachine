@@ -197,6 +197,12 @@
       e.stopPropagation();
       closeSelects(container);
       container.classList.toggle("open");
+      if (container.classList.contains("open")) {
+        const rect = trigger.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        container.classList.toggle("open-up", spaceBelow < 204 && spaceAbove > spaceBelow);
+      }
     });
 
     options.querySelectorAll(".select-option").forEach((opt) => {
