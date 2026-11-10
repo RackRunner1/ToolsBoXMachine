@@ -478,6 +478,98 @@
       .stats-value-alt {
         color: #10b981;
       }
+
+      .stats-modal-text {
+        color: #94a3b8;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 0.75rem;
+      }
+
+      .stats-modal-list {
+        margin: 0 0 1.5rem 1.1rem;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        line-height: 1.8;
+      }
+
+      .stats-modal-actions {
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      .stats-modal-actions .btn {
+        flex: 1;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+      }
+
+      .stats-toggle {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 0.75rem;
+        cursor: pointer;
+      }
+
+      .stats-toggle-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .stats-toggle-desc {
+        font-size: 0.85rem;
+        color: #64748b;
+      }
+
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        flex-shrink: 0;
+      }
+
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background: #334155;
+        border-radius: 24px;
+        transition: 0.3s;
+      }
+
+      .toggle-slider::before {
+        content: "";
+        position: absolute;
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background: white;
+        border-radius: 50%;
+        transition: 0.3s;
+      }
+
+      .toggle-switch input:checked + .toggle-slider {
+        background: var(--primary-color);
+      }
+
+      .toggle-switch input:checked + .toggle-slider::before {
+        transform: translateX(20px);
+      }
     </style>
     <script type="application/ld+json">
 {
@@ -795,6 +887,57 @@
       </div>
     </div>
 
+    <div
+      id="stats-consent-modal"
+      class="stats-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="stats-consent-title"
+    >
+      <div id="stats-consent-content" class="stats-modal-panel">
+        <div class="stats-modal-header">
+          <div class="stats-modal-icon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 3v18h18" />
+              <path d="m19 9-5 5-4-4-3 3" />
+            </svg>
+          </div>
+          <h2 id="stats-consent-title" class="stats-modal-title">
+            Enable Focus Stats?
+          </h2>
+        </div>
+        <p class="stats-modal-text">
+          Focus Stats are off by default. If you turn them on, the timer counts
+          your completed Pomodoro sessions and total focus time.
+        </p>
+        <ul class="stats-modal-list">
+          <li>
+            Your numbers are saved only in this browser, never sent to TBXM
+          </li>
+          <li>Nothing is counted while Focus Stats are off</li>
+          <li>You can turn them off or reset them at any time</li>
+        </ul>
+        <div class="stats-modal-actions">
+          <button class="btn btn-secondary" id="stats-consent-decline">
+            Keep Disabled
+          </button>
+          <button class="btn btn-primary" id="stats-consent-accept">
+            Enable Stats
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div id="stats-modal" class="stats-modal">
       <div id="stats-modal-content" class="stats-modal-panel">
         <button id="close-stats-modal" class="stats-modal-close">
@@ -832,6 +975,19 @@
           </div>
           <h2 class="stats-modal-title">Focus Stats</h2>
         </div>
+
+        <label class="stats-toggle">
+          <span class="stats-toggle-info">
+            <span class="stats-label">Count focus sessions</span>
+            <span id="stats-toggle-desc" class="stats-toggle-desc">
+              Off. Completed sessions are not counted.
+            </span>
+          </span>
+          <span class="toggle-switch">
+            <input type="checkbox" id="stats-enabled-toggle" />
+            <span class="toggle-slider"></span>
+          </span>
+        </label>
 
         <div class="stats-card">
           <div class="stats-row">
