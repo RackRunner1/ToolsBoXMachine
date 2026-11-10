@@ -383,11 +383,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const statsModal = document.getElementById("stats-modal");
   const closeStatsModal = document.getElementById("close-stats-modal");
   const statsModalContent = document.getElementById("stats-modal-content");
+  const focusSettingsBtn = document.getElementById("focus-settings-btn");
+  const focusSettingsModal = document.getElementById("focus-settings-modal");
+  const focusSettingsContent = document.getElementById(
+    "focus-settings-content",
+  );
+  const closeFocusSettingsBtn = document.getElementById("close-focus-settings");
 
   function isOverlayOpen() {
     return (
       statsModal.style.display === "flex" ||
-      statsConsentModal.style.display === "flex"
+      statsConsentModal.style.display === "flex" ||
+      focusSettingsModal.style.display === "flex"
     );
   }
 
@@ -410,11 +417,19 @@ document.addEventListener("DOMContentLoaded", () => {
   function openModal() {
     showOverlay(statsModal, statsModalContent);
     updateStatsUI();
-    updateStatsToggleUI();
   }
 
   function closeModal() {
     hideOverlay(statsModal, statsModalContent);
+  }
+
+  function openFocusSettings() {
+    updateStatsToggleUI();
+    showOverlay(focusSettingsModal, focusSettingsContent);
+  }
+
+  function closeFocusSettings() {
+    hideOverlay(focusSettingsModal, focusSettingsContent);
   }
 
   let statsConsentOpen = false;
@@ -446,6 +461,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   closeStatsModal.addEventListener("click", closeModal);
+  focusSettingsBtn.addEventListener("click", openFocusSettings);
+  closeFocusSettingsBtn.addEventListener("click", closeFocusSettings);
 
   statsConsentAccept.addEventListener("click", () => answerStatsConsent(true));
   statsConsentDecline.addEventListener("click", () =>
@@ -466,12 +483,20 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") dismissStatsConsent();
+    if (e.key !== "Escape") return;
+    dismissStatsConsent();
+    if (focusSettingsModal.style.display === "flex") closeFocusSettings();
   });
 
   statsModal.addEventListener("click", (e) => {
     if (e.target === statsModal) {
       closeModal();
+    }
+  });
+
+  focusSettingsModal.addEventListener("click", (e) => {
+    if (e.target === focusSettingsModal) {
+      closeFocusSettings();
     }
   });
 
