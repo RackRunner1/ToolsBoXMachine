@@ -417,15 +417,30 @@ document.addEventListener("DOMContentLoaded", () => {
     hideOverlay(statsModal, statsModalContent);
   }
 
+  let statsConsentOpen = false;
+
+  function openStatsConsent() {
+    statsConsentOpen = true;
+    showOverlay(statsConsentModal, statsConsentContent);
+  }
+
   function answerStatsConsent(enabled) {
+    statsConsentOpen = false;
     setStatsEnabled(enabled);
     hideOverlay(statsConsentModal, statsConsentContent);
     openModal();
   }
 
+  function dismissStatsConsent() {
+    if (!statsConsentOpen) return;
+    statsConsentOpen = false;
+    setStatsEnabled(false);
+    hideOverlay(statsConsentModal, statsConsentContent);
+  }
+
   viewStatsBtn.addEventListener("click", () => {
     if (localStorage.getItem(STATS_CONSENT_KEY) === null) {
-      showOverlay(statsConsentModal, statsConsentContent);
+      openStatsConsent();
     } else {
       openModal();
     }
@@ -436,6 +451,23 @@ document.addEventListener("DOMContentLoaded", () => {
   statsConsentDecline.addEventListener("click", () =>
     answerStatsConsent(false),
   );
+
+  let pressStartedOnConsentOverlay = false;
+
+  // Ignore text selections that start inside the panel and end outside it.
+  statsConsentModal.addEventListener("pointerdown", (e) => {
+    pressStartedOnConsentOverlay = e.target === statsConsentModal;
+  });
+
+  statsConsentModal.addEventListener("click", (e) => {
+    if (e.target === statsConsentModal && pressStartedOnConsentOverlay) {
+      dismissStatsConsent();
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") dismissStatsConsent();
+  });
 
   statsModal.addEventListener("click", (e) => {
     if (e.target === statsModal) {
