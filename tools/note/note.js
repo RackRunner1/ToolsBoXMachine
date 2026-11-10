@@ -52,6 +52,7 @@ const elements = {
   incognitoModalCancel: document.getElementById("incognito-modal-cancel"),
   incognitoModalConfirm: document.getElementById("incognito-modal-confirm"),
   deleteAllNotesBtn: document.getElementById("delete-all-notes-btn"),
+  deleteAllNotesAndSettingsBtn: document.getElementById("delete-all-notes-and-settings-btn"),
 };
 
 let notes = [];
@@ -746,6 +747,22 @@ function deleteAllNotes() {
   showNotification("All notes deleted");
 }
 
+function deleteAllNotesAndSettings() {
+  clearTimeout(saveTimeout);
+  saveTimeout = null;
+  purgeNotesData();
+  setIncognitoMode(false);
+  notes = [];
+  folders = [];
+  activeNoteId = null;
+  elements.skipDeleteConfirm.checked = skipDeleteConfirm;
+  elements.wordCountToggle.checked = showWordCount;
+  elements.foldersToggle.checked = foldersEnabled;
+  applyFoldersState();
+  showEditorEmpty();
+  showNotification("All notes and settings deleted");
+}
+
 function showNotification(message) {
   elements.notification.textContent = message;
   elements.notification.classList.add("show");
@@ -987,6 +1004,14 @@ function setupEventListeners() {
     showDeleteModal(deleteAllNotes, {
       title: "Delete all notes",
       message: "Delete every note? Your settings will be kept. This action cannot be undone.",
+      confirmDelay: 3000,
+    });
+  });
+
+  elements.deleteAllNotesAndSettingsBtn.addEventListener("click", () => {
+    showDeleteModal(deleteAllNotesAndSettings, {
+      title: "Delete all notes and settings",
+      message: "Delete every note and folder, and restore all note settings to their defaults? This action cannot be undone.",
       confirmDelay: 3000,
     });
   });
