@@ -19,6 +19,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const sessionsCountEl = document.getElementById("sessions-count");
   const totalFocusTimeEl = document.getElementById("total-focus-time");
   const clearStatsBtn = document.getElementById("clear-stats-btn");
+  const statsToggle = document.getElementById("stats-enabled-toggle");
+  const statsToggleDesc = document.getElementById("stats-toggle-desc");
+  const statsConsentModal = document.getElementById("stats-consent-modal");
+  const statsConsentContent = document.getElementById("stats-consent-content");
+  const statsConsentAccept = document.getElementById("stats-consent-accept");
+  const statsConsentDecline = document.getElementById("stats-consent-decline");
 
   const pad = (n) => n.toString().padStart(2, "0");
 
@@ -29,6 +35,24 @@ document.addEventListener("DOMContentLoaded", () => {
     sessions: 0,
     totalTime: 0,
   };
+
+  const STATS_CONSENT_KEY = "tbxm_timer_stats_consent";
+
+  const isStatsEnabled = () =>
+    localStorage.getItem(STATS_CONSENT_KEY) === "granted";
+
+  function setStatsEnabled(enabled) {
+    localStorage.setItem(STATS_CONSENT_KEY, enabled ? "granted" : "denied");
+    updateStatsToggleUI();
+  }
+
+  function updateStatsToggleUI() {
+    const enabled = isStatsEnabled();
+    statsToggle.checked = enabled;
+    statsToggleDesc.textContent = enabled
+      ? "On. Completed sessions are counted in this browser."
+      : "Off. Completed sessions are not counted.";
+  }
 
   function updateStatsUI() {
     sessionsCountEl.textContent = stats.sessions;
@@ -248,6 +272,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (
+          isStatsEnabled() &&
           timeLabel.textContent !== "Short Break" &&
           timeLabel.textContent !== "Long Break"
         ) {
@@ -326,6 +351,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       return;
     }
+    if (isOverlayOpen()) return;
     if (e.code === "Space") {
       e.preventDefault();
       toggleTimer();
@@ -358,29 +384,67 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeStatsModal = document.getElementById("close-stats-modal");
   const statsModalContent = document.getElementById("stats-modal-content");
 
-  function openModal() {
-    statsModal.style.display = "flex";
-    setTimeout(() => {
-      statsModal.style.opacity = "1";
-      statsModalContent.style.transform = "scale(1)";
-    }, 10);
-    updateStatsUI();
+  function isOverlayOpen() {
+    return (
+      statsModal.style.display === "flex" ||
+      statsConsentModal.style.display === "flex"
+    );
   }
 
-  function closeModal() {
-    statsModal.style.opacity = "0";
-    statsModalContent.style.transform = "scale(0.95)";
+  function showOverlay(overlay, panel) {
+    overlay.style.display = "flex";
     setTimeout(() => {
-      statsModal.style.display = "none";
+      overlay.style.opacity = "1";
+      panel.style.transform = "scale(1)";
+    }, 10);
+  }
+
+  function hideOverlay(overlay, panel) {
+    overlay.style.opacity = "0";
+    panel.style.transform = "scale(0.95)";
+    setTimeout(() => {
+      overlay.style.display = "none";
     }, 300);
   }
 
-  viewStatsBtn.addEventListener("click", openModal);
+  function openModal() {
+    showOverlay(statsModal, statsModalContent);
+    updateStatsUI();
+    updateStatsToggleUI();
+  }
+
+  function closeModal() {
+    hideOverlay(statsModal, statsModalContent);
+  }
+
+  function answerStatsConsent(enabled) {
+    setStatsEnabled(enabled);
+    hideOverlay(statsConsentModal, statsConsentContent);
+    openModal();
+  }
+
+  viewStatsBtn.addEventListener("click", () => {
+    if (localStorage.getItem(STATS_CONSENT_KEY) === null) {
+      showOverlay(statsConsentModal, statsConsentContent);
+    } else {
+      openModal();
+    }
+  });
   closeStatsModal.addEventListener("click", closeModal);
+
+  statsConsentAccept.addEventListener("click", () => answerStatsConsent(true));
+  statsConsentDecline.addEventListener("click", () =>
+    answerStatsConsent(false),
+  );
+
   statsModal.addEventListener("click", (e) => {
     if (e.target === statsModal) {
       closeModal();
     }
+  });
+
+  statsToggle.addEventListener("change", () => {
+    setStatsEnabled(statsToggle.checked);
   });
 
   updateDisplay();
