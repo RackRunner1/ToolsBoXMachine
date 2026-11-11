@@ -489,16 +489,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (statsModal.style.display === "flex") closeModal();
   });
 
+  let pressStartedOnStatsOverlay = false;
+  statsModal.addEventListener("pointerdown", (e) => {
+    pressStartedOnStatsOverlay = e.target === statsModal;
+  });
   statsModal.addEventListener("click", (e) => {
-    if (e.target === statsModal) {
-      closeModal();
-    }
+    if (e.target === statsModal && pressStartedOnStatsOverlay) closeModal();
   });
 
+  let pressStartedOnFocusOverlay = false;
+  focusSettingsModal.addEventListener("pointerdown", (e) => {
+    pressStartedOnFocusOverlay = e.target === focusSettingsModal;
+  });
   focusSettingsModal.addEventListener("click", (e) => {
-    if (e.target === focusSettingsModal) {
-      closeFocusSettings();
-    }
+    if (e.target === focusSettingsModal && pressStartedOnFocusOverlay) closeFocusSettings();
   });
 
   statsToggle.addEventListener("change", () => {

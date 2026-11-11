@@ -461,8 +461,12 @@
         document.getElementById("delete-data-done").addEventListener("click", hideAll);
 
         modals.forEach((modal) => {
+          let pressStartedOnBackdrop = false;
+          modal.addEventListener("pointerdown", (e) => {
+            pressStartedOnBackdrop = e.target === modal;
+          });
           modal.addEventListener("click", (e) => {
-            if (e.target === modal) hideAll();
+            if (e.target === modal && pressStartedOnBackdrop) hideAll();
           });
         });
 
