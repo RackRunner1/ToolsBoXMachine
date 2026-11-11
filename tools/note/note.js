@@ -115,6 +115,9 @@ function setupStorageModal() {
   elements.storageModal.addEventListener("click", (e) => {
     if (e.target === elements.storageModal) close();
   });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && elements.storageModal.classList.contains("show")) close();
+  });
 }
 
 function loadNotes() {
@@ -962,6 +965,13 @@ function setupEventListeners() {
     if (e.target === elements.settingsModal) {
       elements.settingsModal.classList.remove("show");
     }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (elements.incognitoModal.classList.contains("show")) hideIncognitoModal();
+    else if (elements.deleteModal.classList.contains("show")) hideDeleteModal();
+    else if (elements.settingsModal.classList.contains("show")) elements.settingsModal.classList.remove("show");
   });
 
   elements.skipDeleteConfirm.addEventListener("change", () => {
