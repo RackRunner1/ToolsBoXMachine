@@ -486,6 +486,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key !== "Escape") return;
     dismissStatsConsent();
     if (focusSettingsModal.style.display === "flex") closeFocusSettings();
+    if (statsModal.style.display === "flex") closeModal();
   });
 
   statsModal.addEventListener("click", (e) => {
