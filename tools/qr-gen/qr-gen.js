@@ -1,3 +1,6 @@
+import { encodeQR } from "./qr-encoder.js";
+import { renderQR } from "./qr-render.js";
+
 const qrInput = document.getElementById("qr-text");
 const qrColorDark = document.getElementById("qr-color-dark");
 const qrColorLight = document.getElementById("qr-color-light");
@@ -56,40 +59,21 @@ function generateQR() {
 
   const size = parseInt(qrSize.value);
 
-  qr = new QRCodeStyling({
-    width: size,
-    height: size,
-    data: text,
+  qr = renderQR(encodeQR(text, "Q"), {
+    size,
     margin: 2,
-
-    dotsOptions: {
-      color: qrColorDark.value,
-      type: qrDotStyle.value,
-    },
-
-    cornersDotOptions: {
-      type: qrEyeStyle.value,
-      color: qrColorDark.value,
-    },
-
-    cornersSquareOptions: {
-      type: qrBorderStyle.value,
-      color: qrColorDark.value,
-    },
-
-    backgroundOptions: {
-      color: qrColorLight.value,
-    },
-
-    image: logoDataUrl || undefined,
-    imageOptions: {
-      crossOrigin: "anonymous",
-      margin: 4,
-      hideBackgroundDots: true,
-    },
+    bgColor: qrColorLight.value,
+    dotsColor: qrColorDark.value,
+    dotsType: qrDotStyle.value,
+    cornersSquareType: qrBorderStyle.value,
+    cornersSquareColor: qrColorDark.value,
+    cornersDotType: qrEyeStyle.value,
+    cornersDotColor: qrColorDark.value,
+    logo: logoDataUrl,
+    logoMargin: 4,
   });
 
-  qr.append(qrcodeDiv);
+  qrcodeDiv.appendChild(qr.canvas);
 }
 
 function handleInput() {
@@ -122,7 +106,7 @@ qrSize.addEventListener("input", () => {
 downloadBtn.addEventListener("click", async () => {
   if (!qr) return;
 
-  const blob = await qr.getRawData("png");
+  const blob = await qr.toBlob();
   const link = document.createElement("a");
   link.download = "tbxm-qrcode.png";
   link.href = URL.createObjectURL(blob);
@@ -158,7 +142,7 @@ copyBtn.addEventListener("click", async () => {
     <span>Copied!</span>
   `;
 
-  qr.getRawData("png").then((blob) => {
+  qr.toBlob().then((blob) => {
     const item = new ClipboardItem({ "image/png": blob });
     navigator.clipboard.write([item]);
   });
