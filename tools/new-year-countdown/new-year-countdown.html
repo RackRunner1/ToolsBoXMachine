@@ -11,7 +11,7 @@
       name="keywords"
       content="new year countdown, countdown to new year, new year timer, days until new year, time since new year, days since new year, january 1 countdown, tbxm, toolsboxmachine"
     />
-    <title>New Year Countdown: Time Until & Since January 1st (TBXM)</title>
+    <title>New Year Countdown: Days, Hours & Seconds Until January 1st (TBXM)</title>
     <link rel="icon" href="../../.assets/logo/fav.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="stylesheet" href="../../style.css" />
@@ -250,7 +250,42 @@
         transition: width 1s linear;
       }
 
+      .ny-info {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1.25rem;
+        padding: 2rem;
+        margin-top: 1.5rem;
+        color: #94a3b8;
+        line-height: 1.7;
+      }
+
+      .ny-info h2 {
+        color: #fff;
+        font-size: 1.5rem;
+        margin: 0 0 0.75rem;
+      }
+
+      .ny-info h3 {
+        color: #cbd5e1;
+        font-size: 1.1rem;
+        margin: 1.5rem 0 0.5rem;
+      }
+
+      .ny-info p {
+        margin: 0 0 0.75rem;
+      }
+
+      .ny-info ul {
+        margin: 0 0 0.75rem;
+        padding-left: 1.25rem;
+      }
+
       @media (max-width: 640px) {
+        .ny-info {
+          padding: 1.5rem 1rem;
+        }
+
         .ny-wrap {
           padding: 0 1rem;
         }
@@ -309,13 +344,13 @@
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://www.tbxm.org/og/new-year-countdown.png" />
     <meta property="og:site_name" content="ToolsBoXMachine" />
-    <meta property="og:title" content="New Year Countdown: Time Until & Since January 1st (TBXM)" />
+    <meta property="og:title" content="New Year Countdown: Days, Hours & Seconds Until January 1st (TBXM)" />
     <meta property="og:url" content="https://www.tbxm.org/tools/new-year-countdown/new-year-countdown.html" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="New Year Countdown: Time Until & Since January 1st (TBXM)" />
+    <meta name="twitter:title" content="New Year Countdown: Days, Hours & Seconds Until January 1st (TBXM)" />
     <meta name="twitter:image" content="https://www.tbxm.org/og/new-year-countdown.png" />
     <meta property="og:description" content="Live countdown to January 1st and time elapsed since New Year, in your timezone. Free, no tracking, runs in your browser." />
     <meta name="twitter:description" content="Live countdown to January 1st and time elapsed since New Year, in your timezone. Free, no tracking, runs in your browser." />
@@ -390,6 +425,49 @@
           <span class="ny-progress-pct" id="ny-progress-pct">…</span>
         </div>
       </div>
+
+      <section class="ny-info">
+        <h2>How the New Year countdown works</h2>
+        <p>
+          This free New Year countdown shows the exact time left until January 1st
+          at 00:00 in your local timezone. The timer updates every second and
+          counts down the days, hours, minutes and seconds until the new year
+          begins. It runs entirely in your browser, so no account is needed and
+          nothing you do on this page is tracked.
+        </p>
+
+        <h3>Time until New Year</h3>
+        <p>
+          From January 1st of the current year until the end of December 31st,
+          the countdown shows how much time remains before midnight on New Year's
+          Eve. The progress bar shows how much of the current year has already
+          passed, as a percentage.
+        </p>
+
+        <h3>Time since New Year</h3>
+        <p>
+          For the first 48 hours after January 1st, the page switches to "time
+          since New Year", so you can see how long ago the new year started. After
+          that window, it goes back to counting down to the next New Year.
+        </p>
+
+        <h3>Why the timezone matters</h3>
+        <p>
+          New Year does not start at the same moment everywhere. Midnight on
+          January 1st happens first on islands such as Kiribati and last in places
+          such as American Samoa. This tool
+          uses the timezone of your device, so the countdown always matches your
+          local clock.
+        </p>
+
+        <h3>Frequently asked questions</h3>
+        <ul>
+          <li><strong>How many days until New Year?</strong> The number of days is shown in the first box of the countdown above.</li>
+          <li><strong>How many days since New Year?</strong> During the first 48 hours of the year, the tool shows the time elapsed since January 1st at 00:00.</li>
+          <li><strong>Is this New Year countdown free?</strong> Yes. It has no ads, no sign-up, and no tracking.</li>
+          <li><strong>Can I show the countdown on a big screen?</strong> Yes. Use the fullscreen button in the top-right corner of the timer card.</li>
+        </ul>
+      </section>
     </main>
 
     <div id="footer-placeholder"></div>
