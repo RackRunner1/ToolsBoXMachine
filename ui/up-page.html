@@ -1,0 +1,55 @@
+<style>
+  .up-page-btn {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    background: var(--primary-color);
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 20px var(--primary-glow);
+    opacity: 0;
+    transform: translateY(1rem) scale(0.8);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease;
+    z-index: 1000;
+  }
+
+  .up-page-btn.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .up-page-btn:hover {
+    background: var(--primary-hover);
+  }
+</style>
+
+<button type="button" class="up-page-btn" id="up-page-btn" aria-label="Back to top" title="Back to top">
+  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m18 15-6-6-6 6"></path>
+  </svg>
+</button>
+
+<script>
+  (() => {
+    const btn = document.getElementById("up-page-btn");
+
+    const toggle = () => {
+      btn.classList.toggle("visible", window.scrollY > 300);
+    };
+
+    window.addEventListener("scroll", toggle, { passive: true });
+    btn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    toggle();
+  })();
+</script>

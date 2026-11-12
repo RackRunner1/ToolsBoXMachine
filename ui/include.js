@@ -48,6 +48,14 @@ async function includeHTML() {
     );
   }
 
+  promises.push(
+    fetch("/ui/up-page.html")
+      .then((r) => r.text())
+      .then((html) => {
+        document.body.append(document.createRange().createContextualFragment(html));
+      })
+  );
+
   await Promise.all(promises);
 
   document.dispatchEvent(new Event("components-loaded"));
