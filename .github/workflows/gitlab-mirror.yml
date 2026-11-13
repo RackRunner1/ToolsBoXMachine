@@ -1,0 +1,44 @@
+name: Rewrite authors and mirror to GitLab
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gitlab-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Rewrite commit authors
+        run: |
+          FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f --env-filter '
+          if [ "$GIT_AUTHOR_NAME" = "RackRunner1" ] && [ "$GIT_AUTHOR_EMAIL" = "325587735+RackRunner1@users.noreply.github.com" ]; then
+            export GIT_AUTHOR_NAME="RackRunner"
+            export GIT_AUTHOR_EMAIL="44419098-RackRunner@users.noreply.gitlab.com"
+          fi
+          if [ "$GIT_COMMITTER_NAME" = "RackRunner1" ] && [ "$GIT_COMMITTER_EMAIL" = "325587735+RackRunner1@users.noreply.github.com" ]; then
+            export GIT_COMMITTER_NAME="RackRunner"
+            export GIT_COMMITTER_EMAIL="44419098-RackRunner@users.noreply.gitlab.com"
+          fi
+          ' --tag-name-filter cat -- --all
+
+      - name: Push to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.TOKEN_GITLAB }}
+        run: |
+          git push --force "https://oauth2:${GITLAB_TOKEN}@gitlab.com/ToolsBoXCompany/ToolsBoXMachine.git" \
+            'refs/heads/*:refs/heads/*' \
+            'refs/tags/*:refs/tags/*'
