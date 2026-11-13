@@ -16,7 +16,12 @@
     opacity: 0;
     transform: translateY(1rem) scale(0.8);
     pointer-events: none;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition:
+      opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+      transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+      background-color 0.4s ease,
+      border-color 0.4s ease,
+      box-shadow 0.4s ease;
     z-index: 1000;
   }
 
@@ -45,15 +50,29 @@
 <script>
   (() => {
     const btn = document.getElementById("up-page-btn");
+    const baseBottom = parseFloat(getComputedStyle(btn).bottom);
 
     const toggle = () => {
       btn.classList.toggle("visible", window.scrollY > 300);
     };
 
-    window.addEventListener("scroll", toggle, { passive: true });
+    const pushAboveFooter = () => {
+      const footer = document.querySelector(".footer");
+      const overlap = footer ? window.innerHeight - footer.getBoundingClientRect().top : 0;
+      btn.style.bottom = overlap > 0 ? `${baseBottom + overlap}px` : "";
+    };
+
+    const update = () => {
+      toggle();
+      pushAboveFooter();
+    };
+
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    document.addEventListener("components-loaded", update);
     btn.addEventListener("click", () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
-    toggle();
+    update();
   })();
 </script>
