@@ -199,3 +199,47 @@ jobs:
           body: ${{ steps.notes.outputs.body }}
           make_latest: true
           generate_release_notes: false
+
+      - name: Rewrite commit authors and push to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.TOKEN_GITLAB }}
+        run: |
+          git fetch --force --tags origin
+
+          FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f --env-filter '
+          if [ "$GIT_AUTHOR_NAME" = "RackRunner1" ] && [ "$GIT_AUTHOR_EMAIL" = "325587735+RackRunner1@users.noreply.github.com" ]; then
+            export GIT_AUTHOR_NAME="RackRunner"
+            export GIT_AUTHOR_EMAIL="44419098-RackRunner@users.noreply.gitlab.com"
+          fi
+          if [ "$GIT_COMMITTER_NAME" = "RackRunner1" ] && [ "$GIT_COMMITTER_EMAIL" = "325587735+RackRunner1@users.noreply.github.com" ]; then
+            export GIT_COMMITTER_NAME="RackRunner"
+            export GIT_COMMITTER_EMAIL="44419098-RackRunner@users.noreply.gitlab.com"
+          fi
+          ' --tag-name-filter cat -- --all
+
+          git push --force "https://oauth2:${GITLAB_TOKEN}@gitlab.com/ToolsBoXCompany/ToolsBoXMachine.git" \
+            'refs/heads/*:refs/heads/*' \
+            'refs/tags/*:refs/tags/*'
+
+      - name: Create GitLab Release
+        env:
+          GITLAB_TOKEN: ${{ secrets.TOKEN_GITLAB }}
+          TAG: ${{ steps.tag.outputs.tag }}
+          RELEASE_NAME: ${{ steps.tag.outputs.release_name }}
+          BODY: ${{ steps.notes.outputs.body }}
+        run: |
+          API="https://gitlab.com/api/v4/projects/ToolsBoXCompany%2FToolsBoXMachine/releases"
+          PAYLOAD=$(jq -n --arg tag "$TAG" --arg name "$RELEASE_NAME" --arg desc "$BODY" \
+            '{tag_name: $tag, name: $name, description: $desc}')
+
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" "$API/$TAG")
+          if [ "$STATUS" = "200" ]; then
+            METHOD=PUT
+            URL="$API/$TAG"
+          else
+            METHOD=POST
+            URL="$API"
+          fi
+
+          curl -sf -X "$METHOD" -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" -H "Content-Type: application/json" \
+            -d "$PAYLOAD" "$URL" > /dev/null
