@@ -15,6 +15,7 @@ const CHEVRON_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height=
 
 const elements = {
   editorEmpty: document.getElementById("editor-empty"),
+  editorEmptyText: document.getElementById("editor-empty-text"),
   editorView: document.getElementById("editor-view"),
   titleInput: document.getElementById("note-title"),
   contentInput: document.getElementById("note-content"),
@@ -85,7 +86,7 @@ function init() {
   renderList();
   setupEventListeners();
   setupSettingsTabs();
-  selectFirstNote();
+  showEditorEmpty();
   elements.skipDeleteConfirm.checked = skipDeleteConfirm;
   elements.wordCountToggle.checked = showWordCount;
   elements.foldersToggle.checked = foldersEnabled;
@@ -436,6 +437,10 @@ function selectFirstNote() {
 
 function showEditorEmpty() {
   activeNoteId = null;
+  elements.editorEmptyText.textContent =
+    notes.length > 0
+      ? "Select a note in the sidebar to start working"
+      : "Create a new note or select one from the sidebar";
   elements.editorEmpty.style.display = "flex";
   elements.editorView.style.display = "none";
   applyWordCountVisibility();
