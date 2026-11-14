@@ -141,6 +141,7 @@
         border-radius: 0.75rem;
       }
       .platform-tabs {
+        position: relative;
         display: flex;
         gap: 0.35rem;
         padding: 0.35rem;
@@ -149,7 +150,19 @@
         border: 1px solid var(--card-border);
         border-radius: 0.875rem;
       }
+      .platform-indicator {
+        position: absolute;
+        top: 0.35rem;
+        bottom: 0.35rem;
+        left: 0.35rem;
+        width: calc((100% - 0.7rem - 0.35rem) / 2);
+        background: var(--primary-color);
+        border-radius: 0.6rem;
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
       .platform-tab {
+        position: relative;
+        z-index: 1;
         background: none;
         border: none;
         color: #94a3b8;
@@ -159,13 +172,12 @@
         padding: 0.6rem 1.5rem;
         border-radius: 0.6rem;
         cursor: pointer;
-        transition: background 0.2s ease, color 0.2s ease;
+        transition: color 0.35s ease;
       }
       .platform-tab:hover {
         color: #e2e8f0;
       }
       .platform-tab.active {
-        background: var(--primary-color);
         color: white;
       }
       .platform-panel {
@@ -431,6 +443,7 @@
         <h2 class="app-section-title">Choose your platform</h2>
         <p class="app-section-lead">Pick the system you use and follow the matching steps.</p>
         <div class="platform-tabs" role="tablist">
+          <span class="platform-indicator" aria-hidden="true"></span>
           <button type="button" class="platform-tab active" role="tab" aria-selected="true" aria-controls="panel-windows" id="tab-windows" data-tab="windows">Windows</button>
           <button type="button" class="platform-tab" role="tab" aria-selected="false" aria-controls="panel-linux" id="tab-linux" data-tab="linux" tabindex="-1">Linux</button>
         </div>
@@ -531,9 +544,11 @@
     <script src="/ui/navbar.js"></script>
     <script>
       const platformTabs = document.querySelectorAll(".platform-tab");
-      platformTabs.forEach((tab) => {
+      const platformIndicator = document.querySelector(".platform-indicator");
+      platformTabs.forEach((tab, index) => {
         tab.addEventListener("click", () => {
           const name = tab.dataset.tab;
+          platformIndicator.style.transform = `translateX(calc(${index} * (100% + 0.35rem)))`;
           platformTabs.forEach((t) => {
             const active = t === tab;
             t.classList.toggle("active", active);
