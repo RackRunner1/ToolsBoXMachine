@@ -140,22 +140,83 @@
         padding: 0.8rem 1.25rem;
         border-radius: 0.75rem;
       }
-      .platform-card {
-        position: relative;
+      .platform-tabs {
+        display: inline-flex;
+        gap: 0.35rem;
+        padding: 0.35rem;
+        margin-bottom: 1.25rem;
+        background: #020617;
+        border: 1px solid var(--card-border);
+        border-radius: 0.875rem;
       }
-      .platform-card ul {
+      .platform-tab {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-size: 0.95rem;
+        font-weight: 600;
+        padding: 0.6rem 1.5rem;
+        border-radius: 0.6rem;
+        cursor: pointer;
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+      .platform-tab:hover {
+        color: #e2e8f0;
+      }
+      .platform-tab.active {
+        background: var(--primary-color);
+        color: white;
+      }
+      .platform-panel {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 1rem;
+        padding: 1.75rem;
+      }
+      .platform-panel[hidden] {
+        display: none;
+      }
+      .platform-panel-head {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+      .platform-panel-head h3 {
+        font-size: 1.2rem;
+        margin: 0;
+      }
+      .platform-panel > p {
+        color: #94a3b8;
+        margin-bottom: 1.25rem;
+      }
+      .platform-panel .app-steps {
+        margin-bottom: 1.5rem;
+      }
+      .platform-panel .code-block {
+        margin-bottom: 1.25rem;
+      }
+      .platform-sub {
+        margin-bottom: 0.5rem !important;
+      }
+      .platform-list {
         color: #94a3b8;
         font-size: 0.9rem;
         padding-left: 1.2rem;
-        margin: 0;
+        margin: 0 0 1.5rem;
       }
-      .platform-card li {
+      .platform-list li {
         margin-bottom: 0.3rem;
       }
+      .platform-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.25rem;
+        border-radius: 0.75rem;
+      }
       .badge-new {
-        position: absolute;
-        top: 1.25rem;
-        right: 1.25rem;
         font-size: 0.7rem;
         font-weight: 700;
         padding: 0.25rem 0.6rem;
@@ -368,42 +429,53 @@
       <section class="app-section">
         <h2 class="app-section-title">Choose your platform</h2>
         <p class="app-section-lead">Pick the system you use and follow the matching steps.</p>
-        <div class="app-grid-2">
-          <div class="app-card platform-card" id="windows">
-            <span class="badge-new">Supported since Nov 14, 2026</span>
-            <div class="app-card-icon">&#x1FA9F;</div>
+        <div class="platform-tabs" role="tablist">
+          <button type="button" class="platform-tab active" role="tab" aria-selected="true" aria-controls="panel-windows" id="tab-windows" data-tab="windows">Windows</button>
+          <button type="button" class="platform-tab" role="tab" aria-selected="false" aria-controls="panel-linux" id="tab-linux" data-tab="linux" tabindex="-1">Linux</button>
+        </div>
+
+        <div class="platform-panel" role="tabpanel" id="panel-windows" aria-labelledby="tab-windows">
+          <div class="platform-panel-head">
             <h3>Windows</h3>
-            <p>Windows is now supported and tested. Download the installer from our GitHub releases page and run it like any other Windows app.</p>
-            <a href="https://github.com/RackRunner1/ToolsBoXApp/releases" target="_blank" rel="noopener noreferrer" class="btn">
-              &#x2B07; Download the Windows installer
-            </a>
+            <span class="badge-new">Supported since Nov 14, 2026</span>
           </div>
-          <div class="app-card platform-card" id="linux">
-            <div class="app-card-icon">&#x1F427;</div>
+          <p>Windows is now supported and tested. Download the installer and run it like any other Windows app.</p>
+          <ol class="app-steps">
+            <li>Download the installer from the GitHub releases page.</li>
+            <li>Run the installer and follow the instructions.</li>
+            <li>Launch ToolsBoXApp from the Start menu.</li>
+          </ol>
+          <a href="https://github.com/RackRunner1/ToolsBoXApp/releases" target="_blank" rel="noopener noreferrer" class="btn platform-action">
+            &#x2B07; Download the Windows installer
+          </a>
+        </div>
+
+        <div class="platform-panel" role="tabpanel" id="panel-linux" aria-labelledby="tab-linux" hidden>
+          <div class="platform-panel-head">
             <h3>Linux</h3>
-            <p>Use the one-line installer. It detects your distribution and installs the matching package.</p>
-            <div class="code-block">
-              <code>curl -fsSL https://get.tbxm.org | bash</code>
-              <button class="copy-btn" data-copy="curl -fsSL https://get.tbxm.org | bash">
-                <span class="copy-icon-wrapper">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-                    <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
-                  </svg>
-                </span>
-                <span>Copy</span>
-              </button>
-            </div>
-            <p>Prefer to install manually? Packages are available for:</p>
-            <ul>
-              <li>Debian / Ubuntu and derivatives (<code>.deb</code>)</li>
-              <li>Fedora / RHEL and derivatives (<code>.rpm</code>)</li>
-              <li>Arch Linux and derivatives (<code>.pkg.tar.zst</code>)</li>
-            </ul>
-            <a href="https://github.com/RackRunner1/ToolsBoXApp/releases" target="_blank" rel="noopener noreferrer" class="btn-outline" style="text-align: center; padding: 0.8rem 1.25rem; border-radius: 0.75rem; margin-top: auto;">
-              View all releases
-            </a>
           </div>
+          <p>Run the one-line installer. It detects your distribution and installs the matching package.</p>
+          <div class="code-block">
+            <code>curl -fsSL https://get.tbxm.org | bash</code>
+            <button class="copy-btn" data-copy="curl -fsSL https://get.tbxm.org | bash">
+              <span class="copy-icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                  <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                </svg>
+              </span>
+              <span>Copy</span>
+            </button>
+          </div>
+          <p class="platform-sub">Prefer to install manually? Packages are available for:</p>
+          <ul class="platform-list">
+            <li>Debian / Ubuntu and derivatives (<code>.deb</code>)</li>
+            <li>Fedora / RHEL and derivatives (<code>.rpm</code>)</li>
+            <li>Arch Linux and derivatives (<code>.pkg.tar.zst</code>)</li>
+          </ul>
+          <a href="https://github.com/RackRunner1/ToolsBoXApp/releases" target="_blank" rel="noopener noreferrer" class="btn-outline platform-action">
+            View all releases
+          </a>
         </div>
       </section>
 
@@ -457,6 +529,22 @@
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>
     <script>
+      const platformTabs = document.querySelectorAll(".platform-tab");
+      platformTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          const name = tab.dataset.tab;
+          platformTabs.forEach((t) => {
+            const active = t === tab;
+            t.classList.toggle("active", active);
+            t.setAttribute("aria-selected", String(active));
+            t.tabIndex = active ? 0 : -1;
+          });
+          document.querySelectorAll(".platform-panel").forEach((panel) => {
+            panel.hidden = panel.id !== `panel-${name}`;
+          });
+        });
+      });
+
       document.querySelectorAll(".copy-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
           const text = btn.getAttribute("data-copy");
