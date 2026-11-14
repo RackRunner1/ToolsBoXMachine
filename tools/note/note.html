@@ -702,6 +702,28 @@
         margin-top: 0.75rem;
       }
 
+      .setting-card-stack {
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .setting-card-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+      }
+
+      .setting-card-separator {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.06);
+      }
+
       .setting-card-info {
         display: flex;
         flex-direction: column;
@@ -1176,19 +1198,22 @@
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div class="setting-card">
-              <div class="setting-card-info">
-                <div class="setting-card-title">Delete All Notes</div>
-                <div class="setting-card-desc">Permanently delete every note. Your settings will be kept</div>
+            <div class="setting-card setting-card-stack">
+              <div class="setting-card-row">
+                <div class="setting-card-info">
+                  <div class="setting-card-title">Delete All Notes</div>
+                  <div class="setting-card-desc">Permanently delete every note. Your settings will be kept</div>
+                </div>
+                <button class="setting-danger-btn" id="delete-all-notes-btn">Delete All Notes</button>
               </div>
-              <button class="setting-danger-btn" id="delete-all-notes-btn">Delete All Notes</button>
-            </div>
-            <div class="setting-card">
-              <div class="setting-card-info">
-                <div class="setting-card-title">Delete All Notes and Settings</div>
-                <div class="setting-card-desc">Permanently delete all notes and folders, and restore default note settings</div>
+              <div class="setting-card-separator"></div>
+              <div class="setting-card-row">
+                <div class="setting-card-info">
+                  <div class="setting-card-title">Delete All Notes and Settings</div>
+                  <div class="setting-card-desc">Permanently delete all notes and folders, and restore default note settings</div>
+                </div>
+                <button class="setting-danger-btn" id="delete-all-notes-and-settings-btn">Delete All Notes and Settings</button>
               </div>
-              <button class="setting-danger-btn" id="delete-all-notes-and-settings-btn">Delete All Notes and Settings</button>
             </div>
           </div>
         </div>
