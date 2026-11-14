@@ -32,7 +32,7 @@
       @media (max-width: 768px) {
         .notes-layout {
           grid-template-columns: 1fr;
-          grid-template-rows: 220px 1fr;
+          grid-template-rows: minmax(300px, 45%) 1fr;
           height: calc(100vh - 7rem);
           min-height: 350px;
           margin: 0.5rem auto 1.5rem;
@@ -42,7 +42,7 @@
 
       @media (max-width: 480px) {
         .notes-layout {
-          grid-template-rows: 180px 1fr;
+          grid-template-rows: minmax(300px, 45%) 1fr;
           height: calc(100vh - 6rem);
           min-height: 300px;
           padding: 0 0.5rem;
