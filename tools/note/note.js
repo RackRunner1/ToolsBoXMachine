@@ -1148,7 +1148,7 @@ function setupEventListeners() {
   });
   elements.ctxMoveTrigger.addEventListener("mouseenter", () => {
     clearTimeout(moveSubmenuCloseTimer);
-    moveSubmenuOpenTimer = setTimeout(openMoveSubmenu, 2000);
+    moveSubmenuOpenTimer = setTimeout(openMoveSubmenu, 500);
   });
   elements.ctxMoveTrigger.addEventListener("mouseleave", scheduleMoveSubmenuClose);
   elements.ctxMoveSubmenu.addEventListener("mouseenter", () => clearTimeout(moveSubmenuCloseTimer));
