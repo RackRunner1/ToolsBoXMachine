@@ -760,6 +760,25 @@
         background: #dc2626;
       }
 
+      .setting-action-btn {
+        flex-shrink: 0;
+        padding: 0.5rem 0.9rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        font-family: inherit;
+        white-space: nowrap;
+        cursor: pointer;
+        border: none;
+        background: #3b82f6;
+        color: white;
+        transition: background 0.2s;
+      }
+
+      .setting-action-btn:hover {
+        background: #2563eb;
+      }
+
       .beta-badge {
         display: inline-block;
         vertical-align: 0.1em;
@@ -1143,6 +1162,14 @@
             </svg>
             General
           </div>
+          <div class="settings-nav-item" data-tab="export">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Export
+          </div>
           <div class="settings-nav-item danger" data-tab="destructive">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
@@ -1184,6 +1211,23 @@
                 <input type="checkbox" id="setting-enable-folders" />
                 <span class="toggle-slider"></span>
               </label>
+            </div>
+          </div>
+          <div class="settings-pane" data-pane="export">
+            <div class="settings-content-title">Export</div>
+            <div class="setting-card">
+              <div class="setting-card-info">
+                <div class="setting-card-title">Export as .tbxm</div>
+                <div class="setting-card-desc">Proprietary ToolsBoXMachine format containing all notes, folders and settings</div>
+              </div>
+              <button class="setting-action-btn" id="export-tbxm-btn">Export .tbxm</button>
+            </div>
+            <div class="setting-card">
+              <div class="setting-card-info">
+                <div class="setting-card-title">Export as .json</div>
+                <div class="setting-card-desc">Readable JSON file containing all notes, folders and settings</div>
+              </div>
+              <button class="setting-action-btn" id="export-json-btn">Export .json</button>
             </div>
           </div>
           <div class="settings-pane" data-pane="destructive">
@@ -1338,7 +1382,7 @@
       </div>
     </div>
 
-    <script type="module" src="./note.js?v=9"></script>
+    <script type="module" src="./note.js?v=10"></script>
     <div id="footer-placeholder"></div>
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>

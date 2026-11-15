@@ -9,6 +9,7 @@ const WORD_COUNT_KEY = "tbxm_notes_show_word_count";
 const FOLDERS_ENABLED_KEY = "tbxm_notes_folders_enabled";
 const INCOGNITO_KEY = "tbxm_notes_incognito";
 const INCOGNITO_SESSION_COOKIE = "tbxm_notes_session";
+const TBXM_MAGIC = "TBXM1";
 
 const FOLDER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>`;
 const CHEVRON_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
@@ -55,6 +56,8 @@ const elements = {
   deleteAllNotesBtn: document.getElementById("delete-all-notes-btn"),
   deleteAllNotesAndSettingsBtn: document.getElementById("delete-all-notes-and-settings-btn"),
   resetAllSettingsBtn: document.getElementById("reset-all-settings-btn"),
+  exportTbxmBtn: document.getElementById("export-tbxm-btn"),
+  exportJsonBtn: document.getElementById("export-json-btn"),
 };
 
 let notes = [];
@@ -787,6 +790,61 @@ function resetAllSettings() {
   showNotification("All settings reset");
 }
 
+function buildExportData() {
+  flushPendingSave();
+  return {
+    app: "ToolsBoXMachine",
+    tool: "note",
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    settings: {
+      skipDeleteConfirm,
+      showWordCount,
+      foldersEnabled,
+      incognitoMode,
+    },
+    folders,
+    notes,
+  };
+}
+
+function encodeTbxm(json) {
+  const bytes = new TextEncoder().encode(json);
+  let binary = "";
+  bytes.forEach((b) => {
+    binary += String.fromCharCode(b);
+  });
+  return `${TBXM_MAGIC}\n${btoa(binary)}`;
+}
+
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportFileBaseName() {
+  return `tbxm-notes-${new Date().toISOString().slice(0, 10)}`;
+}
+
+function exportAsTbxm() {
+  const json = JSON.stringify(buildExportData());
+  downloadFile(encodeTbxm(json), `${exportFileBaseName()}.tbxm`, "application/octet-stream");
+  showNotification("Exported as .tbxm");
+}
+
+function exportAsJson() {
+  const json = JSON.stringify(buildExportData(), null, 2);
+  downloadFile(json, `${exportFileBaseName()}.json`, "application/json");
+  showNotification("Exported as .json");
+}
+
 function showNotification(message) {
   elements.notification.textContent = message;
   elements.notification.classList.add("show");
@@ -1046,6 +1104,9 @@ function setupEventListeners() {
       confirmLabel: "Reset",
     });
   });
+
+  elements.exportTbxmBtn.addEventListener("click", exportAsTbxm);
+  elements.exportJsonBtn.addEventListener("click", exportAsJson);
 
   window.addEventListener("storage", (e) => {
     if (e.key !== null && e.key !== STORAGE_KEY && e.key !== FOLDERS_KEY) return;
