@@ -305,7 +305,6 @@ function createFolderGroup(folder) {
   header.innerHTML = `
     <span class="folder-chevron">${CHEVRON_ICON}</span>
     <span class="folder-name">${escapeHTML(folder.name)}</span>
-    <span class="folder-count">${directNotes.length}</span>
   `;
 
   header.addEventListener("click", () => toggleFolder(folder.id));
