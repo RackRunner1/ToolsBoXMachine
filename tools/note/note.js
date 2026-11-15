@@ -34,6 +34,8 @@ const elements = {
   ctxNewFolder: document.getElementById("ctx-new-folder"),
   ctxNewSubfolder: document.getElementById("ctx-new-subfolder"),
   ctxDuplicate: document.getElementById("ctx-duplicate"),
+  ctxMoveTrigger: document.getElementById("ctx-move-trigger"),
+  ctxMoveSubmenu: document.getElementById("ctx-move-submenu"),
   ctxMoveSection: document.getElementById("ctx-move-section"),
   ctxRename: document.getElementById("ctx-rename"),
   ctxDelete: document.getElementById("ctx-delete"),
@@ -1140,6 +1142,18 @@ function setupEventListeners() {
     showNotification("Note duplicated");
   });
 
+  elements.ctxMoveTrigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    openMoveSubmenu();
+  });
+  elements.ctxMoveTrigger.addEventListener("mouseenter", () => {
+    clearTimeout(moveSubmenuCloseTimer);
+    moveSubmenuOpenTimer = setTimeout(openMoveSubmenu, 2000);
+  });
+  elements.ctxMoveTrigger.addEventListener("mouseleave", scheduleMoveSubmenuClose);
+  elements.ctxMoveSubmenu.addEventListener("mouseenter", () => clearTimeout(moveSubmenuCloseTimer));
+  elements.ctxMoveSubmenu.addEventListener("mouseleave", scheduleMoveSubmenuClose);
+
   elements.ctxMoveSection.addEventListener("click", (e) => {
     const item = e.target.closest("[data-folder-id]");
     if (!item || !contextTarget) return;
@@ -1396,13 +1410,45 @@ function closeOnBackdropClick(overlay, onClose) {
   });
 }
 
+let moveSubmenuOpenTimer = null;
+let moveSubmenuCloseTimer = null;
+
+function openMoveSubmenu() {
+  clearTimeout(moveSubmenuOpenTimer);
+  clearTimeout(moveSubmenuCloseTimer);
+  const trigger = elements.ctxMoveTrigger.getBoundingClientRect();
+  const submenu = elements.ctxMoveSubmenu;
+  submenu.classList.add("show");
+
+  const subRect = submenu.getBoundingClientRect();
+  let left = trigger.right + 6;
+  if (left + subRect.width > window.innerWidth - 8) {
+    left = trigger.left - subRect.width - 6;
+  }
+  const maxY = window.innerHeight - subRect.height - 8;
+  submenu.style.left = Math.max(8, left) + "px";
+  submenu.style.top = Math.max(8, Math.min(trigger.top, maxY)) + "px";
+}
+
+function closeMoveSubmenu() {
+  clearTimeout(moveSubmenuOpenTimer);
+  clearTimeout(moveSubmenuCloseTimer);
+  elements.ctxMoveSubmenu.classList.remove("show");
+}
+
+function scheduleMoveSubmenuClose() {
+  clearTimeout(moveSubmenuOpenTimer);
+  clearTimeout(moveSubmenuCloseTimer);
+  moveSubmenuCloseTimer = setTimeout(closeMoveSubmenu, 150);
+}
+
 function renderMoveSection(target) {
   const section = elements.ctxMoveSection;
   const note = target && target.type === "note" ? notes.find((n) => n.id === target.id) : null;
   const folder = target && target.type === "folder" ? getFolder(target.id) : null;
 
   if ((!note && !folder) || !foldersEnabled || folders.length === 0) {
-    section.style.display = "none";
+    elements.ctxMoveTrigger.style.display = "none";
     section.innerHTML = "";
     return;
   }
@@ -1419,17 +1465,15 @@ function renderMoveSection(target) {
     .forEach((f) => options.push({ id: f.id, label: folderPath(f) }));
 
   if (options.length === 0) {
-    section.style.display = "none";
+    elements.ctxMoveTrigger.style.display = "none";
     section.innerHTML = "";
     return;
   }
 
-  section.innerHTML =
-    `<div class="context-menu-label">Move to</div>` +
-    options
-      .map((o) => `<div class="context-menu-item" data-folder-id="${o.id}">${o.id ? FOLDER_ICON : ""}${escapeHTML(o.label)}</div>`)
-      .join("");
-  section.style.display = "block";
+  section.innerHTML = options
+    .map((o) => `<div class="context-menu-item" data-folder-id="${o.id}">${o.id ? FOLDER_ICON : ""}${escapeHTML(o.label)}</div>`)
+    .join("");
+  elements.ctxMoveTrigger.style.display = "flex";
 }
 
 function showContextMenu(x, y, type) {
@@ -1457,6 +1501,7 @@ function showContextMenu(x, y, type) {
 
 function hideContextMenu() {
   elements.contextMenu.classList.remove("show");
+  closeMoveSubmenu();
   contextTarget = null;
 }
 

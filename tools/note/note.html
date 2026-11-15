@@ -1079,20 +1079,19 @@
         opacity: 0.4;
       }
 
-      .context-menu-section {
+      .context-menu-submenu-trigger {
         display: none;
-        border-top: 1px solid var(--card-border);
-        margin-top: 0.35rem;
-        padding-top: 0.2rem;
       }
 
-      .context-menu-label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #475569;
-        padding: 0.5rem 0.85rem 0.25rem;
+      .context-menu-arrow {
+        margin-left: auto;
+        color: #64748b;
+      }
+
+      .context-submenu {
+        min-width: 200px;
+        max-height: 60vh;
+        overflow-y: auto;
       }
     </style>
     <script type="application/ld+json">
@@ -1446,7 +1445,21 @@
         </svg>
         Duplicate
       </div>
-      <div id="ctx-move-section" class="context-menu-section"></div>
+      <div class="context-menu-item context-menu-submenu-trigger" id="ctx-move-trigger">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v20"/>
+          <path d="m15 19-3 3-3-3"/>
+          <path d="m19 9 3 3-3 3"/>
+          <path d="M2 12h20"/>
+          <path d="m5 9-3 3 3 3"/>
+          <path d="m9 5 3-3 3 3"/>
+          <path d="m9 19 3 3 3-3"/>
+        </svg>
+        Move to
+        <svg class="context-menu-arrow" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>
+      </div>
       <div class="context-menu-item" id="ctx-rename">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
@@ -1461,6 +1474,10 @@
         </svg>
         Delete
       </div>
+    </div>
+
+    <div id="ctx-move-submenu" class="context-menu context-submenu">
+      <div id="ctx-move-section"></div>
     </div>
 
     <div class="modal-overlay" id="storage-modal" role="dialog" aria-modal="true" aria-labelledby="storage-modal-title">
@@ -1502,7 +1519,7 @@
       </div>
     </div>
 
-    <script type="module" src="./note.js?v=13"></script>
+    <script type="module" src="./note.js?v=14"></script>
     <div id="footer-placeholder"></div>
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>
