@@ -56,6 +56,8 @@ const elements = {
   deleteAllNotesBtn: document.getElementById("delete-all-notes-btn"),
   deleteAllNotesAndSettingsBtn: document.getElementById("delete-all-notes-and-settings-btn"),
   resetAllSettingsBtn: document.getElementById("reset-all-settings-btn"),
+  importFileBtn: document.getElementById("import-file-btn"),
+  importFileInput: document.getElementById("import-file-input"),
   exportTbxmBtn: document.getElementById("export-tbxm-btn"),
   exportJsonBtn: document.getElementById("export-json-btn"),
 };
@@ -845,6 +847,81 @@ function exportAsJson() {
   showNotification("Exported as .json");
 }
 
+let pendingImport = null;
+
+function parseImportFile(text) {
+  let json = text;
+  if (text.startsWith(`${TBXM_MAGIC}\n`)) {
+    const binary = atob(text.slice(TBXM_MAGIC.length + 1).trim());
+    const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+    json = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  }
+
+  const data = JSON.parse(json);
+  if (
+    !data ||
+    typeof data !== "object" ||
+    (data.app && data.app !== "ToolsBoXMachine") ||
+    (data.tool && data.tool !== "note") ||
+    !Array.isArray(data.notes) ||
+    !Array.isArray(data.folders) ||
+    !data.settings ||
+    typeof data.settings !== "object"
+  ) {
+    throw new Error("Invalid file");
+  }
+
+  data.notes = data.notes.filter((n) => n && typeof n === "object" && typeof n.id === "string");
+  data.folders = data.folders.filter((f) => f && typeof f === "object" && typeof f.id === "string");
+  return data;
+}
+
+function applyImport(data) {
+  clearTimeout(saveTimeout);
+  saveTimeout = null;
+
+  const s = data.settings;
+  skipDeleteConfirm = s.skipDeleteConfirm === true;
+  showWordCount = s.showWordCount !== false;
+  foldersEnabled = s.foldersEnabled !== false;
+  localStorage.setItem(SKIP_DELETE_KEY, skipDeleteConfirm);
+  localStorage.setItem(WORD_COUNT_KEY, showWordCount);
+  localStorage.setItem(FOLDERS_ENABLED_KEY, foldersEnabled);
+  setIncognitoMode(s.incognitoMode === true);
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data.notes));
+  localStorage.setItem(FOLDERS_KEY, JSON.stringify(data.folders));
+  loadNotes();
+  loadFolders();
+  activeNoteId = null;
+
+  elements.skipDeleteConfirm.checked = skipDeleteConfirm;
+  elements.wordCountToggle.checked = showWordCount;
+  elements.foldersToggle.checked = foldersEnabled;
+  applyFoldersState();
+  applyWordCountVisibility();
+  selectFirstNote();
+  renderList();
+  showNotification(`Imported ${notes.length} notes`);
+}
+
+function requestImport(data) {
+  const noteCount = data.notes.length;
+  const folderCount = data.folders.length;
+  const warning = data.settings.incognitoMode === true
+    ? " The file enables Incognito Mode: notes will be deleted when the browser session ends."
+    : "";
+  pendingImport = data;
+  showDeleteModal(() => {
+    applyImport(pendingImport);
+    pendingImport = null;
+  }, {
+    title: "Import file",
+    message: `Replace all current notes, folders and settings with ${noteCount} ${noteCount === 1 ? "note" : "notes"} and ${folderCount} ${folderCount === 1 ? "folder" : "folders"} from this file? This action cannot be undone.${warning}`,
+    confirmLabel: "Import",
+  });
+}
+
 function showNotification(message) {
   elements.notification.textContent = message;
   elements.notification.classList.add("show");
@@ -1103,6 +1180,19 @@ function setupEventListeners() {
       message: "Restore every note setting to its default value? Your notes and folders will be kept.",
       confirmLabel: "Reset",
     });
+  });
+
+  elements.importFileBtn.addEventListener("click", () => elements.importFileInput.click());
+  elements.importFileInput.addEventListener("change", async () => {
+    const file = elements.importFileInput.files[0];
+    elements.importFileInput.value = "";
+    if (!file) return;
+    try {
+      requestImport(parseImportFile(await file.text()));
+    } catch (e) {
+      console.error("Failed to import file", e);
+      showNotification("Could not import this file");
+    }
   });
 
   elements.exportTbxmBtn.addEventListener("click", exportAsTbxm);

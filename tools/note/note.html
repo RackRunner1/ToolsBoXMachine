@@ -1162,6 +1162,14 @@
             </svg>
             General
           </div>
+          <div class="settings-nav-item" data-tab="import">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Import
+          </div>
           <div class="settings-nav-item" data-tab="export">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -1211,6 +1219,17 @@
                 <input type="checkbox" id="setting-enable-folders" />
                 <span class="toggle-slider"></span>
               </label>
+            </div>
+          </div>
+          <div class="settings-pane" data-pane="import">
+            <div class="settings-content-title">Import</div>
+            <div class="setting-card">
+              <div class="setting-card-info">
+                <div class="setting-card-title">Import a .tbxm or .json file</div>
+                <div class="setting-card-desc">Replaces all current notes, folders and settings with the content of the file</div>
+              </div>
+              <button class="setting-action-btn" id="import-file-btn">Choose file</button>
+              <input type="file" id="import-file-input" accept=".tbxm,.json" hidden />
             </div>
           </div>
           <div class="settings-pane" data-pane="export">
@@ -1382,7 +1401,7 @@
       </div>
     </div>
 
-    <script type="module" src="./note.js?v=10"></script>
+    <script type="module" src="./note.js?v=11"></script>
     <div id="footer-placeholder"></div>
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>
