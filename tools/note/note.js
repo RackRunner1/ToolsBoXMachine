@@ -304,7 +304,6 @@ function createFolderGroup(folder) {
   header.draggable = true;
   header.innerHTML = `
     <span class="folder-chevron">${CHEVRON_ICON}</span>
-    <span class="folder-icon">${FOLDER_ICON}</span>
     <span class="folder-name">${escapeHTML(folder.name)}</span>
     <span class="folder-count">${directNotes.length}</span>
   `;
