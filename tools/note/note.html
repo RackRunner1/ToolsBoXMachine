@@ -496,6 +496,11 @@
         background: var(--primary-hover);
       }
 
+      .modal-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
       .modal-btn.danger {
         background: #ef4444;
         color: white;
@@ -574,6 +579,80 @@
         to {
           stroke-dashoffset: 0;
         }
+      }
+
+      .export-modal-label {
+        margin: 0 0 0.6rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #64748b;
+      }
+
+      .format-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .format-option {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.2rem;
+        padding: 0.8rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        color: #94a3b8;
+        font-family: inherit;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .format-option:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: white;
+      }
+
+      .format-option.active {
+        border-color: var(--primary-color);
+        background: rgba(59, 130, 246, 0.1);
+        color: white;
+      }
+
+      .format-option-name {
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .format-option-desc {
+        font-size: 0.8rem;
+        color: #64748b;
+      }
+
+      .export-step-indicator {
+        margin: -0.75rem 0 1.25rem;
+        font-size: 0.8rem;
+        color: #64748b;
+      }
+
+      .export-step {
+        display: none;
+      }
+
+      .export-step.active {
+        display: block;
+      }
+
+      .export-scope {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
       }
 
       .sidebar-footer {
@@ -1162,21 +1241,14 @@
             </svg>
             General
           </div>
-          <div class="settings-nav-item" data-tab="import">
+          <div class="settings-nav-item" data-tab="data">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
+              <path d="m21 16-4 4-4-4"/>
+              <path d="M17 20V4"/>
+              <path d="m3 8 4-4 4 4"/>
+              <path d="M7 4v16"/>
             </svg>
-            Import
-          </div>
-          <div class="settings-nav-item" data-tab="export">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Export
+            Import / Export
           </div>
           <div class="settings-nav-item danger" data-tab="destructive">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1221,32 +1293,22 @@
               </label>
             </div>
           </div>
-          <div class="settings-pane" data-pane="import">
-            <div class="settings-content-title">Import</div>
+          <div class="settings-pane" data-pane="data">
+            <div class="settings-content-title">Import / Export</div>
             <div class="setting-card">
               <div class="setting-card-info">
-                <div class="setting-card-title">Import a .tbxm or .json file</div>
-                <div class="setting-card-desc">Replaces all current notes, folders and settings with the content of the file</div>
+                <div class="setting-card-title">Import</div>
+                <div class="setting-card-desc">Load a .tbxm or .json file. Only what the file contains is replaced: notes and folders, settings, or both</div>
               </div>
               <button class="setting-action-btn" id="import-file-btn">Choose file</button>
               <input type="file" id="import-file-input" accept=".tbxm,.json" hidden />
             </div>
-          </div>
-          <div class="settings-pane" data-pane="export">
-            <div class="settings-content-title">Export</div>
             <div class="setting-card">
               <div class="setting-card-info">
-                <div class="setting-card-title">Export as .tbxm</div>
-                <div class="setting-card-desc">Proprietary ToolsBoXMachine format containing all notes, folders and settings</div>
+                <div class="setting-card-title">Export</div>
+                <div class="setting-card-desc">Save your notes and folders, your settings, or both, as a .tbxm or .json file</div>
               </div>
-              <button class="setting-action-btn" id="export-tbxm-btn">Export .tbxm</button>
-            </div>
-            <div class="setting-card">
-              <div class="setting-card-info">
-                <div class="setting-card-title">Export as .json</div>
-                <div class="setting-card-desc">Readable JSON file containing all notes, folders and settings</div>
-              </div>
-              <button class="setting-action-btn" id="export-json-btn">Export .json</button>
+              <button class="setting-action-btn" id="export-open-btn">Export</button>
             </div>
           </div>
           <div class="settings-pane" data-pane="destructive">
@@ -1287,6 +1349,57 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="export-modal" role="dialog" aria-modal="true" aria-labelledby="export-modal-title">
+      <div class="modal-box">
+        <h2 id="export-modal-title">Export</h2>
+        <p class="export-step-indicator">Step 1 of 2</p>
+        <div class="export-step active" data-step="1">
+        <p class="export-modal-label">Format</p>
+        <div class="format-options">
+          <button class="format-option active" type="button" data-format="tbxm">
+            <span class="format-option-name">.tbxm</span>
+            <span class="format-option-desc">Proprietary format</span>
+          </button>
+          <button class="format-option" type="button" data-format="json">
+            <span class="format-option-name">.json</span>
+            <span class="format-option-desc">Readable JSON</span>
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn" id="export-modal-cancel">Cancel</button>
+          <button class="modal-btn primary" id="export-modal-next">Next</button>
+        </div>
+        </div>
+        <div class="export-step" data-step="2">
+        <p class="export-modal-label">What to export</p>
+        <div class="export-scope">
+          <label class="modal-check">
+            <input type="checkbox" id="export-scope-notes" checked />
+            <span class="checkmark-box">
+              <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20,6 9,17 4,12"></polyline>
+              </svg>
+            </span>
+            <span>Notes and folders</span>
+          </label>
+          <label class="modal-check">
+            <input type="checkbox" id="export-scope-settings" checked />
+            <span class="checkmark-box">
+              <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20,6 9,17 4,12"></polyline>
+              </svg>
+            </span>
+            <span>Settings</span>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn" id="export-modal-back">Back</button>
+          <button class="modal-btn primary" id="export-modal-confirm">Export</button>
+        </div>
         </div>
       </div>
     </div>
@@ -1401,7 +1514,7 @@
       </div>
     </div>
 
-    <script type="module" src="./note.js?v=11"></script>
+    <script type="module" src="./note.js?v=13"></script>
     <div id="footer-placeholder"></div>
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>

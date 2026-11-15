@@ -58,8 +58,17 @@ const elements = {
   resetAllSettingsBtn: document.getElementById("reset-all-settings-btn"),
   importFileBtn: document.getElementById("import-file-btn"),
   importFileInput: document.getElementById("import-file-input"),
-  exportTbxmBtn: document.getElementById("export-tbxm-btn"),
-  exportJsonBtn: document.getElementById("export-json-btn"),
+  exportOpenBtn: document.getElementById("export-open-btn"),
+  exportModal: document.getElementById("export-modal"),
+  exportModalCancel: document.getElementById("export-modal-cancel"),
+  exportModalNext: document.getElementById("export-modal-next"),
+  exportModalBack: document.getElementById("export-modal-back"),
+  exportModalConfirm: document.getElementById("export-modal-confirm"),
+  exportSteps: document.querySelectorAll(".export-step"),
+  exportStepIndicator: document.querySelector(".export-step-indicator"),
+  exportScopeNotes: document.getElementById("export-scope-notes"),
+  exportScopeSettings: document.getElementById("export-scope-settings"),
+  formatOptions: document.querySelectorAll(".format-option"),
 };
 
 let notes = [];
@@ -792,22 +801,27 @@ function resetAllSettings() {
   showNotification("All settings reset");
 }
 
-function buildExportData() {
+function buildExportData({ withNotes, withSettings }) {
   flushPendingSave();
-  return {
+  const data = {
     app: "ToolsBoXMachine",
     tool: "note",
     version: 1,
     exportedAt: new Date().toISOString(),
-    settings: {
+  };
+  if (withNotes) {
+    data.folders = folders;
+    data.notes = notes;
+  }
+  if (withSettings) {
+    data.settings = {
       skipDeleteConfirm,
       showWordCount,
       foldersEnabled,
       incognitoMode,
-    },
-    folders,
-    notes,
-  };
+    };
+  }
+  return data;
 }
 
 function encodeTbxm(json) {
@@ -835,16 +849,48 @@ function exportFileBaseName() {
   return `tbxm-notes-${new Date().toISOString().slice(0, 10)}`;
 }
 
-function exportAsTbxm() {
-  const json = JSON.stringify(buildExportData());
-  downloadFile(encodeTbxm(json), `${exportFileBaseName()}.tbxm`, "application/octet-stream");
-  showNotification("Exported as .tbxm");
+let exportFormat = "tbxm";
+
+function setExportFormat(format) {
+  exportFormat = format;
+  elements.formatOptions.forEach((option) => {
+    option.classList.toggle("active", option.dataset.format === format);
+  });
 }
 
-function exportAsJson() {
-  const json = JSON.stringify(buildExportData(), null, 2);
-  downloadFile(json, `${exportFileBaseName()}.json`, "application/json");
-  showNotification("Exported as .json");
+function updateExportConfirm() {
+  elements.exportModalConfirm.disabled =
+    !elements.exportScopeNotes.checked && !elements.exportScopeSettings.checked;
+}
+
+function setExportStep(step) {
+  elements.exportSteps.forEach((el) => {
+    el.classList.toggle("active", Number(el.dataset.step) === step);
+  });
+  elements.exportStepIndicator.textContent = `Step ${step} of ${elements.exportSteps.length}`;
+}
+
+function showExportModal() {
+  setExportStep(1);
+  updateExportConfirm();
+  elements.exportModal.classList.add("show");
+}
+
+function hideExportModal() {
+  elements.exportModal.classList.remove("show");
+}
+
+function exportFile() {
+  const data = buildExportData({
+    withNotes: elements.exportScopeNotes.checked,
+    withSettings: elements.exportScopeSettings.checked,
+  });
+  if (exportFormat === "tbxm") {
+    downloadFile(encodeTbxm(JSON.stringify(data)), `${exportFileBaseName()}.tbxm`, "application/octet-stream");
+  } else {
+    downloadFile(JSON.stringify(data, null, 2), `${exportFileBaseName()}.json`, "application/json");
+  }
+  showNotification(`Exported as .${exportFormat}`);
 }
 
 let pendingImport = null;
@@ -862,62 +908,91 @@ function parseImportFile(text) {
     !data ||
     typeof data !== "object" ||
     (data.app && data.app !== "ToolsBoXMachine") ||
-    (data.tool && data.tool !== "note") ||
-    !Array.isArray(data.notes) ||
-    !Array.isArray(data.folders) ||
-    !data.settings ||
-    typeof data.settings !== "object"
+    (data.tool && data.tool !== "note")
   ) {
     throw new Error("Invalid file");
   }
 
-  data.notes = data.notes.filter((n) => n && typeof n === "object" && typeof n.id === "string");
-  data.folders = data.folders.filter((f) => f && typeof f === "object" && typeof f.id === "string");
-  return data;
+  const hasNotes = Array.isArray(data.notes);
+  const hasSettings = !!data.settings && typeof data.settings === "object" && !Array.isArray(data.settings);
+  if (!hasNotes && !hasSettings) throw new Error("Invalid file");
+
+  return {
+    notes: hasNotes
+      ? data.notes.filter((n) => n && typeof n === "object" && typeof n.id === "string")
+      : null,
+    folders: hasNotes
+      ? (Array.isArray(data.folders)
+          ? data.folders.filter((f) => f && typeof f === "object" && typeof f.id === "string")
+          : [])
+      : null,
+    settings: hasSettings ? data.settings : null,
+  };
 }
 
 function applyImport(data) {
-  clearTimeout(saveTimeout);
-  saveTimeout = null;
+  if (data.notes) {
+    clearTimeout(saveTimeout);
+    saveTimeout = null;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.notes));
+    localStorage.setItem(FOLDERS_KEY, JSON.stringify(data.folders));
+    loadNotes();
+    loadFolders();
+    activeNoteId = null;
+  }
 
-  const s = data.settings;
-  skipDeleteConfirm = s.skipDeleteConfirm === true;
-  showWordCount = s.showWordCount !== false;
-  foldersEnabled = s.foldersEnabled !== false;
-  localStorage.setItem(SKIP_DELETE_KEY, skipDeleteConfirm);
-  localStorage.setItem(WORD_COUNT_KEY, showWordCount);
-  localStorage.setItem(FOLDERS_ENABLED_KEY, foldersEnabled);
-  setIncognitoMode(s.incognitoMode === true);
+  if (data.settings) {
+    const s = data.settings;
+    skipDeleteConfirm = s.skipDeleteConfirm === true;
+    showWordCount = s.showWordCount !== false;
+    foldersEnabled = s.foldersEnabled !== false;
+    localStorage.setItem(SKIP_DELETE_KEY, skipDeleteConfirm);
+    localStorage.setItem(WORD_COUNT_KEY, showWordCount);
+    localStorage.setItem(FOLDERS_ENABLED_KEY, foldersEnabled);
+    setIncognitoMode(s.incognitoMode === true);
+    elements.skipDeleteConfirm.checked = skipDeleteConfirm;
+    elements.wordCountToggle.checked = showWordCount;
+    elements.foldersToggle.checked = foldersEnabled;
+  }
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data.notes));
-  localStorage.setItem(FOLDERS_KEY, JSON.stringify(data.folders));
-  loadNotes();
-  loadFolders();
-  activeNoteId = null;
-
-  elements.skipDeleteConfirm.checked = skipDeleteConfirm;
-  elements.wordCountToggle.checked = showWordCount;
-  elements.foldersToggle.checked = foldersEnabled;
   applyFoldersState();
   applyWordCountVisibility();
-  selectFirstNote();
-  renderList();
-  showNotification(`Imported ${notes.length} notes`);
+  if (data.notes) selectFirstNote();
+
+  const imported = [];
+  if (data.notes) imported.push("notes and folders");
+  if (data.settings) imported.push("settings");
+  showNotification(`Imported ${imported.join(" and ")}`);
 }
 
 function requestImport(data) {
-  const noteCount = data.notes.length;
-  const folderCount = data.folders.length;
-  const warning = data.settings.incognitoMode === true
-    ? " The file enables Incognito Mode: notes will be deleted when the browser session ends."
-    : "";
+  const lines = [];
+  if (data.notes) {
+    const noteCount = data.notes.length;
+    const folderCount = data.folders.length;
+    lines.push(
+      `Your current notes and folders will be replaced by ${noteCount} ${noteCount === 1 ? "note" : "notes"} and ${folderCount} ${folderCount === 1 ? "folder" : "folders"}.`
+    );
+  } else {
+    lines.push("Your notes and folders will be kept.");
+  }
+  if (data.settings) {
+    lines.push("Your current settings will be replaced by the settings in this file.");
+    if (data.settings.incognitoMode === true) {
+      lines.push("The file enables Incognito Mode: notes will be deleted when the browser session ends.");
+    }
+  } else {
+    lines.push("Your settings will be kept.");
+  }
+  lines.push("This action cannot be undone.");
+
   pendingImport = data;
   showDeleteModal(() => {
     applyImport(pendingImport);
     pendingImport = null;
   }, {
     title: "Import file",
-    message: `Replace all current notes, folders and settings with ${noteCount} ${noteCount === 1 ? "note" : "notes"} and ${folderCount} ${folderCount === 1 ? "folder" : "folders"} from this file? This action cannot be undone.${warning}`,
+    message: lines.join(" "),
     confirmLabel: "Import",
   });
 }
@@ -1119,7 +1194,8 @@ function setupEventListeners() {
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (elements.incognitoModal.classList.contains("show")) hideIncognitoModal();
+    if (elements.exportModal.classList.contains("show")) hideExportModal();
+    else if (elements.incognitoModal.classList.contains("show")) hideIncognitoModal();
     else if (elements.deleteModal.classList.contains("show")) hideDeleteModal();
     else if (elements.settingsModal.classList.contains("show")) elements.settingsModal.classList.remove("show");
   });
@@ -1195,8 +1271,20 @@ function setupEventListeners() {
     }
   });
 
-  elements.exportTbxmBtn.addEventListener("click", exportAsTbxm);
-  elements.exportJsonBtn.addEventListener("click", exportAsJson);
+  elements.exportOpenBtn.addEventListener("click", showExportModal);
+  elements.formatOptions.forEach((option) => {
+    option.addEventListener("click", () => setExportFormat(option.dataset.format));
+  });
+  elements.exportScopeNotes.addEventListener("change", updateExportConfirm);
+  elements.exportScopeSettings.addEventListener("change", updateExportConfirm);
+  elements.exportModalCancel.addEventListener("click", hideExportModal);
+  elements.exportModalNext.addEventListener("click", () => setExportStep(2));
+  elements.exportModalBack.addEventListener("click", () => setExportStep(1));
+  elements.exportModalConfirm.addEventListener("click", () => {
+    exportFile();
+    hideExportModal();
+  });
+  closeOnBackdropClick(elements.exportModal, hideExportModal);
 
   window.addEventListener("storage", (e) => {
     if (e.key !== null && e.key !== STORAGE_KEY && e.key !== FOLDERS_KEY) return;
