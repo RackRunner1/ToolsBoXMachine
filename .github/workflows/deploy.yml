@@ -36,11 +36,4 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
         run: |
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=yes "$SSH_USER@$SERVER_IP" bash -s <<'EOF'
-          set -euo pipefail
-          cd /var/www/tbxm
-          git fetch origin main
-          git checkout main
-          git reset --hard origin/main
-          git log -1 --oneline
-          EOF
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=yes "$SSH_USER@$SERVER_IP"
