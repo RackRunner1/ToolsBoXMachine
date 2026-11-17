@@ -10,6 +10,10 @@ const FOLDERS_ENABLED_KEY = "tbxm_notes_folders_enabled";
 const INCOGNITO_KEY = "tbxm_notes_incognito";
 const INCOGNITO_SESSION_COOKIE = "tbxm_notes_session";
 const TBXM_MAGIC = "TBXM1";
+const TBXM_ENCRYPTED_MAGIC = "TBXM2";
+const PRIVACY_KEY = "tbxm_notes_privacy";
+const PRIVACY_CHECK_TEXT = "tbxm-notes-check";
+const PBKDF2_ITERATIONS = 600000;
 
 const FOLDER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>`;
 const CHEVRON_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`;
@@ -71,6 +75,24 @@ const elements = {
   exportScopeNotes: document.getElementById("export-scope-notes"),
   exportScopeSettings: document.getElementById("export-scope-settings"),
   formatOptions: document.querySelectorAll(".format-option"),
+  privacyTitle: document.getElementById("privacy-title"),
+  privacyDesc: document.getElementById("privacy-desc"),
+  privacyBtn: document.getElementById("privacy-btn"),
+  setPasswordModal: document.getElementById("set-password-modal"),
+  setPasswordInput: document.getElementById("set-password-input"),
+  setPasswordConfirm: document.getElementById("set-password-confirm-input"),
+  setPasswordError: document.getElementById("set-password-error"),
+  setPasswordCancel: document.getElementById("set-password-cancel"),
+  setPasswordSubmit: document.getElementById("set-password-submit"),
+  passwordPromptModal: document.getElementById("password-prompt-modal"),
+  passwordPromptTitle: document.getElementById("password-prompt-title"),
+  passwordPromptMessage: document.getElementById("password-prompt-message"),
+  passwordPromptInput: document.getElementById("password-prompt-input"),
+  passwordPromptError: document.getElementById("password-prompt-error"),
+  passwordPromptCancel: document.getElementById("password-prompt-cancel"),
+  passwordPromptConfirm: document.getElementById("password-prompt-confirm"),
+  incognitoBlockedModal: document.getElementById("incognito-blocked-modal"),
+  incognitoBlockedOk: document.getElementById("incognito-blocked-ok"),
 };
 
 let notes = [];
@@ -86,6 +108,11 @@ let skipDeleteConfirm = localStorage.getItem(SKIP_DELETE_KEY) === "true";
 let showWordCount = localStorage.getItem(WORD_COUNT_KEY) !== "false";
 let foldersEnabled = localStorage.getItem(FOLDERS_ENABLED_KEY) !== "false";
 let incognitoMode = localStorage.getItem(INCOGNITO_KEY) === "true";
+let locked = false;
+let passwordState = null;
+let persistQueue = Promise.resolve();
+let passwordPromptSubmit = null;
+let passwordPromptDismissable = true;
 
 function getContent() {
   return elements.contentInput.value;
@@ -95,22 +122,59 @@ function setContent(text) {
   elements.contentInput.value = text;
 }
 
-function init() {
+async function init() {
   handleIncognitoSession();
-  loadNotes();
-  loadFolders();
-  renderList();
   setupEventListeners();
   setupSettingsTabs();
-  showEditorEmpty();
   elements.skipDeleteConfirm.checked = skipDeleteConfirm;
   elements.wordCountToggle.checked = showWordCount;
   elements.foldersToggle.checked = foldersEnabled;
   elements.incognitoToggle.checked = incognitoMode;
+  renderPrivacyState();
+
+  if (isPasswordEnabled()) {
+    locked = true;
+    showUnlockPrompt();
+    return;
+  }
+
+  await loadAll();
+  finishInit();
+}
+
+async function loadAll() {
+  await loadNotes();
+  await loadFolders();
+  renderList();
+}
+
+function finishInit() {
+  showEditorEmpty();
   applyFoldersState();
   applyWordCountVisibility();
   updateWordCount();
   setupStorageModal();
+}
+
+function showUnlockPrompt() {
+  const meta = readPrivacyMeta();
+  showPasswordPrompt(
+    {
+      title: "Notes are locked",
+      message: "Enter your password to open your notes.",
+      confirmLabel: "Unlock",
+      dismissable: false,
+    },
+    async (password) => {
+      const key = meta ? await verifyPassword(password, meta) : null;
+      if (!key) return "Wrong password";
+      passwordState = { key, salt: meta.salt };
+      locked = false;
+      await loadAll();
+      finishInit();
+      return null;
+    }
+  );
 }
 
 function setupStorageModal() {
@@ -136,9 +200,9 @@ function setupStorageModal() {
   });
 }
 
-function loadNotes() {
+async function loadNotes() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = await readStoredValue(STORAGE_KEY);
     if (saved) {
       notes = JSON.parse(saved);
       notes.sort((a, b) => b.modifiedAt - a.modifiedAt);
@@ -152,12 +216,12 @@ function loadNotes() {
 }
 
 function saveNotesToStorage() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+  writeStoredValue(STORAGE_KEY, JSON.stringify(notes));
 }
 
-function loadFolders() {
+async function loadFolders() {
   try {
-    const saved = localStorage.getItem(FOLDERS_KEY);
+    const saved = await readStoredValue(FOLDERS_KEY);
     const parsed = saved ? JSON.parse(saved) : [];
     folders = Array.isArray(parsed)
       ? parsed.filter((f) => f && typeof f.id === "string" && typeof f.name === "string")
@@ -166,7 +230,10 @@ function loadFolders() {
     console.error("Failed to load folders", e);
     folders = [];
   }
+  sanitizeFolders();
+}
 
+function sanitizeFolders() {
   const folderIds = new Set(folders.map((f) => f.id));
   folders.forEach((folder) => {
     if (!folder.parentId || !folderIds.has(folder.parentId)) folder.parentId = null;
@@ -188,7 +255,7 @@ function loadFolders() {
 }
 
 function saveFoldersToStorage() {
-  localStorage.setItem(FOLDERS_KEY, JSON.stringify(folders));
+  writeStoredValue(FOLDERS_KEY, JSON.stringify(folders));
 }
 
 function getFolder(id) {
@@ -257,7 +324,7 @@ function applyFoldersState() {
 }
 
 function renderList() {
-  if (renamingFolderId) return;
+  if (renamingFolderId || locked) return;
 
   const list = elements.notesList;
   const scrollTop = list.scrollTop;
@@ -707,11 +774,12 @@ function applyWordCountVisibility() {
   elements.statusBar.style.display = activeNoteId && showWordCount ? "" : "none";
 }
 
-function handleExternalSync() {
+async function handleExternalSync() {
+  if (locked) return;
   const hadPendingSave = saveTimeout !== null;
 
-  loadNotes();
-  loadFolders();
+  await loadNotes();
+  await loadFolders();
 
   if (activeNoteId) {
     const activeNote = notes.find((n) => n.id === activeNoteId);
@@ -780,6 +848,7 @@ function deleteAllNotesAndSettings() {
   elements.wordCountToggle.checked = showWordCount;
   elements.foldersToggle.checked = foldersEnabled;
   applyFoldersState();
+  renderPrivacyState();
   showEditorEmpty();
   showNotification("All notes and settings deleted");
 }
@@ -833,6 +902,12 @@ function encodeTbxm(json) {
   return `${TBXM_MAGIC}\n${btoa(binary)}`;
 }
 
+async function encodeEncryptedTbxm(json) {
+  const payload = await encryptText(json, passwordState.key);
+  const envelope = { salt: passwordState.salt, iv: payload.iv, data: payload.data };
+  return `${TBXM_ENCRYPTED_MAGIC}\n${btoa(JSON.stringify(envelope))}`;
+}
+
 function downloadFile(content, filename, mimeType) {
   const blob = new Blob([content], { type: mimeType });
   const url = URL.createObjectURL(blob);
@@ -880,13 +955,16 @@ function hideExportModal() {
   elements.exportModal.classList.remove("show");
 }
 
-function exportFile() {
+async function exportFile() {
   const data = buildExportData({
     withNotes: elements.exportScopeNotes.checked,
     withSettings: elements.exportScopeSettings.checked,
   });
   if (exportFormat === "tbxm") {
-    downloadFile(encodeTbxm(JSON.stringify(data)), `${exportFileBaseName()}.tbxm`, "application/octet-stream");
+    const content = passwordState
+      ? await encodeEncryptedTbxm(JSON.stringify(data))
+      : encodeTbxm(JSON.stringify(data));
+    downloadFile(content, `${exportFileBaseName()}.tbxm`, "application/octet-stream");
   } else {
     downloadFile(JSON.stringify(data, null, 2), `${exportFileBaseName()}.json`, "application/json");
   }
@@ -894,6 +972,7 @@ function exportFile() {
 }
 
 let pendingImport = null;
+let pendingImportPassword = null;
 
 function parseImportFile(text) {
   let json = text;
@@ -903,6 +982,10 @@ function parseImportFile(text) {
     json = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   }
 
+  return parseImportJson(json);
+}
+
+function parseImportJson(json) {
   const data = JSON.parse(json);
   if (
     !data ||
@@ -923,23 +1006,36 @@ function parseImportFile(text) {
       : null,
     folders: hasNotes
       ? (Array.isArray(data.folders)
-          ? data.folders.filter((f) => f && typeof f === "object" && typeof f.id === "string")
+          ? data.folders.filter((f) => f && typeof f === "object" && typeof f.id === "string" && typeof f.name === "string")
           : [])
       : null,
     settings: hasSettings ? data.settings : null,
   };
 }
 
-function applyImport(data) {
+async function applyImport(data, filePassword = null) {
+  if (filePassword) {
+    const check = await encryptText(PRIVACY_CHECK_TEXT, filePassword.key);
+    localStorage.setItem(PRIVACY_KEY, JSON.stringify({ v: 1, salt: filePassword.salt, check }));
+    passwordState = { key: filePassword.key, salt: filePassword.salt };
+  }
+
   if (data.notes) {
     clearTimeout(saveTimeout);
     saveTimeout = null;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.notes));
-    localStorage.setItem(FOLDERS_KEY, JSON.stringify(data.folders));
-    loadNotes();
-    loadFolders();
+    notes = data.notes.sort((a, b) => b.modifiedAt - a.modifiedAt);
+    folders = data.folders;
+    sanitizeFolders();
+    saveNotesToStorage();
+    saveFoldersToStorage();
     activeNoteId = null;
   }
+
+  if (filePassword && !data.notes) {
+    saveNotesToStorage();
+    saveFoldersToStorage();
+  }
+  if (filePassword) renderPrivacyState();
 
   if (data.settings) {
     const s = data.settings;
@@ -949,7 +1045,7 @@ function applyImport(data) {
     localStorage.setItem(SKIP_DELETE_KEY, skipDeleteConfirm);
     localStorage.setItem(WORD_COUNT_KEY, showWordCount);
     localStorage.setItem(FOLDERS_ENABLED_KEY, foldersEnabled);
-    setIncognitoMode(s.incognitoMode === true);
+    setIncognitoMode(s.incognitoMode === true && !isPasswordEnabled());
     elements.skipDeleteConfirm.checked = skipDeleteConfirm;
     elements.wordCountToggle.checked = showWordCount;
     elements.foldersToggle.checked = foldersEnabled;
@@ -965,7 +1061,7 @@ function applyImport(data) {
   showNotification(`Imported ${imported.join(" and ")}`);
 }
 
-function requestImport(data) {
+function requestImport(data, filePassword = null) {
   const lines = [];
   if (data.notes) {
     const noteCount = data.notes.length;
@@ -979,22 +1075,301 @@ function requestImport(data) {
   if (data.settings) {
     lines.push("Your current settings will be replaced by the settings in this file.");
     if (data.settings.incognitoMode === true) {
-      lines.push("The file enables Incognito Mode: notes will be deleted when the browser session ends.");
+      lines.push(
+        isPasswordEnabled()
+          ? "Incognito Mode stays disabled because a password is set."
+          : "The file enables Incognito Mode: notes will be deleted when the browser session ends."
+      );
     }
   } else {
     lines.push("Your settings will be kept.");
   }
+  if (filePassword) {
+    lines.push(
+      isPasswordEnabled()
+        ? "The password of this file will replace your current password."
+        : "The password of this file will be applied to your notes."
+    );
+  }
   lines.push("This action cannot be undone.");
 
   pendingImport = data;
+  pendingImportPassword = filePassword;
   showDeleteModal(() => {
-    applyImport(pendingImport);
+    const importData = pendingImport;
+    const importPassword = pendingImportPassword;
     pendingImport = null;
+    pendingImportPassword = null;
+    applyImport(importData, importPassword);
   }, {
     title: "Import file",
     message: lines.join(" "),
     confirmLabel: "Import",
   });
+}
+
+function isPasswordEnabled() {
+  return readPrivacyMeta() !== null;
+}
+
+function readPrivacyMeta() {
+  try {
+    const raw = localStorage.getItem(PRIVACY_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    console.error("Failed to read privacy settings", e);
+    return null;
+  }
+}
+
+function bytesToBase64(bytes) {
+  let binary = "";
+  bytes.forEach((b) => {
+    binary += String.fromCharCode(b);
+  });
+  return btoa(binary);
+}
+
+function base64ToBytes(base64) {
+  return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+}
+
+async function deriveKey(password, salt) {
+  const material = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(password),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt, iterations: PBKDF2_ITERATIONS, hash: "SHA-256" },
+    material,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+
+async function encryptText(text, key) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(text));
+  return { iv: bytesToBase64(iv), data: bytesToBase64(new Uint8Array(encrypted)) };
+}
+
+async function decryptText(payload, key) {
+  const decrypted = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: base64ToBytes(payload.iv) },
+    key,
+    base64ToBytes(payload.data)
+  );
+  return new TextDecoder().decode(decrypted);
+}
+
+async function verifyPassword(password, meta) {
+  const key = await deriveKey(password, base64ToBytes(meta.salt));
+  try {
+    const check = await decryptText(meta.check, key);
+    return check === PRIVACY_CHECK_TEXT ? key : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function enqueueStorageTask(task) {
+  persistQueue = persistQueue
+    .then(task)
+    .catch((e) => console.error("Failed to save notes", e));
+  return persistQueue;
+}
+
+function writeStoredValue(key, value) {
+  if (locked) return;
+  enqueueStorageTask(async () => {
+    if (!passwordState) {
+      localStorage.setItem(key, value);
+      return;
+    }
+    const payload = await encryptText(value, passwordState.key);
+    localStorage.setItem(key, JSON.stringify(payload));
+  });
+}
+
+async function readStoredValue(key) {
+  await persistQueue;
+  const raw = localStorage.getItem(key);
+  if (raw === null || !passwordState) return raw;
+  const payload = JSON.parse(raw);
+  if (!payload || typeof payload.iv !== "string") return raw;
+  return decryptText(payload, passwordState.key);
+}
+
+async function enablePassword(password) {
+  flushPendingSave();
+  if (incognitoMode) setIncognitoMode(false);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await deriveKey(password, salt);
+  const meta = {
+    v: 1,
+    salt: bytesToBase64(salt),
+    check: await encryptText(PRIVACY_CHECK_TEXT, key),
+  };
+  localStorage.setItem(PRIVACY_KEY, JSON.stringify(meta));
+  passwordState = { key, salt: meta.salt };
+  saveNotesToStorage();
+  saveFoldersToStorage();
+  await persistQueue;
+}
+
+async function disablePassword() {
+  flushPendingSave();
+  passwordState = null;
+  localStorage.removeItem(PRIVACY_KEY);
+  saveNotesToStorage();
+  saveFoldersToStorage();
+  await persistQueue;
+}
+
+function renderPrivacyState() {
+  const enabled = isPasswordEnabled();
+  elements.privacyTitle.textContent = enabled ? "Password enabled" : "Add a password";
+  elements.privacyDesc.textContent = enabled
+    ? "Your notes, folders and .tbxm exports are encrypted. You will be asked for the password each time you open Notes."
+    : "Encrypt your notes, folders and .tbxm exports with a password.";
+  elements.privacyBtn.textContent = enabled ? "Remove password" : "Add a password";
+  elements.privacyBtn.className = enabled ? "setting-danger-btn" : "setting-action-btn";
+}
+
+function validatePassword(password) {
+  if (password.length < 4) return "Password must be at least 4 characters";
+  if (/\s/.test(password)) return "Password cannot contain spaces";
+  return null;
+}
+
+function setModalError(el, message) {
+  el.textContent = message || "";
+}
+
+function showSetPasswordModal() {
+  elements.setPasswordInput.value = "";
+  elements.setPasswordConfirm.value = "";
+  setModalError(elements.setPasswordError, "");
+  elements.setPasswordModal.classList.add("show");
+  elements.setPasswordInput.focus();
+}
+
+function hideSetPasswordModal() {
+  elements.setPasswordModal.classList.remove("show");
+}
+
+async function submitSetPassword() {
+  const password = elements.setPasswordInput.value;
+  const error =
+    validatePassword(password) ||
+    (password !== elements.setPasswordConfirm.value ? "Passwords do not match" : null);
+  if (error) {
+    setModalError(elements.setPasswordError, error);
+    return;
+  }
+
+  elements.setPasswordSubmit.disabled = true;
+  try {
+    await enablePassword(password);
+    hideSetPasswordModal();
+    renderPrivacyState();
+    showNotification("Password added");
+  } catch (e) {
+    console.error("Failed to add password", e);
+    setModalError(elements.setPasswordError, "Could not add the password");
+  } finally {
+    elements.setPasswordSubmit.disabled = false;
+  }
+}
+
+function showPasswordPrompt({ title, message, confirmLabel = "Confirm", dismissable = true }, onSubmit) {
+  passwordPromptSubmit = onSubmit;
+  passwordPromptDismissable = dismissable;
+  elements.passwordPromptTitle.textContent = title;
+  elements.passwordPromptMessage.textContent = message;
+  elements.passwordPromptConfirm.textContent = confirmLabel;
+  elements.passwordPromptCancel.style.display = dismissable ? "" : "none";
+  elements.passwordPromptInput.value = "";
+  setModalError(elements.passwordPromptError, "");
+  elements.passwordPromptModal.classList.add("show");
+  elements.passwordPromptInput.focus();
+}
+
+function hidePasswordPrompt() {
+  elements.passwordPromptModal.classList.remove("show");
+  passwordPromptSubmit = null;
+}
+
+async function submitPasswordPrompt() {
+  const submit = passwordPromptSubmit;
+  if (!submit) return;
+  elements.passwordPromptConfirm.disabled = true;
+  let error = null;
+  try {
+    error = await submit(elements.passwordPromptInput.value);
+  } catch (e) {
+    console.error("Password prompt failed", e);
+    error = "Something went wrong";
+  }
+  elements.passwordPromptConfirm.disabled = false;
+  if (error) {
+    setModalError(elements.passwordPromptError, error);
+    elements.passwordPromptInput.select();
+  } else {
+    hidePasswordPrompt();
+  }
+}
+
+function showRemovePasswordPrompt() {
+  showPasswordPrompt(
+    {
+      title: "Remove password",
+      message: "Enter your password. Your notes and folders will be stored in clear text again.",
+      confirmLabel: "Remove",
+    },
+    async (password) => {
+      const key = await verifyPassword(password, readPrivacyMeta());
+      if (!key) return "Wrong password";
+      await disablePassword();
+      renderPrivacyState();
+      showNotification("Password removed");
+      return null;
+    }
+  );
+}
+
+function requestEncryptedImport(text) {
+  const envelope = JSON.parse(atob(text.slice(TBXM_ENCRYPTED_MAGIC.length + 1).trim()));
+  showPasswordPrompt(
+    {
+      title: "Encrypted file",
+      message: "This file is protected by a password. Enter it to open the file.",
+      confirmLabel: "Open",
+    },
+    async (password) => {
+      const key = await deriveKey(password, base64ToBytes(envelope.salt));
+      let json;
+      try {
+        json = await decryptText(envelope, key);
+      } catch (e) {
+        return "Wrong password";
+      }
+      requestImport(parseImportJson(json), { key, salt: envelope.salt });
+      return null;
+    }
+  );
+}
+
+function showIncognitoBlockedModal() {
+  elements.incognitoBlockedModal.classList.add("show");
+}
+
+function hideIncognitoBlockedModal() {
+  elements.incognitoBlockedModal.classList.remove("show");
 }
 
 function showNotification(message) {
@@ -1011,7 +1386,7 @@ function setupEventListeners() {
   elements.deleteBtn.addEventListener("click", deleteActiveNote);
 
   document.addEventListener("keydown", (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.altKey && e.code === "KeyN") {
+    if ((e.ctrlKey || e.metaKey) && e.altKey && e.code === "KeyN" && !locked) {
       e.preventDefault();
       hideContextMenu();
       createNote();
@@ -1207,7 +1582,10 @@ function setupEventListeners() {
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (elements.exportModal.classList.contains("show")) hideExportModal();
+    else if (elements.incognitoBlockedModal.classList.contains("show")) hideIncognitoBlockedModal();
     else if (elements.incognitoModal.classList.contains("show")) hideIncognitoModal();
+    else if (elements.setPasswordModal.classList.contains("show")) hideSetPasswordModal();
+    else if (elements.passwordPromptModal.classList.contains("show") && passwordPromptDismissable) hidePasswordPrompt();
     else if (elements.deleteModal.classList.contains("show")) hideDeleteModal();
     else if (elements.settingsModal.classList.contains("show")) elements.settingsModal.classList.remove("show");
   });
@@ -1232,7 +1610,8 @@ function setupEventListeners() {
   elements.incognitoToggle.addEventListener("change", () => {
     if (elements.incognitoToggle.checked) {
       elements.incognitoToggle.checked = false;
-      showIncognitoModal();
+      if (isPasswordEnabled()) showIncognitoBlockedModal();
+      else showIncognitoModal();
     } else {
       setIncognitoMode(false);
     }
@@ -1257,7 +1636,7 @@ function setupEventListeners() {
   elements.deleteAllNotesAndSettingsBtn.addEventListener("click", () => {
     showDeleteModal(deleteAllNotesAndSettings, {
       title: "Delete all notes and settings",
-      message: "Delete every note and folder, and restore all note settings to their defaults? This action cannot be undone.",
+      message: "Delete every note and folder, restore all note settings to their defaults, and remove the password? This action cannot be undone.",
       confirmDelay: 3000,
     });
   });
@@ -1276,7 +1655,12 @@ function setupEventListeners() {
     elements.importFileInput.value = "";
     if (!file) return;
     try {
-      requestImport(parseImportFile(await file.text()));
+      const text = await file.text();
+      if (text.startsWith(`${TBXM_ENCRYPTED_MAGIC}\n`)) {
+        requestEncryptedImport(text);
+      } else {
+        requestImport(parseImportFile(text));
+      }
     } catch (e) {
       console.error("Failed to import file", e);
       showNotification("Could not import this file");
@@ -1292,13 +1676,46 @@ function setupEventListeners() {
   elements.exportModalCancel.addEventListener("click", hideExportModal);
   elements.exportModalNext.addEventListener("click", () => setExportStep(2));
   elements.exportModalBack.addEventListener("click", () => setExportStep(1));
-  elements.exportModalConfirm.addEventListener("click", () => {
-    exportFile();
+  elements.exportModalConfirm.addEventListener("click", async () => {
+    await exportFile();
     hideExportModal();
   });
   closeOnBackdropClick(elements.exportModal, hideExportModal);
 
+  elements.privacyBtn.addEventListener("click", () => {
+    if (isPasswordEnabled()) showRemovePasswordPrompt();
+    else showSetPasswordModal();
+  });
+  elements.setPasswordCancel.addEventListener("click", hideSetPasswordModal);
+  elements.setPasswordSubmit.addEventListener("click", submitSetPassword);
+  elements.setPasswordConfirm.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submitSetPassword();
+    }
+  });
+  closeOnBackdropClick(elements.setPasswordModal, hideSetPasswordModal);
+
+  elements.passwordPromptCancel.addEventListener("click", hidePasswordPrompt);
+  elements.passwordPromptConfirm.addEventListener("click", submitPasswordPrompt);
+  elements.passwordPromptInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submitPasswordPrompt();
+    }
+  });
+  closeOnBackdropClick(elements.passwordPromptModal, () => {
+    if (passwordPromptDismissable) hidePasswordPrompt();
+  });
+
+  elements.incognitoBlockedOk.addEventListener("click", hideIncognitoBlockedModal);
+  closeOnBackdropClick(elements.incognitoBlockedModal, hideIncognitoBlockedModal);
+
   window.addEventListener("storage", (e) => {
+    if (e.key === PRIVACY_KEY) {
+      location.reload();
+      return;
+    }
     if (e.key !== null && e.key !== STORAGE_KEY && e.key !== FOLDERS_KEY) return;
     handleExternalSync();
   });
@@ -1377,9 +1794,13 @@ function handleIncognitoSession() {
 }
 
 function purgeNotesData() {
-  [STORAGE_KEY, FOLDERS_KEY, MODAL_KEY, SKIP_DELETE_KEY, WORD_COUNT_KEY, FOLDERS_ENABLED_KEY].forEach(
-    (key) => localStorage.removeItem(key)
-  );
+  localStorage.removeItem(PRIVACY_KEY);
+  passwordState = null;
+  enqueueStorageTask(() => {
+    [STORAGE_KEY, FOLDERS_KEY, MODAL_KEY, SKIP_DELETE_KEY, WORD_COUNT_KEY, FOLDERS_ENABLED_KEY].forEach(
+      (key) => localStorage.removeItem(key)
+    );
+  });
   skipDeleteConfirm = false;
   showWordCount = true;
   foldersEnabled = true;

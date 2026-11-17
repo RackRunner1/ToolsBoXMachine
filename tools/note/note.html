@@ -516,6 +516,32 @@
         cursor: not-allowed;
       }
 
+      .modal-input {
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 0.75rem;
+        padding: 0.7rem 0.9rem;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid #334155;
+        border-radius: 0.75rem;
+        color: white;
+        font-family: inherit;
+        font-size: 0.95rem;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .modal-input:focus {
+        border-color: var(--primary-color);
+      }
+
+      .modal-error {
+        min-height: 1.2rem;
+        margin: -0.25rem 0 0.75rem;
+        font-size: 0.85rem;
+        color: #ef4444;
+      }
+
       .modal-check {
         display: flex;
         align-items: center;
@@ -1225,6 +1251,13 @@
             </svg>
             General
           </div>
+          <div class="settings-nav-item" data-tab="privacy">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Privacy
+          </div>
           <div class="settings-nav-item" data-tab="data">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m21 16-4 4-4-4"/>
@@ -1277,6 +1310,16 @@
               </label>
             </div>
           </div>
+          <div class="settings-pane" data-pane="privacy">
+            <div class="settings-content-title">Privacy</div>
+            <div class="setting-card">
+              <div class="setting-card-info">
+                <div class="setting-card-title" id="privacy-title">Add a password</div>
+                <div class="setting-card-desc" id="privacy-desc">Encrypt your notes, folders and .tbxm exports with a password.</div>
+              </div>
+              <button class="setting-action-btn" id="privacy-btn">Add a password</button>
+            </div>
+          </div>
           <div class="settings-pane" data-pane="data">
             <div class="settings-content-title">Import / Export</div>
             <div class="setting-card setting-card-stack">
@@ -1322,7 +1365,7 @@
               <div class="setting-card-row">
                 <div class="setting-card-info">
                   <div class="setting-card-title">Delete All Notes and Settings</div>
-                  <div class="setting-card-desc">Permanently delete all notes and folders, and restore default note settings</div>
+                  <div class="setting-card-desc">Permanently delete all notes and folders, restore default note settings, and remove the password</div>
                 </div>
                 <button class="setting-danger-btn" id="delete-all-notes-and-settings-btn">Delete All Notes and Settings</button>
               </div>
@@ -1410,6 +1453,50 @@
         <div class="modal-actions">
           <button class="modal-btn" id="incognito-modal-cancel">Cancel</button>
           <button class="modal-btn danger" id="incognito-modal-confirm">Enable</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="incognito-blocked-modal" role="dialog" aria-modal="true" aria-labelledby="incognito-blocked-modal-title">
+      <div class="modal-box">
+        <h2 id="incognito-blocked-modal-title">Incognito Mode unavailable</h2>
+        <p>
+          A password is set on your notes. <strong>Incognito Mode can't be enabled while a password is set.</strong>
+        </p>
+        <p>To use Incognito Mode, remove the password in the Privacy tab first.</p>
+        <div class="modal-actions">
+          <button class="modal-btn primary" id="incognito-blocked-ok">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="set-password-modal" role="dialog" aria-modal="true" aria-labelledby="set-password-modal-title">
+      <div class="modal-box">
+        <h2 id="set-password-modal-title">Add a password</h2>
+        <p>
+          Your notes, folders and .tbxm exports will be encrypted with this password.
+          <strong>If you forget it, your data cannot be recovered.</strong>
+        </p>
+        <p>At least 4 characters, no spaces.</p>
+        <input type="password" id="set-password-input" class="modal-input" placeholder="Password" autocomplete="new-password" />
+        <input type="password" id="set-password-confirm-input" class="modal-input" placeholder="Confirm password" autocomplete="new-password" />
+        <div id="set-password-error" class="modal-error"></div>
+        <div class="modal-actions">
+          <button class="modal-btn" id="set-password-cancel">Cancel</button>
+          <button class="modal-btn primary" id="set-password-submit">Add password</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="password-prompt-modal" role="dialog" aria-modal="true" aria-labelledby="password-prompt-title">
+      <div class="modal-box">
+        <h2 id="password-prompt-title">Password</h2>
+        <p id="password-prompt-message"></p>
+        <input type="password" id="password-prompt-input" class="modal-input" placeholder="Password" autocomplete="current-password" />
+        <div id="password-prompt-error" class="modal-error"></div>
+        <div class="modal-actions">
+          <button class="modal-btn" id="password-prompt-cancel">Cancel</button>
+          <button class="modal-btn primary" id="password-prompt-confirm">Confirm</button>
         </div>
       </div>
     </div>
@@ -1519,7 +1606,7 @@
       </div>
     </div>
 
-    <script type="module" src="./note.js?v=14"></script>
+    <script type="module" src="./note.js?v=16"></script>
     <div id="footer-placeholder"></div>
     <script src="/ui/include.js"></script>
     <script src="/ui/navbar.js"></script>
