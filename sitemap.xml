@@ -6,42 +6,42 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/tools/blur/blur.html</loc>
+    <loc>https://www.tbxm.org/tools/blur/blur</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/tools/calculator/calculator.html</loc>
+    <loc>https://www.tbxm.org/tools/calculator/calculator</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/tools/password-gen/password-gen.html</loc>
+    <loc>https://www.tbxm.org/tools/password-gen/password-gen</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/tools/qr-gen/qr-gen.html</loc>
+    <loc>https://www.tbxm.org/tools/qr-gen/qr-gen</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/tools/timer/timer.html</loc>
+    <loc>https://www.tbxm.org/tools/timer/timer</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/tools/emoji-keyboard/emoji-keyboard.html</loc>
+    <loc>https://www.tbxm.org/tools/emoji-keyboard/emoji-keyboard</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/tools/note/note.html</loc>
+    <loc>https://www.tbxm.org/tools/note/note</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/tools/clock/clock.html</loc>
+    <loc>https://www.tbxm.org/tools/clock/clock</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -52,32 +52,32 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/pages/philosophy.html</loc>
+    <loc>https://www.tbxm.org/pages/philosophy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/pages/about.html</loc>
+    <loc>https://www.tbxm.org/pages/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/pages/app.html</loc>
+    <loc>https://www.tbxm.org/pages/app</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/pages/privacy.html</loc>
+    <loc>https://www.tbxm.org/pages/privacy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/pages/legal.html</loc>
+    <loc>https://www.tbxm.org/pages/legal</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.tbxm.org/pages/terms.html</loc>
+    <loc>https://www.tbxm.org/pages/terms</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

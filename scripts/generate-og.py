@@ -416,7 +416,7 @@ def main():
         og_name = get_og_name(html_path)
         og_names.append(og_name)
         rel_path = os.path.relpath(html_path, PROJECT_ROOT)
-        page_url = BASE_URL if rel_path == "index.html" else f"{BASE_URL}/{rel_path}"
+        page_url = BASE_URL if rel_path == "index.html" else f"{BASE_URL}/{rel_path[:-len('.html')]}"
         output_path = os.path.join(OG_DIR, f"{og_name}.png")
 
         name, emoji, description = page_meta(rel_path, og_name, manifest)

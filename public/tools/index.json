@@ -12,7 +12,7 @@
       "name": "Blur Image",
       "emoji": "🎨",
       "description": "Protect privacy by blurring sensitive parts of images",
-      "url": "/tools/blur/blur.html",
+      "url": "/tools/blur/blur",
       "category": "image",
       "clientSide": true,
       "keywords": ["image", "blur", "privacy", "censor", "pixelate"]
@@ -22,7 +22,7 @@
       "name": "Calculator",
       "emoji": "🧮",
       "description": "Perform basic arithmetic calculations",
-      "url": "/tools/calculator/calculator.html",
+      "url": "/tools/calculator/calculator",
       "category": "productivity",
       "clientSide": true,
       "keywords": ["math", "calculate", "arithmetic", "numbers"]
@@ -32,7 +32,7 @@
       "name": "Password Generator",
       "emoji": "🔐",
       "description": "Generate secure passwords or passphrases",
-      "url": "/tools/password-gen/password-gen.html",
+      "url": "/tools/password-gen/password-gen",
       "category": "security",
       "clientSide": true,
       "keywords": ["password", "security", "generate", "passphrase", "random"]
@@ -42,7 +42,7 @@
       "name": "QR Code Generator",
       "emoji": "📱",
       "description": "Create custom QR codes for any link or text",
-      "url": "/tools/qr-gen/qr-gen.html",
+      "url": "/tools/qr-gen/qr-gen",
       "category": "utility",
       "clientSide": true,
       "keywords": ["qr", "code", "barcode", "scan", "link"]
@@ -52,7 +52,7 @@
       "name": "Pomodoro Timer",
       "emoji": "⏱️",
       "description": "Stay focused with timed work sessions",
-      "url": "/tools/timer/timer.html",
+      "url": "/tools/timer/timer",
       "category": "productivity",
       "clientSide": true,
       "keywords": ["timer", "pomodoro", "focus", "productivity", "clock"]
@@ -62,7 +62,7 @@
       "name": "Emoji Keyboard",
       "emoji": "😀",
       "description": "Browse and copy emojis with one click",
-      "url": "/tools/emoji-keyboard/emoji-keyboard.html",
+      "url": "/tools/emoji-keyboard/emoji-keyboard",
       "category": "utility",
       "clientSide": true,
       "keywords": ["emoji", "emoticon", "copy", "paste", "keyboard"]
@@ -72,7 +72,7 @@
       "name": "Notes",
       "emoji": "📝",
       "description": "Create, save, and manage notes",
-      "url": "/tools/note/note.html",
+      "url": "/tools/note/note",
       "category": "productivity",
       "clientSide": true,
       "keywords": ["note", "text", "write", "save", "diary"]
@@ -82,7 +82,7 @@
       "name": "Clock",
       "emoji": "🕐",
       "description": "A customizable clock with analog and digital display",
-      "url": "/tools/clock/clock.html",
+      "url": "/tools/clock/clock",
       "category": "productivity",
       "clientSide": true,
       "keywords": ["clock", "time", "analog", "digital", "timezone", "world clock"]

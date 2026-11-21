@@ -6,14 +6,14 @@ TBXM is an open-source toolbox running entirely client-side. All processing happ
 
 ## Tools
 
-- [Blur Image](/tools/blur/blur.html): Protect privacy by blurring sensitive parts of images
-- [Calculator](/tools/calculator/calculator.html): Perform basic arithmetic calculations
-- [Password Generator](/tools/password-gen/password-gen.html): Generate secure passwords or passphrases
-- [QR Code Generator](/tools/qr-gen/qr-gen.html): Create custom QR codes for any link or text
-- [Pomodoro Timer](/tools/timer/timer.html): Stay focused with timed work sessions
-- [Emoji Keyboard](/tools/emoji-keyboard/emoji-keyboard.html): Browse and copy emojis with one click
-- [Notes](/tools/note/note.html): Create, save, and manage notes
-- [Clock](/tools/clock/clock.html): Display the current time
+- [Blur Image](/tools/blur/blur): Protect privacy by blurring sensitive parts of images
+- [Calculator](/tools/calculator/calculator): Perform basic arithmetic calculations
+- [Password Generator](/tools/password-gen/password-gen): Generate secure passwords or passphrases
+- [QR Code Generator](/tools/qr-gen/qr-gen): Create custom QR codes for any link or text
+- [Pomodoro Timer](/tools/timer/timer): Stay focused with timed work sessions
+- [Emoji Keyboard](/tools/emoji-keyboard/emoji-keyboard): Browse and copy emojis with one click
+- [Notes](/tools/note/note): Create, save, and manage notes
+- [Clock](/tools/clock/clock): Display the current time
 - [New Year Countdown](/tools/new-year-countdown/new-year-countdown): Time until and since New Year, in your timezone
 
 ## Machine-Readable Endpoints
@@ -33,8 +33,8 @@ TBXM is an open-source toolbox running entirely client-side. All processing happ
 
 ## About
 
-- [About Us](/pages/about.html): Learn more about TBXM
-- [ToolsBoXApp](/pages/app.html): TBXM as a local Linux app, works offline
+- [About Us](/pages/about): Learn more about TBXM
+- [ToolsBoXApp](/pages/app): TBXM as a local Linux app, works offline
 - Maintained by RackRunner
 - Source: https://github.com/RackRunner1/ToolsBoXMachine
 - Open source under Unlicense

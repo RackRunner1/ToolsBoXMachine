@@ -12,7 +12,7 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 ## Tools
 
 ### Blur Image
-- **URL:** /tools/blur/blur.html
+- **URL:** /tools/blur/blur
 - **Description:** Protect privacy by blurring sensitive parts of images
 - **Category:** Image Editing
 - **Client-side:** Yes
@@ -20,21 +20,21 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 - **Output:** Blurred image (downloadable)
 
 ### Calculator
-- **URL:** /tools/calculator/calculator.html
+- **URL:** /tools/calculator/calculator
 - **Description:** Perform basic arithmetic calculations
 - **Category:** Productivity
 - **Client-side:** Yes
 - **Operations:** Addition, subtraction, multiplication, division
 
 ### Password Generator
-- **URL:** /tools/password-gen/password-gen.html
+- **URL:** /tools/password-gen/password-gen
 - **Description:** Generate secure passwords or passphrases
 - **Category:** Security
 - **Client-side:** Yes
 - **Options:** Length, character types, passphrases
 
 ### QR Code Generator
-- **URL:** /tools/qr-gen/qr-gen.html
+- **URL:** /tools/qr-gen/qr-gen
 - **Description:** Create custom QR codes for any link or text
 - **Category:** Utility
 - **Client-side:** Yes
@@ -42,21 +42,21 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 - **Output:** QR code image (downloadable)
 
 ### Pomodoro Timer
-- **URL:** /tools/timer/timer.html
+- **URL:** /tools/timer/timer
 - **Description:** Stay focused with timed work sessions
 - **Category:** Productivity
 - **Client-side:** Yes
 - **Features:** Custom durations, break intervals, notifications
 
 ### Emoji Keyboard
-- **URL:** /tools/emoji-keyboard/emoji-keyboard.html
+- **URL:** /tools/emoji-keyboard/emoji-keyboard
 - **Description:** Browse and copy emojis with one click
 - **Category:** Utility
 - **Client-side:** Yes
 - **Features:** Search, categories, click-to-copy
 
 ### Notes
-- **URL:** /tools/note/note.html
+- **URL:** /tools/note/note
 - **Description:** Create, save, and manage notes
 - **Category:** Productivity
 - **Client-side:** Yes
@@ -64,7 +64,7 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 - **Features:** Create, edit, delete notes
 
 ### Clock
-- **URL:** /tools/clock/clock.html
+- **URL:** /tools/clock/clock
 - **Description:** Display the current time
 - **Category:** Utility
 - **Client-side:** Yes

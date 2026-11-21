@@ -5,7 +5,7 @@
       "id": "image-blur",
       "name": "Blur Image",
       "description": "Protect privacy by blurring sensitive parts of images",
-      "url": "/tools/blur/blur.html",
+      "url": "/tools/blur/blur",
       "category": "image",
       "tags": ["blur", "privacy", "image", "censor"]
     },
@@ -13,7 +13,7 @@
       "id": "calculator",
       "name": "Calculator",
       "description": "Perform basic arithmetic calculations",
-      "url": "/tools/calculator/calculator.html",
+      "url": "/tools/calculator/calculator",
       "category": "productivity",
       "tags": ["math", "calculate", "numbers"]
     },
@@ -21,7 +21,7 @@
       "id": "password-gen",
       "name": "Password Generator",
       "description": "Generate secure passwords and passphrases",
-      "url": "/tools/password-gen/password-gen.html",
+      "url": "/tools/password-gen/password-gen",
       "category": "security",
       "tags": ["password", "security", "random", "passphrase"]
     },
@@ -29,7 +29,7 @@
       "id": "qr-gen",
       "name": "QR Code Generator",
       "description": "Create custom QR codes for any link or text",
-      "url": "/tools/qr-gen/qr-gen.html",
+      "url": "/tools/qr-gen/qr-gen",
       "category": "utility",
       "tags": ["qr", "code", "barcode", "link"]
     },
@@ -37,7 +37,7 @@
       "id": "pomodoro-timer",
       "name": "Pomodoro Timer",
       "description": "Stay focused with timed work sessions",
-      "url": "/tools/timer/timer.html",
+      "url": "/tools/timer/timer",
       "category": "productivity",
       "tags": ["timer", "pomodoro", "focus", "productivity"]
     },
@@ -45,7 +45,7 @@
       "id": "emoji-keyboard",
       "name": "Emoji Keyboard",
       "description": "Browse and copy emojis with one click",
-      "url": "/tools/emoji-keyboard/emoji-keyboard.html",
+      "url": "/tools/emoji-keyboard/emoji-keyboard",
       "category": "utility",
       "tags": ["emoji", "copy", "paste", "keyboard"]
     },
@@ -53,7 +53,7 @@
       "id": "notes",
       "name": "Notes",
       "description": "Create, save, and manage notes locally",
-      "url": "/tools/note/note.html",
+      "url": "/tools/note/note",
       "category": "productivity",
       "tags": ["note", "text", "write", "save"]
     },
@@ -61,7 +61,7 @@
       "id": "clock",
       "name": "Clock",
       "description": "Display the current time",
-      "url": "/tools/clock/clock.html",
+      "url": "/tools/clock/clock",
       "category": "utility",
       "tags": ["clock", "time", "datetime"]
     }
