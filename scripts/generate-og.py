@@ -295,11 +295,15 @@ def load_manifest():
     except (OSError, json.JSONDecodeError) as exc:
         print(f"  Warning: cannot read manifest ({exc})")
         return {}
-    return {
-        tool["url"].lstrip("/"): tool
-        for tool in data.get("tools", [])
-        if "url" in tool
-    }
+    manifest = {}
+    for tool in data.get("tools", []):
+        if "url" not in tool:
+            continue
+        key = tool["url"].lstrip("/")
+        if not key.endswith(".html"):
+            key += ".html"
+        manifest[key] = tool
+    return manifest
 
 
 def page_meta(rel_path, og_name, manifest):
