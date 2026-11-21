@@ -35,7 +35,7 @@ LOGO_PATH = os.path.join(PROJECT_ROOT, ".assets", "logo", "logo.png")
 LOGO_HEIGHT = 48
 
 HOMEPAGE_OG_NAME = "homepage"
-HOMEPAGE_OG_SOURCE = os.path.join(PROJECT_ROOT, ".assets", "homepage.png")
+HOMEPAGE_OG_SOURCE = os.path.join(OG_DIR, "homepage.png")
 
 PAGE_META = {
     "homepage": ("ToolsBoXMachine", "🔨", "A collection of free, privacy-first browser tools for everyday tasks."),
