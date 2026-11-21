@@ -697,6 +697,11 @@ canvas {
   width: 100%;
 }
 
+#footer-placeholder {
+  margin-top: auto;
+  width: 100%;
+}
+
 .footer-content {
   width: 100%;
   display: flex;
