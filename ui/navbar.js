@@ -65,7 +65,7 @@ document.addEventListener("components-loaded", () => {
       emoji: "🎆",
       desc: "Time until and since New Year, in your timezone.",
       keywords: "new year countdown timer january celebration fireworks clock time since new year elapsed timer",
-      url: "/tools/new-year-countdown/new-year-countdown.html",
+      url: "/tools/new-year-countdown/new-year-countdown",
     },
   ];
 
