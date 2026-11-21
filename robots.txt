@@ -26,4 +26,3 @@ User-agent: YouBot
 Allow: /
 
 Sitemap: https://www.tbxm.org/sitemap.xml
-LLMs: https://www.tbxm.org/llms.txt
