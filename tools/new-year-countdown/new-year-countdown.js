@@ -14,6 +14,7 @@
   var elFill = document.getElementById("ny-progress-fill");
   var elPct = document.getElementById("ny-progress-pct");
   var elProgressLabel = document.getElementById("ny-progress-label");
+  var elFaqAnswer = document.getElementById("ny-faq-answer");
 
   function pad(n) {
     return String(n).padStart(2, "0");
@@ -75,6 +76,8 @@
     elStatus.classList.toggle("elapsed", state.mode === "elapsed");
 
     if (state.mode === "elapsed") {
+      elFaqAnswer.textContent =
+        "New Year started " + d + " days and " + h + " hours ago, on January 1st at 00:00.";
       elStatusText.textContent = "Time since New Year";
       elYearLabel.innerHTML = "Welcome to <strong>" + state.targetYear + "</strong>";
       elTargetLine.innerHTML =
@@ -82,6 +85,8 @@
         formatTargetDate(state.yearStart, tz) +
         "</strong>";
     } else {
+      elFaqAnswer.textContent =
+        "There are " + d + " days and " + h + " hours until New Year, on January 1st at 00:00 in your timezone.";
       elStatusText.textContent = "Time until New Year";
       elYearLabel.innerHTML =
         "Counting down to <strong>" + state.targetYear + "</strong>";
