@@ -72,12 +72,21 @@ h1 {
   align-items: center;
   column-gap: 2rem;
   padding: 1.25rem 3rem;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--glass-border);
+  background: transparent;
   z-index: 1000;
   transition: all 0.3s ease;
+}
+
+.navbar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+  pointer-events: none;
 }
 
 .nav-brand {
