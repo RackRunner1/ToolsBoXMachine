@@ -157,12 +157,15 @@ h1 {
   transition: all 0.3s ease;
 }
 
+.search-input-wrapper:focus-within {
+  transform: scale(1.02);
+}
+
 .search-input-wrapper input:focus {
   outline: none;
   background: rgba(30, 41, 59, 0.8);
   border-color: var(--primary-color);
   box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
-  transform: scale(1.02);
 }
 
 .search-dropdown {
