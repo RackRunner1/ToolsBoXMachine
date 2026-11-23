@@ -25,6 +25,7 @@ function playLogoIntro() {
   const logo = document.querySelector(".nav-logo:not(.nav-logo-intro)");
   const intro = document.querySelector(".nav-logo-intro");
   if (!logo || !intro) return;
+  if (window.matchMedia("(max-width: 480px)").matches) return;
 
   const showLogo = () => {
     intro.hidden = true;
