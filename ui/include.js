@@ -21,6 +21,23 @@ async function loadEditionLabel() {
   }
 }
 
+function playLogoIntro() {
+  const logo = document.querySelector(".nav-logo:not(.nav-logo-intro)");
+  const intro = document.querySelector(".nav-logo-intro");
+  if (!logo || !intro) return;
+
+  const showLogo = () => {
+    intro.hidden = true;
+    logo.hidden = false;
+  };
+
+  logo.hidden = true;
+  intro.hidden = false;
+  intro.addEventListener("ended", showLogo);
+  intro.addEventListener("error", showLogo);
+  intro.play().catch(showLogo);
+}
+
 async function includeHTML() {
   const navbarEl = document.getElementById("navbar-placeholder");
   const footerEl = document.getElementById("footer-placeholder");
@@ -33,6 +50,7 @@ async function includeHTML() {
         .then((r) => r.text())
         .then((html) => {
           navbarEl.innerHTML = html;
+          playLogoIntro();
           return loadEditionLabel();
         })
     );
