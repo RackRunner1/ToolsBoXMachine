@@ -25,17 +25,29 @@ function playLogoIntro() {
   const logo = document.querySelector(".nav-logo:not(.nav-logo-intro)");
   const intro = document.querySelector(".nav-logo-intro");
   if (!logo || !intro) return;
-  if (window.matchMedia("(max-width: 480px)").matches) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!intro.canPlayType("video/webm")) return;
 
+  let done = false;
   const showLogo = () => {
+    if (done) return;
+    done = true;
+    clearTimeout(fallback);
+    intro.removeEventListener("playing", start);
     intro.hidden = true;
     logo.hidden = false;
   };
 
-  logo.hidden = true;
-  intro.hidden = false;
-  intro.addEventListener("ended", showLogo);
-  intro.addEventListener("error", showLogo);
+  const start = () => {
+    if (done) return;
+    logo.hidden = true;
+    intro.hidden = false;
+  };
+
+  const fallback = setTimeout(showLogo, 3000);
+  intro.addEventListener("playing", start, { once: true });
+  intro.addEventListener("ended", showLogo, { once: true });
+  intro.addEventListener("error", showLogo, { once: true });
   intro.play().catch(showLogo);
 }
 
