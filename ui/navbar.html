@@ -5,16 +5,24 @@
         src="/.assets/logo/logo.png"
         alt="TBXM Logo"
         class="nav-logo"
+        width="813"
+        height="366"
       />
-      <video
-        src="/.assets/logo/logo-intro.webm"
+      <!--
+        Animated logo as an APNG instead of a VP9-alpha WebM: Safari/iOS does
+        not decode VP9 with an alpha channel, so the video stayed blank there.
+        The src is set by playLogoIntro() once the image is decoded, so the
+        animation always starts from its first frame when it becomes visible.
+      -->
+      <img
         class="nav-logo nav-logo-intro"
-        muted
-        playsinline
-        preload="auto"
+        data-src="/.assets/logo/logo-intro.png"
+        alt=""
         aria-hidden="true"
+        width="142"
+        height="64"
         hidden
-      ></video>
+      />
     </a>
     <a href="/" class="nav-edition" title="Back to Home" hidden></a>
   </div>

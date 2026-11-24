@@ -21,34 +21,57 @@ async function loadEditionLabel() {
   }
 }
 
+// The intro is an animated PNG (42 frames at 30fps), see ui/navbar.html.
+// An APNG is used instead of the previous VP9-alpha WebM because Safari/iOS
+// does not decode VP9 with an alpha channel, which left a blank navbar there.
+const LOGO_INTRO_DURATION = 1400;
+
+// Fetch the navbar images in parallel with /ui/navbar.html instead of waiting
+// for the markup to be injected, so the logo shows up as early as possible.
+new Image().src = "/.assets/logo/logo.png";
+new Image().src = "/.assets/logo/logo-intro.png";
+
 function playLogoIntro() {
   const logo = document.querySelector(".nav-logo:not(.nav-logo-intro)");
   const intro = document.querySelector(".nav-logo-intro");
   if (!logo || !intro) return;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  if (!intro.canPlayType("video/webm")) return;
 
-  let done = false;
+  const src = intro.dataset.src;
+  if (!src) return;
+
+  let started = false;
+  let swapTimer;
+
   const showLogo = () => {
-    if (done) return;
-    done = true;
-    clearTimeout(fallback);
-    intro.removeEventListener("playing", start);
+    clearTimeout(swapTimer);
     intro.hidden = true;
     logo.hidden = false;
   };
 
   const start = () => {
-    if (done) return;
+    if (started) return;
+    started = true;
+    // The static logo stays visible until the animation is decoded, so the
+    // navbar never goes blank while the image loads.
     logo.hidden = true;
+    // Assigning the src only now guarantees the APNG starts at frame 0, even
+    // on Safari where an animation in a hidden element may already be over.
+    intro.src = src;
     intro.hidden = false;
+    swapTimer = setTimeout(showLogo, LOGO_INTRO_DURATION + 50);
   };
 
-  const fallback = setTimeout(showLogo, 3000);
-  intro.addEventListener("playing", start, { once: true });
-  intro.addEventListener("ended", showLogo, { once: true });
-  intro.addEventListener("error", showLogo, { once: true });
-  intro.play().catch(showLogo);
+  const loader = new Image();
+  loader.onload = () => {
+    if (typeof loader.decode === "function") {
+      loader.decode().then(start).catch(showLogo);
+    } else {
+      start();
+    }
+  };
+  loader.onerror = showLogo;
+  loader.src = src;
 }
 
 async function includeHTML() {
