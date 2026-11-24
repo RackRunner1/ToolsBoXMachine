@@ -21,57 +21,49 @@ async function loadEditionLabel() {
   }
 }
 
-// The intro is an animated PNG (42 frames at 30fps), see ui/navbar.html.
-// An APNG is used instead of the previous VP9-alpha WebM because Safari/iOS
-// does not decode VP9 with an alpha channel, which left a blank navbar there.
+// The intro is a CSS sprite animation (42 frames at 30fps), see ui/navbar.html.
+// A sprite sheet is used instead of a video or animated image because Safari
+// does not decode VP9 with an alpha channel, and WebKit does not restart
+// animated images on reload.
+const LOGO_INTRO_SPRITE = "/.assets/logo/logo-intro-sprite.png";
 const LOGO_INTRO_DURATION = 1400;
 
 // Fetch the navbar images in parallel with /ui/navbar.html instead of waiting
 // for the markup to be injected, so the logo shows up as early as possible.
 new Image().src = "/.assets/logo/logo.png";
-new Image().src = "/.assets/logo/logo-intro.png";
+new Image().src = LOGO_INTRO_SPRITE;
 
 function playLogoIntro() {
-  const logo = document.querySelector(".nav-logo:not(.nav-logo-intro)");
+  const link = document.querySelector(".nav-brand a");
   const intro = document.querySelector(".nav-logo-intro");
-  if (!logo || !intro) return;
+  if (!link || !intro) return;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const src = intro.dataset.src;
-  if (!src) return;
+  let timer;
 
-  let started = false;
-  let swapTimer;
-
-  const showLogo = () => {
-    clearTimeout(swapTimer);
-    intro.hidden = true;
-    logo.hidden = false;
+  const play = () => {
+    clearTimeout(timer);
+    // Restart the CSS animation even if the class is already there.
+    link.classList.remove("intro-playing");
+    void link.offsetWidth;
+    link.classList.add("intro-playing");
+    timer = setTimeout(
+      () => link.classList.remove("intro-playing"),
+      LOGO_INTRO_DURATION + 50
+    );
   };
 
-  const start = () => {
-    if (started) return;
-    started = true;
-    // The static logo stays visible until the animation is decoded, so the
-    // navbar never goes blank while the image loads.
-    logo.hidden = true;
-    // Assigning the src only now guarantees the APNG starts at frame 0, even
-    // on Safari where an animation in a hidden element may already be over.
-    intro.src = src;
-    intro.hidden = false;
-    swapTimer = setTimeout(showLogo, LOGO_INTRO_DURATION + 50);
-  };
-
+  // The static logo stays visible until the sprite is decoded, so the navbar
+  // never goes blank while the image loads.
   const loader = new Image();
   loader.onload = () => {
     if (typeof loader.decode === "function") {
-      loader.decode().then(start).catch(showLogo);
+      loader.decode().then(play).catch(() => {});
     } else {
-      start();
+      play();
     }
   };
-  loader.onerror = showLogo;
-  loader.src = src;
+  loader.src = LOGO_INTRO_SPRITE;
 }
 
 async function includeHTML() {
