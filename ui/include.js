@@ -69,6 +69,27 @@ function playLogoIntro() {
   loader.src = LOGO_INTRO_SPRITE;
 }
 
+// Safari/iOS does not reliably honour `margin-top: auto` on flex items inside a
+// `min-height` flex container, so the footer can end up sitting right after the
+// content (mostly below the fold) instead of sticking to the bottom of the
+// viewport on short pages. This helper pushes it down with an explicit margin.
+function stickFooterToBottom() {
+  const ph = document.getElementById("footer-placeholder");
+  if (!ph) return;
+
+  ph.style.marginTop = "";
+  // Let the browser recompute layout before measuring.
+  void ph.offsetHeight;
+
+  const viewportH = window.innerHeight || document.documentElement.clientHeight;
+  const rect = ph.getBoundingClientRect();
+  const gap = viewportH - (rect.top + ph.offsetHeight);
+
+  if (gap > 0) {
+    ph.style.marginTop = gap + "px";
+  }
+}
+
 async function includeHTML() {
   const navbarEl = document.getElementById("navbar-placeholder");
   const footerEl = document.getElementById("footer-placeholder");
@@ -90,9 +111,36 @@ async function includeHTML() {
   if (footerEl) {
     promises.push(
       fetch("/ui/footer.html")
-        .then((r) => r.text())
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.text();
+        })
         .then((html) => {
           footerEl.innerHTML = html;
+          // Force a layout recalculation: Safari/iOS does not always reflow
+          // flex containers when their innerHTML changes dynamically, which
+          // could leave the footer unrendered or stuck off-screen.
+          void footerEl.offsetHeight;
+          stickFooterToBottom();
+        })
+        .catch(() => {
+          // Fallback so the footer still shows if the fetch fails.
+          footerEl.innerHTML = `<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-copyright">
+      Created by Drayko and maintained by RackRunner. Project under Unlicense.
+    </div>
+    <div class="footer-links">
+      <a href="/pages/about" class="footer-link">About</a>
+      <a href="/pages/philosophy" class="footer-link">Philosophy</a>
+      <a href="/pages/privacy" class="footer-link">Privacy Policy</a>
+      <a href="/pages/legal" class="footer-link">Legal Notice</a>
+      <a href="/pages/terms" class="footer-link">Terms of Service</a>
+    </div>
+  </div>
+</footer>`;
+          void footerEl.offsetHeight;
+          stickFooterToBottom();
         })
     );
   }
@@ -106,6 +154,11 @@ async function includeHTML() {
   );
 
   await Promise.all(promises);
+
+  // Stick the footer to the bottom on short pages, including on resize/rotation.
+  stickFooterToBottom();
+  window.addEventListener("resize", stickFooterToBottom);
+  window.addEventListener("orientationchange", stickFooterToBottom);
 
   document.dispatchEvent(new Event("components-loaded"));
 }
