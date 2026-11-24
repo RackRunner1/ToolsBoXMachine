@@ -53,6 +53,9 @@ function playLogoIntro() {
     );
   };
 
+  // Replay the intro animation when the user hovers over the logo.
+  link.addEventListener("mouseenter", play);
+
   // The static logo stays visible until the sprite is decoded, so the navbar
   // never goes blank while the image loads.
   const loader = new Image();
