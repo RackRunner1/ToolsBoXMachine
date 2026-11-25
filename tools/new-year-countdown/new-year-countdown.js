@@ -15,9 +15,40 @@
   var elPct = document.getElementById("ny-progress-pct");
   var elProgressLabel = document.getElementById("ny-progress-label");
   var elFaqAnswer = document.getElementById("ny-faq-answer");
+  var elLiveAnswer = document.getElementById("ny-live-answer");
+  var lastLiveAnswer = "";
 
   function pad(n) {
     return String(n).padStart(2, "0");
+  }
+
+  function plural(n, unit) {
+    return n + " " + unit + (n === 1 ? "" : "s");
+  }
+
+  function formatRemaining(d, h, m) {
+    if (d > 0) return plural(d, "day") + " and " + plural(h, "hour");
+    if (h > 0) return plural(h, "hour") + " and " + plural(m, "minute");
+    return plural(m, "minute");
+  }
+
+  function formatDay(d) {
+    try {
+      return d.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      });
+    } catch (e) {
+      return d.toDateString();
+    }
+  }
+
+  function setLiveAnswer(text) {
+    if (!elLiveAnswer || text === lastLiveAnswer) return;
+    lastLiveAnswer = text;
+    elLiveAnswer.textContent = text;
   }
 
   function getTimeZoneName() {
@@ -77,7 +108,11 @@
 
     if (state.mode === "elapsed") {
       elFaqAnswer.textContent =
-        "New Year started " + d + " days and " + h + " hours ago, on January 1st at 00:00.";
+        "New Year started " + formatRemaining(d, h, m) + " ago, on January 1st at 00:00.";
+      setLiveAnswer(
+        "New Year " + state.targetYear + " started " +
+        formatRemaining(d, h, m) + " ago, on January 1st at 00:00 local time."
+      );
       elStatusText.textContent = "Time since New Year";
       elYearLabel.innerHTML = "Welcome to <strong>" + state.targetYear + "</strong>";
       elTargetLine.innerHTML =
@@ -86,7 +121,13 @@
         "</strong>";
     } else {
       elFaqAnswer.textContent =
-        "There are " + d + " days and " + h + " hours until New Year, on January 1st at 00:00 in your timezone.";
+        "There are " + formatRemaining(d, h, m) +
+        " until New Year, on " + formatDay(state.yearEnd) + " at 00:00 in your timezone.";
+      setLiveAnswer(
+        "New Year " + state.targetYear + " starts in " +
+        formatRemaining(d, h, m) + ", on " +
+        formatDay(state.yearEnd) + " at 00:00 local time."
+      );
       elStatusText.textContent = "Time until New Year";
       elYearLabel.innerHTML =
         "Counting down to <strong>" + state.targetYear + "</strong>";
