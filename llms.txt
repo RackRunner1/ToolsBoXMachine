@@ -14,12 +14,12 @@ TBXM is an open-source toolbox running entirely client-side. All processing happ
 - [Emoji Keyboard](/tools/emoji-keyboard/emoji-keyboard): Browse and copy emojis with one click
 - [Notes](/tools/note/note): Create, save, and manage notes
 - [Clock](/tools/clock/clock): Display the current time
-- [New Year Countdown](/tools/new-year-countdown/new-year-countdown): Time until and since New Year, in your timezone
+- [New Year Countdown](/tools/new-year-countdown/new-year-countdown): Live countdown with the days, hours, minutes and seconds until January 1st, in your timezone
 
 ## Machine-Readable Endpoints
 
 - [Tools Index (JSON)](/tools/index.json): Full tool catalog with metadata
-- [Sitemap](/seo/sitemap.xml): XML sitemap for crawlers
+- [Sitemap](/sitemap.xml): XML sitemap for crawlers
 - [Robots.txt](/robots.txt): Crawl rules and bot permissions
 - [MCP Server Card](/.well-known/mcp/server-card.json): MCP tool definitions
 - [Agent Skills](/.well-known/agent-skills/index.json): Task-specific skill index

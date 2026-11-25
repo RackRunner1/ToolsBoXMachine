@@ -70,6 +70,14 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 - **Client-side:** Yes
 - **Features:** Real-time clock display
 
+### New Year Countdown
+- **URL:** /tools/new-year-countdown/new-year-countdown
+- **Description:** Live countdown to New Year: days, hours, minutes and seconds until January 1st, in your timezone
+- **Category:** Utility
+- **Client-side:** Yes
+- **Features:** Timezone-aware countdown, time since New Year, year progress bar, fullscreen mode
+- **Content:** New Year dates from 2026 to 2036, start times by timezone, FAQ
+
 ## Technical Details
 
 - **Rendering:** Static HTML + vanilla JavaScript
@@ -83,7 +91,7 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 | Endpoint | Format | Description |
 |---|---|---|
 | /tools/index.json | JSON | Full tool catalog with metadata |
-| /seo/sitemap.xml | XML | Sitemap for search engines |
+| /sitemap.xml | XML | Sitemap for search engines |
 | /llms.txt | Text | LLM-friendly site summary |
 | /robots.txt | Text | Crawl rules and bot permissions |
 | /.well-known/agent-skills/index.json | JSON | Task-specific skill index |
