@@ -8,6 +8,54 @@
     <link rel="icon" href="./.assets/logo/fav.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="stylesheet" href="./style.css?v=20261124-4" />
+    <script>
+      // Seasonal highlight: from October 1st until January 3rd (visitor's local
+      // time), the New Year Countdown card moves first and gets a gold accent.
+      (function () {
+        var now = new Date();
+        var month = now.getMonth(); // 0 = January
+        var day = now.getDate();
+        if (month >= 9 || (month === 0 && day <= 3)) {
+          document.documentElement.setAttribute("data-season", "new-year");
+        }
+      })();
+    </script>
+    <style>
+      html[data-season="new-year"] .home-container > .card-btn[data-seasonal="new-year"] {
+        order: -1;
+        border-color: rgba(251, 191, 36, 0.45);
+        background:
+          radial-gradient(120% 130% at 0% 0%, rgba(251, 191, 36, 0.16), transparent 62%),
+          var(--card-bg);
+        box-shadow:
+          0 0 0 1px rgba(251, 191, 36, 0.16),
+          0 18px 45px -14px rgba(251, 191, 36, 0.4);
+      }
+
+      html[data-season="new-year"] .card-btn[data-seasonal="new-year"]::before {
+        background: linear-gradient(
+          135deg,
+          rgba(251, 191, 36, 0.16) 0%,
+          rgba(245, 158, 11, 0.1) 100%
+        );
+      }
+
+      html[data-season="new-year"] .card-btn[data-seasonal="new-year"] .card-text > div {
+        color: #fcd34d;
+      }
+
+      html[data-season="new-year"] .card-btn[data-seasonal="new-year"] .card-icon {
+        filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.45));
+      }
+
+      html[data-season="new-year"] .card-btn[data-seasonal="new-year"]:hover {
+        border-color: rgba(251, 191, 36, 0.8);
+        background-color: var(--card-hover-bg);
+        box-shadow:
+          0 20px 40px -15px rgba(0, 0, 0, 0.5),
+          0 0 24px rgba(251, 191, 36, 0.28);
+      }
+    </style>
     <meta property="og:type" content="website" />
     <meta property="og:title" content="ToolsBoXMachine (TBXM): Free and Private Browser Tools" />
     <meta property="og:url" content="https://www.tbxm.org" />
@@ -134,7 +182,11 @@
         </div>
       </a>
 
-      <a href="/tools/new-year-countdown/new-year-countdown" class="card-btn">
+      <a
+        href="/tools/new-year-countdown/new-year-countdown"
+        class="card-btn"
+        data-seasonal="new-year"
+      >
         <span class="card-icon">🎆</span>
         <div class="card-text">
           <div>New Year Countdown</div>
