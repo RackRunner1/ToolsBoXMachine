@@ -263,6 +263,10 @@
         margin: 0 0 0.75rem;
       }
 
+      .ny-info h2:not(:first-child) {
+        margin-top: 2.5rem;
+      }
+
       .ny-info h3 {
         color: #cbd5e1;
         font-size: 1.1rem;
@@ -276,6 +280,74 @@
       .ny-info ul {
         margin: 0 0 0.75rem;
         padding-left: 1.25rem;
+      }
+
+      .ny-lede {
+        max-width: 900px;
+        margin: 0 auto 1.5rem;
+        padding: 1rem 1.25rem;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-left: 3px solid var(--primary-color);
+        border-radius: 0.75rem;
+        color: #cbd5e1;
+        line-height: 1.65;
+      }
+
+      .ny-lede strong {
+        color: #fff;
+      }
+
+      .ny-table-wrap {
+        margin: 0.5rem 0 1.25rem;
+        overflow-x: auto;
+      }
+
+      .ny-table {
+        width: 100%;
+        min-width: 420px;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+      }
+
+      .ny-table caption {
+        padding-bottom: 0.5rem;
+        color: #64748b;
+        font-size: 0.8rem;
+        text-align: left;
+        caption-side: top;
+      }
+
+      .ny-table th,
+      .ny-table td {
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        text-align: left;
+      }
+
+      .ny-table th {
+        color: #e2e8f0;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .ny-table td {
+        color: #94a3b8;
+      }
+
+      .ny-table td strong {
+        color: #e2e8f0;
+        font-weight: 600;
+      }
+
+      .ny-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      .ny-faq p {
+        margin-bottom: 0;
       }
 
       @media (max-width: 640px) {
@@ -375,10 +447,16 @@
 
     <div class="hero-section">
       <h1 class="page-title">New Year Countdown</h1>
-      <p class="subtitle">Time until and since New Year, in your timezone.</p>
+      <p class="subtitle">Live days, hours, minutes and seconds until January 1st, in your timezone.</p>
     </div>
 
     <main class="ny-wrap">
+      <p class="ny-lede" id="ny-live-answer">
+        The next New Year begins on <strong>January 1st at 00:00</strong> in your
+        local timezone. The countdown below shows the exact days, hours, minutes
+        and seconds remaining until the new year starts.
+      </p>
+
       <div class="ny-card" id="ny-card">
         <button
           class="ny-fullscreen-btn"
@@ -443,45 +521,159 @@
       <section class="ny-info">
         <h2>How the New Year countdown works</h2>
         <p>
-          This free countdown to new year shows the exact time left until January
-          1st at 00:00 in your local timezone. Whether you are looking for a New
-          Years countdown timer or a days until new year counter, the timer updates
-          every second and counts down the days, hours, minutes and seconds until
-          the new year begins. It runs entirely in your browser, so no account is
-          needed and nothing you do on this page is tracked.
+          This free New Year countdown shows the exact time left until January 1st
+          at 00:00 in your local timezone. The timer updates every second and
+          counts down the days, hours, minutes and seconds until the new year
+          begins, with a progress bar for the current year. It runs entirely in
+          your browser, so there is no account to create and nothing on this page
+          is tracked.
         </p>
 
-        <h3>Time until New Year</h3>
+        <h2>How many days until New Year?</h2>
         <p>
-          From January 1st of the current year until the end of December 31st,
-          the countdown shows how much time remains before midnight on New Year's
-          Eve. The progress bar shows how much of the current year has already
-          passed, as a percentage.
+          The countdown above is the most precise answer: it uses the timezone
+          reported by your device and counts down to the next January 1st, down to
+          the second. The <strong>Days</strong> value is the number of whole days
+          left, which is the number most people mean when they ask how many days
+          until New Year.
         </p>
-
-        <h3>Time since New Year</h3>
         <p>
-          For the first 48 hours after January 1st, the page switches to "time
-          since New Year", so you can see how long ago the new year started. After
-          that window, it goes back to counting down to the next New Year.
+          Be careful with calendar days: a day is counted from midnight to
+          midnight, so the number of whole days left can be one less than the
+          difference between today's date and January 1st. In the last week of
+          December the days value drops quickly, and on December 31st the timer
+          shows hours, minutes and seconds only. For the exact moment, read all
+          four values together.
         </p>
 
-        <h3>Why the timezone matters</h3>
+        <h2>New Year countdown by year</h2>
         <p>
-          New Year does not start at the same moment everywhere. Midnight on
-          January 1st happens first on islands such as Kiribati and last in places
-          such as American Samoa. This tool
-          uses the timezone of your device, so the countdown always matches your
-          local clock.
+          New Year's Day always falls on January 1st, but the weekday changes from
+          year to year. This table shows the date, the weekday and the length of
+          the coming years, so you can check when New Year starts next.
+        </p>
+        <div class="ny-table-wrap">
+          <table class="ny-table">
+            <caption>New Year's Day dates and weekdays, 2026 to 2036</caption>
+            <thead>
+              <tr>
+                <th scope="col">Year</th>
+                <th scope="col">New Year's Day</th>
+                <th scope="col">Weekday</th>
+                <th scope="col">Days in year</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>2026</strong></td><td>January 1, 2026</td><td>Thursday</td><td>365</td></tr>
+              <tr><td><strong>2027</strong></td><td>January 1, 2027</td><td>Friday</td><td>365</td></tr>
+              <tr><td><strong>2028</strong></td><td>January 1, 2028</td><td>Saturday</td><td>366 (leap year)</td></tr>
+              <tr><td><strong>2029</strong></td><td>January 1, 2029</td><td>Monday</td><td>365</td></tr>
+              <tr><td><strong>2030</strong></td><td>January 1, 2030</td><td>Tuesday</td><td>365</td></tr>
+              <tr><td><strong>2031</strong></td><td>January 1, 2031</td><td>Wednesday</td><td>365</td></tr>
+              <tr><td><strong>2032</strong></td><td>January 1, 2032</td><td>Thursday</td><td>366 (leap year)</td></tr>
+              <tr><td><strong>2033</strong></td><td>January 1, 2033</td><td>Saturday</td><td>365</td></tr>
+              <tr><td><strong>2034</strong></td><td>January 1, 2034</td><td>Sunday</td><td>365</td></tr>
+              <tr><td><strong>2035</strong></td><td>January 1, 2035</td><td>Monday</td><td>365</td></tr>
+              <tr><td><strong>2036</strong></td><td>January 1, 2036</td><td>Tuesday</td><td>366 (leap year)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>New Year in other timezones</h2>
+        <p>
+          New Year does not begin at the same moment everywhere. Midnight on
+          January 1st reaches the Pacific first and crosses the globe over about
+          26 hours. The countdown uses your device's timezone, so it always matches
+          your local clock; this table shows when the new year starts in a few
+          major cities, expressed in UTC.
+        </p>
+        <div class="ny-table-wrap">
+          <table class="ny-table">
+            <caption>When New Year begins in different cities (UTC)</caption>
+            <thead>
+              <tr>
+                <th scope="col">City</th>
+                <th scope="col">UTC offset</th>
+                <th scope="col">New Year begins</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Kiritimati, Kiribati</strong></td><td>UTC+14</td><td>December 31, 10:00</td></tr>
+              <tr><td>Auckland, New Zealand</td><td>UTC+13</td><td>December 31, 11:00</td></tr>
+              <tr><td>Sydney, Australia</td><td>UTC+11</td><td>December 31, 13:00</td></tr>
+              <tr><td>Tokyo, Japan</td><td>UTC+9</td><td>December 31, 15:00</td></tr>
+              <tr><td>Dubai, United Arab Emirates</td><td>UTC+4</td><td>December 31, 20:00</td></tr>
+              <tr><td>Paris, France</td><td>UTC+1</td><td>December 31, 23:00</td></tr>
+              <tr><td>London, United Kingdom</td><td>UTC+0</td><td>January 1, 00:00</td></tr>
+              <tr><td>New York, United States</td><td>UTC−5</td><td>January 1, 05:00</td></tr>
+              <tr><td>Los Angeles, United States</td><td>UTC−8</td><td>January 1, 08:00</td></tr>
+              <tr><td>Honolulu, United States</td><td>UTC−10</td><td>January 1, 10:00</td></tr>
+              <tr><td>Pago Pago, American Samoa</td><td>UTC−11</td><td>January 1, 11:00</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Kiritimati is the first inhabited place to welcome the new year, and
+          American Samoa is the last. Baker Island (UTC−12) leaves the old year
+          even later, but it has no permanent population.
         </p>
 
-        <h3>Frequently asked questions</h3>
-        <ul>
-          <li><strong>How many days until New Year?</strong> <span id="ny-faq-answer">The exact number of days until New Year is shown in the countdown above and updates every second.</span></li>
-          <li><strong>How many days since New Year?</strong> During the first 48 hours of the year, the tool shows the time elapsed since January 1st at 00:00.</li>
-          <li><strong>Is this New Year countdown free?</strong> Yes. It has no ads, no sign-up, and no tracking.</li>
-          <li><strong>Can I show the countdown on a big screen?</strong> Yes. Use the fullscreen button in the top-right corner of the timer card.</li>
-        </ul>
+        <h2>Frequently asked questions</h2>
+        <div class="ny-faq">
+          <h3>How many days until New Year?</h3>
+          <p id="ny-faq-answer">
+            The countdown above shows the exact number of days, hours, minutes and
+            seconds until New Year in your timezone.
+          </p>
+
+          <h3>How many hours until New Year?</h3>
+          <p>
+            The timer counts the hours left after the whole days, so on December
+            31st the hours value is the one to watch. It updates every second,
+            including the final countdown to midnight.
+          </p>
+
+          <h3>How long until New Year's Eve?</h3>
+          <p>
+            New Year's Eve is December 31st. This countdown is also the countdown
+            to the end of New Year's Eve: when the timer reaches zero, it is
+            midnight and the new year has begun.
+          </p>
+
+          <h3>What time does New Year start?</h3>
+          <p>
+            New Year starts at 00:00 on January 1st in your local timezone.
+            Because the world uses different timezones, it happens at a different
+            UTC moment in each country; the table above gives a few examples.
+          </p>
+
+          <h3>Does the countdown use my timezone?</h3>
+          <p>
+            Yes. The page reads the timezone reported by your browser and
+            calculates the countdown from your device's clock. It does not ask for
+            your location and does not send your timezone anywhere.
+          </p>
+
+          <h3>How many days since New Year?</h3>
+          <p>
+            For the first 48 hours after January 1st, the page switches to a "time
+            since New Year" mode and shows how long ago the new year started.
+            After that window it goes back to counting down to the next one.
+          </p>
+
+          <h3>Is the New Year countdown free and private?</h3>
+          <p>
+            Yes. It is free, has no ads and no sign-up, and runs entirely in your
+            browser. Nothing you do on the page is tracked.
+          </p>
+
+          <h3>Can I use the countdown fullscreen on a TV or at a party?</h3>
+          <p>
+            Yes. Use the fullscreen button in the top-right corner of the timer
+            card. The countdown fills the screen and keeps updating, which works
+            well on a TV, a projector or a second monitor.
+          </p>
+        </div>
       </section>
     </main>
 
