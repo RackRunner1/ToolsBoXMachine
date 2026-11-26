@@ -61,7 +61,7 @@
         day: "numeric",
         year: "numeric",
       });
-    } catch (e) {
+    } catch {
       return d.toDateString();
     }
   }
@@ -76,7 +76,7 @@
     try {
       var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
       return tz || "Local time";
-    } catch (e) {
+    } catch {
       return "Local time";
     }
   }
@@ -92,7 +92,7 @@
     };
     try {
       return d.toLocaleString("en-US", Object.assign({ timeZone: tz }, options));
-    } catch (e) {
+    } catch {
       return d.toLocaleString("en-US", options);
     }
   }

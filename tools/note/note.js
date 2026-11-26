@@ -1171,7 +1171,7 @@ async function verifyPassword(password, meta) {
   try {
     const check = await decryptText(meta.check, key);
     return check === PRIVACY_CHECK_TEXT ? key : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 }
@@ -1355,7 +1355,7 @@ function requestEncryptedImport(text) {
       let json;
       try {
         json = await decryptText(envelope, key);
-      } catch (e) {
+      } catch {
         return "Wrong password";
       }
       requestImport(parseImportJson(json), { key, salt: envelope.salt });

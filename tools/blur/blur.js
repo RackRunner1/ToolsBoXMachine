@@ -33,7 +33,7 @@ const supportsCtxFilter = (() => {
     if (typeof testCtx.filter === "undefined") return false;
     testCtx.filter = "blur(2px)";
     return testCtx.filter === "blur(2px)";
-  } catch (e) {
+  } catch {
     return false;
   }
 })();
@@ -169,7 +169,7 @@ function manualBlurCanvas(src, radius) {
   let imgData = null;
   try {
     imgData = work.getImageData(0, 0, ww, hh);
-  } catch (e) {
+  } catch {
     imgData = null;
   }
   if (!imgData) return smoothDownscaleBlur(src, w, h, sigma);
@@ -575,17 +575,17 @@ function pasteFromClipboardAPI(e) {
                 hidePasteHint();
                 return;
               }
-            } catch (_) {
+            } catch {
               continue;
             }
           }
           showPasteHint();
-        } catch (_) {
+        } catch {
           showPasteHint();
         }
       })
       .catch(() => showPasteHint());
-  } catch (_) {
+  } catch {
     showPasteHint();
   }
 }
