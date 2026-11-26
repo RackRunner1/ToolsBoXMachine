@@ -2,7 +2,7 @@
   /* Logo intro: a 42-frame sprite sheet (30fps, 1.4s) animated in CSS.
      A sprite is used because WebKit does not decode VP9-alpha video and does
      not restart animated images (GIF/APNG) on reload. */
-  .nav-brand a {
+  .nav-brand a.nav-logo-link {
     position: relative;
     display: inline-block;
     line-height: 0;
@@ -53,7 +53,7 @@
 
 <nav class="navbar">
   <div class="nav-brand">
-    <a href="/">
+    <a href="/" class="nav-logo-link">
       <img
         src="/.assets/logo/logo.png"
         alt="TBXM Logo"

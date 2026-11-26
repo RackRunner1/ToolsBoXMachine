@@ -34,7 +34,7 @@ new Image().src = "/.assets/logo/logo.png";
 new Image().src = LOGO_INTRO_SPRITE;
 
 function playLogoIntro() {
-  const link = document.querySelector(".nav-brand a");
+  const link = document.querySelector(".nav-brand a.nav-logo-link");
   const intro = document.querySelector(".nav-logo-intro");
   if (!link || !intro) return;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
