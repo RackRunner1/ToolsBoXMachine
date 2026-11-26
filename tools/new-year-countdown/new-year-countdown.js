@@ -18,6 +18,27 @@
   var elLiveAnswer = document.getElementById("ny-live-answer");
   var lastLiveAnswer = "";
 
+  // The page can be updated independently of this script (or served from a
+  // cache), so never assume an element exists: a missing node must not stop the
+  // countdown from ticking.
+  function setText(el, value) {
+    if (el) {
+      el.textContent = value;
+    }
+  }
+
+  function setHTML(el, value) {
+    if (el) {
+      el.innerHTML = value;
+    }
+  }
+
+  function setWidth(el, value) {
+    if (el && el.style) {
+      el.style.width = value;
+    }
+  }
+
   function pad(n) {
     return String(n).padStart(2, "0");
   }
@@ -99,98 +120,121 @@
     var m = Math.floor((totalSec % 3600) / 60);
     var s = totalSec % 60;
 
-    elDays.textContent = String(d);
-    elHours.textContent = pad(h);
-    elMinutes.textContent = pad(m);
-    elSeconds.textContent = pad(s);
+    setText(elDays, String(d));
+    setText(elHours, pad(h));
+    setText(elMinutes, pad(m));
+    setText(elSeconds, pad(s));
 
-    elStatus.classList.toggle("elapsed", state.mode === "elapsed");
+    if (elStatus) {
+      elStatus.classList.toggle("elapsed", state.mode === "elapsed");
+    }
 
     if (state.mode === "elapsed") {
-      elFaqAnswer.textContent =
-        "New Year started " + formatRemaining(d, h, m) + " ago, on January 1st at 00:00.";
+      setText(
+        elFaqAnswer,
+        "New Year started " + formatRemaining(d, h, m) + " ago, on January 1st at 00:00."
+      );
       setLiveAnswer(
         "New Year " + state.targetYear + " started " +
         formatRemaining(d, h, m) + " ago, on January 1st at 00:00 local time."
       );
-      elStatusText.textContent = "Time since New Year";
-      elYearLabel.innerHTML = "Welcome to <strong>" + state.targetYear + "</strong>";
-      elTargetLine.innerHTML =
+      setText(elStatusText, "Time since New Year");
+      setHTML(elYearLabel, "Welcome to <strong>" + state.targetYear + "</strong>");
+      setHTML(
+        elTargetLine,
         "New Year was: <strong>" +
         formatTargetDate(state.yearStart, tz) +
-        "</strong>";
+        "</strong>"
+      );
     } else {
-      elFaqAnswer.textContent =
+      setText(
+        elFaqAnswer,
         "There are " + formatRemaining(d, h, m) +
-        " until New Year, on " + formatDay(state.yearEnd) + " at 00:00 in your timezone.";
+        " until New Year, on " + formatDay(state.yearEnd) + " at 00:00 in your timezone."
+      );
       setLiveAnswer(
         "New Year " + state.targetYear + " starts in " +
         formatRemaining(d, h, m) + ", on " +
         formatDay(state.yearEnd) + " at 00:00 local time."
       );
-      elStatusText.textContent = "Time until New Year";
-      elYearLabel.innerHTML =
-        "Counting down to <strong>" + state.targetYear + "</strong>";
-      elTargetLine.innerHTML =
+      setText(elStatusText, "Time until New Year");
+      setHTML(
+        elYearLabel,
+        "Counting down to <strong>" + state.targetYear + "</strong>"
+      );
+      setHTML(
+        elTargetLine,
         "New Year: <strong>" +
         formatTargetDate(state.yearEnd, tz) +
-        "</strong>";
+        "</strong>"
+      );
     }
 
-    elProgressLabel.textContent =
-      state.mode === "elapsed" ? "New Year progress" : "Year progress";
+    setText(
+      elProgressLabel,
+      state.mode === "elapsed" ? "New Year progress" : "Year progress"
+    );
 
-    var pct = 100;
-    if (state.mode === "countdown") {
-      var yearLen = state.yearEnd.getTime() - state.yearStart.getTime();
-      var yearDone = now.getTime() - state.yearStart.getTime();
-      pct = Math.min(100, Math.max(0, (yearDone / yearLen) * 100));
-    }
-    elFill.style.width = pct.toFixed(3) + "%";
-    elPct.textContent = pct.toFixed(2) + "%";
+    var yearLen = state.yearEnd.getTime() - state.yearStart.getTime();
+    var yearDone = now.getTime() - state.yearStart.getTime();
+    var pct = yearLen > 0
+      ? Math.min(100, Math.max(0, (yearDone / yearLen) * 100))
+      : 0;
+    setWidth(elFill, pct.toFixed(3) + "%");
+    setText(elPct, pct.toFixed(2) + "%");
   }
 
-  render();
+  // Start the timer before the first paint so a DOM mismatch can never leave
+  // the countdown frozen.
   setInterval(render, 1000);
+  try {
+    render();
+  } catch (error) {
+    if (window.console && console.error) {
+      console.error("[New Year Countdown] first render failed:", error);
+    }
+  }
 
   var card = document.getElementById("ny-card");
   var fullscreenBtn = document.getElementById("ny-fullscreen-btn");
-  var ICON_EXPAND = fullscreenBtn.innerHTML;
-  var ICON_COMPRESS = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>';
+  if (card && fullscreenBtn) {
+    var ICON_EXPAND = fullscreenBtn.innerHTML;
+    var ICON_COMPRESS = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>';
 
-  function isNativeFullscreen() {
-    return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
-  }
+    function isNativeFullscreen() {
+      return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+    }
 
-  function setFullscreen(on) {
-    card.classList.toggle("ny-fullscreen", on);
-    fullscreenBtn.innerHTML = on ? ICON_COMPRESS : ICON_EXPAND;
-  }
+    function setFullscreen(on) {
+      card.classList.toggle("ny-fullscreen", on);
+      fullscreenBtn.innerHTML = on ? ICON_COMPRESS : ICON_EXPAND;
+    }
 
-  fullscreenBtn.addEventListener("click", function () {
-    if (!card.classList.contains("ny-fullscreen")) {
-      setFullscreen(true);
-      if (card.requestFullscreen) {
-        card.requestFullscreen().catch(function (err) { console.error(err); });
-      } else if (card.webkitRequestFullscreen) {
-        card.webkitRequestFullscreen();
-      }
-    } else {
-      setFullscreen(false);
-      if (isNativeFullscreen()) {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
+    fullscreenBtn.addEventListener("click", function () {
+      if (!card.classList.contains("ny-fullscreen")) {
+        setFullscreen(true);
+        if (card.requestFullscreen) {
+          card.requestFullscreen().catch(function (err) { console.error(err); });
+        } else if (card.webkitRequestFullscreen) {
+          card.webkitRequestFullscreen();
+        }
+      } else {
+        setFullscreen(false);
+        if (isNativeFullscreen()) {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
         }
       }
-    }
-  });
+    });
 
-  var syncFullscreen = function () {
-    setFullscreen(isNativeFullscreen());
-  };
+    var syncFullscreen = function () {
+      setFullscreen(isNativeFullscreen());
+    };
 
-  document.addEventListener("fullscreenchange", syncFullscreen);
-  document.addEventListener("webkitfullscreenchange", syncFullscreen);
+    document.addEventListener("fullscreenchange", syncFullscreen);
+    document.addEventListener("webkitfullscreenchange", syncFullscreen);
+  }
 })();
