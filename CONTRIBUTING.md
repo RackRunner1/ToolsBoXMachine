@@ -1,4 +1,4 @@
-# Contributing Guide — ToolsBoXMachine (TBXM)
+# Contributing Guide
 
 Thank you for your interest in contributing to **ToolsBoXMachine**! This project is a collection of 100% client-side browser tools: no build step, no dependencies, no backend. This guide defines the rules to follow so your contributions get accepted quickly.
 
@@ -52,8 +52,6 @@ Then open `http://localhost:8000`.
 
 ## General rules
 
-- **Never push directly to `main`.** Every change goes through a branch + PR.
-- One PR = one coherent change. Avoid mixing refactor, feature and fix in the same PR.
 - Keep PRs small and focused.
 - Respect the project structure: `tools/<tool-name>/` for a tool, `pages/` for static pages, `ui/` for shared components.
 - No strict file size limit, but prefer readability.
