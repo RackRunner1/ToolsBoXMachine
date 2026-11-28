@@ -164,9 +164,7 @@ inputEl.addEventListener("keydown", (e) => {
     if (finished) return;
     if (pos > 0) {
       pos -= 1;
-      if (status[pos] === 1 && correctKeystrokes > 0) correctKeystrokes -= 1;
       status[pos] = 0;
-      if (totalKeystrokes > 0) totalKeystrokes -= 1;
       renderText();
       updateLiveStats();
     }
