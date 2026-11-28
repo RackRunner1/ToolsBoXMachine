@@ -61,6 +61,13 @@ document.addEventListener("components-loaded", () => {
       url: "/tools/clock/clock",
     },
     {
+      name: "Typing Speed Test",
+      emoji: "⌨️",
+      desc: "Measure your typing speed and accuracy.",
+      keywords: "typing keyboard speed wpm accuracy test",
+      url: "/tools/keyboard-speed/keyboard-speed",
+    },
+    {
       name: "New Year Countdown",
       emoji: "🎆",
       desc: "Live days, hours and minutes until January 1st, in your timezone.",
