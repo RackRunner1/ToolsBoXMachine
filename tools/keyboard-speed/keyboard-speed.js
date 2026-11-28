@@ -26,6 +26,7 @@ let target = "";
 let chars = [];
 let spans = [];
 let pos = 0;
+let status = [];
 let started = false;
 let finished = false;
 let startTime = 0;
@@ -43,8 +44,12 @@ function renderText() {
   spans = chars.map((ch, i) => {
     const span = document.createElement("span");
     span.textContent = ch === " " ? "\u00A0" : ch;
-    if (i < pos) span.classList.add("done");
-    else if (i === pos) span.classList.add("current");
+    if (i < pos) {
+      if (status[i] === 1) span.classList.add("done");
+      else span.classList.add("wrong");
+    } else if (i === pos) {
+      span.classList.add("current");
+    }
     textEl.appendChild(span);
     return span;
   });
@@ -87,6 +92,7 @@ function reset() {
   target = generateText();
   chars = target.split("");
   pos = 0;
+  status = new Array(chars.length).fill(0);
   started = false;
   finished = false;
   startTime = 0;
@@ -141,8 +147,11 @@ inputEl.addEventListener("input", (e) => {
     totalKeystrokes += 1;
     if (ch === chars[pos]) {
       correctKeystrokes += 1;
-      pos += 1;
+      status[pos] = 1;
+    } else {
+      status[pos] = -1;
     }
+    pos += 1;
   }
   renderText();
   updateLiveStats();
@@ -155,8 +164,8 @@ inputEl.addEventListener("keydown", (e) => {
     if (finished) return;
     if (pos > 0) {
       pos -= 1;
-      // adjust keystroke counts lightly: remove one correct
-      if (correctKeystrokes > 0) correctKeystrokes -= 1;
+      if (status[pos] === 1 && correctKeystrokes > 0) correctKeystrokes -= 1;
+      status[pos] = 0;
       if (totalKeystrokes > 0) totalKeystrokes -= 1;
       renderText();
       updateLiveStats();
