@@ -36,7 +36,7 @@ let timerId = null;
 
 function generateText() {
   const text = TEXTS[Math.floor(Math.random() * TEXTS.length)];
-  return text + " ";
+  return text;
 }
 
 function renderText() {
