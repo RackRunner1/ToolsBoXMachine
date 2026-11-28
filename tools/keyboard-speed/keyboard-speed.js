@@ -1,15 +1,7 @@
-const WORDS = [
-  "the", "be", "to", "of", "and", "a", "in", "that", "have", "i", "it", "for",
-  "not", "on", "with", "he", "as", "you", "do", "at", "this", "but", "his",
-  "by", "from", "they", "we", "say", "her", "she", "or", "an", "will", "my",
-  "one", "all", "would", "there", "their", "what", "so", "up", "out", "if",
-  "about", "who", "get", "which", "go", "me", "when", "make", "can", "like",
-  "time", "no", "just", "him", "know", "take", "people", "into", "year",
-  "your", "good", "some", "could", "them", "see", "other", "than", "then",
-  "now", "look", "only", "come", "its", "over", "think", "also", "back",
-  "after", "use", "two", "how", "our", "work", "first", "well", "way", "even",
-  "new", "want", "because", "any", "these", "give", "day", "most", "us",
-  "is", "are", "was", "were", "been", "has", "had", "did", "does", "done",
+const TEXTS = [
+  "The quick brown fox jumps over the lazy dog near the riverbank while the sun sets behind the distant hills. Birds return to their nests and the wind carries the scent of pine through the quiet forest. It is a calm evening, perfect for a slow walk home.",
+  "Technology has changed the way we communicate, work, and learn. Every day, new tools appear that make tasks easier and faster. Yet the most important skills remain simple: focus, patience, and the willingness to keep improving one step at a time.",
+  "Reading a good book can transport you to another world. The characters become friends, and their journeys feel like your own. When the last page is turned, you carry a piece of that story with you for a long time.",
 ];
 
 const textEl = document.getElementById("typing-text");
@@ -42,12 +34,8 @@ let totalKeystrokes = 0;
 let timerId = null;
 
 function generateText() {
-  const count = 45;
-  const words = [];
-  for (let i = 0; i < count; i++) {
-    words.push(WORDS[Math.floor(Math.random() * WORDS.length)]);
-  }
-  return words.join(" ") + " ";
+  const text = TEXTS[Math.floor(Math.random() * TEXTS.length)];
+  return text + " ";
 }
 
 function renderText() {
