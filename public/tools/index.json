@@ -96,6 +96,16 @@
       "category": "productivity",
       "clientSide": true,
       "keywords": ["new year countdown", "countdown to new year", "days until new year", "new year timer", "january 1", "time since new year", "celebration"]
+    },
+    {
+      "id": "keyboard-speed",
+      "name": "Typing Speed Test",
+      "emoji": "⌨️",
+      "description": "Measure your typing speed and accuracy",
+      "url": "/tools/keyboard-speed/keyboard-speed",
+      "category": "productivity",
+      "clientSide": true,
+      "keywords": ["typing", "keyboard", "speed", "wpm", "accuracy", "test"]
     }
   ]
 }
