@@ -35,8 +35,8 @@ No `package.json`, no build step, no dependencies. Open `index.html` in a browse
 | Emoji Keyboard | Browse and copy emojis with one click |
 | Notes | Create, save, and manage notes locally |
 | Clock | A customizable clock with analog and digital display |
+| Typing Speed Test | Measure your typing speed and accuracy |
 | New Year Countdown | Time until and since New Year, in your timezone |
-
 ## Project Structure
 
 ```
@@ -49,6 +49,7 @@ tbxm/
 │   ├── calculator/
 │   ├── clock/
 │   ├── emoji-keyboard/
+│   ├── keyboard-speed/
 │   ├── new-year-countdown/
 │   ├── note/
 │   ├── password-gen/

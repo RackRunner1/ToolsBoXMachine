@@ -64,6 +64,14 @@
       "url": "/tools/clock/clock",
       "category": "utility",
       "tags": ["clock", "time", "datetime"]
+    },
+    {
+      "id": "typing-speed",
+      "name": "Typing Speed Test",
+      "description": "Measure your typing speed and accuracy",
+      "url": "/tools/keyboard-speed/keyboard-speed",
+      "category": "productivity",
+      "tags": ["typing", "keyboard", "speed", "wpm"]
     }
   ]
 }

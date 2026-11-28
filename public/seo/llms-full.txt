@@ -70,6 +70,12 @@ ToolsBoXMachine (TBXM) is a free, open-source collection of browser-based utilit
 - **Client-side:** Yes
 - **Features:** Real-time clock display
 
+### Typing Speed Test
+- **URL:** /tools/keyboard-speed/keyboard-speed
+- **Description:** Measure your typing speed and accuracy
+- **Category:** Productivity
+- **Client-side:** Yes
+- **Features:** WPM and accuracy stats, animated caret, results modal
 ### New Year Countdown
 - **URL:** /tools/new-year-countdown/new-year-countdown
 - **Description:** Live countdown to New Year: days, hours, minutes and seconds until January 1st, in your timezone
